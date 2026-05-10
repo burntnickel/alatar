@@ -1,9 +1,11 @@
-#include <array>
+#include <cstdint>
 #include <cstdlib>
 #include <cstring>
 #include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <string>
+#include <vector>
 
 enum Mode { BitMap, GrayMode };
 
@@ -43,11 +45,72 @@ static bool AnyString(int argc, char* argv[], const char* match) {
   return AnyString(argc, argv, match, dummy);
 }
 
-void ConvertFile(char* name, Mode mode, std::size_t offset) {
-  constexpr std::size_t kCharMapLen = 2048;
-  std::array<unsigned char, kCharMapLen> buffer;
+// This function is really only useful for writing out C64 bitmap data at this point and is not a generic PBM
+// writer
+static int GeneratePBM(const std::vector<char>& buffer, std::uint_least16_t cols, std::uint_least16_t rows,
+                       std::ostream& out) {
+  // Buffer size, in bits, needs to equal number of rows by columns
+  if (rows * cols != 8 * buffer.size()) {
+    std::cerr << "Error: Buffer size != rows * cols" << std::endl;
+    return EXIT_FAILURE;
+  }
 
-  //std::cerr << "Filename: " << name << std::endl;
+  if (rows % 8 != 0) {
+    std::cerr << "Error: Number of rows must be divisible by 8" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  if (cols % 8 != 0) {
+    std::cerr << "Error: Number of columns must be divisible by 8" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  // Write header
+  out << "P1" << "\n";
+  out << "# Automatically generated PBM file\n";
+  out << cols << " " << rows << "\n";
+
+  unsigned int col_chars = cols / 8;
+
+  // This includes all of the funny decoding of the byte ordering
+  for (unsigned int rr = 0; rr < rows; ++rr) {
+    for (unsigned int cc = 0; cc < col_chars; ++cc) {
+      unsigned int idx = cols * (rr / 8) + 8 * cc + (rr & 7);
+
+      //out << rr << " " << cc << " " << idx << "\n";
+
+      char c = buffer[idx];
+
+      for (int bb = 0; bb < 8; ++bb) {
+        if (c & 128) {
+          out << "1 ";
+        } else {
+          out << "0 ";
+        }
+
+        c = c << 1;
+      }
+    }
+
+    out << "\n";
+  }
+
+  out << std::endl;
+
+  return EXIT_SUCCESS;
+}
+
+static int ConvertFile(char* name, Mode mode, std::uint_least32_t offset) {
+  constexpr std::uint_least32_t kCharMapLen = 2048;  // Size of a C64 charater set in bytes
+  constexpr std::uint_least16_t kCols = 16 * 8;      // Number of columns in pixmap to write in pixels
+  constexpr std::uint_least16_t kRows = 16 * 8;      // Number of rows in pixmap to write in pixels
+  std::vector<char> buffer;
+
+  // Ensure the buffer is ofte correct size (I would like to use std::array but then it doesn't know its size
+  // so passing generically to functions is an issue)
+  buffer.resize(kCharMapLen);
+
+  // std::cerr << "Filename: " << name << std::endl;
 
   std::error_code ec;
   std::uintmax_t size = std::filesystem::file_size(name, ec);
@@ -56,18 +119,54 @@ void ConvertFile(char* name, Mode mode, std::size_t offset) {
     std::cerr << "Error: " << ec.message() << std::endl;
   }
 
-  //std::cerr << "File size: " << size << std::endl;
+  // std::cerr << "File size: " << size << std::endl;
 
   if ((kCharMapLen + offset) > size) {
-    std::cerr << "Error: Attempting to read data past end of file" << std::endl;
+    std::cerr << "Error: Attempting to read more data than in file" << std::endl;
+    return EXIT_FAILURE;
   }
+
+  std::ifstream in(name, std::ios::binary);
+
+  if (!in.is_open()) {
+    std::cerr << "Error: Unable to open file" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  in.seekg(offset, std::ios::beg);
+
+  in.read(buffer.data(), kCharMapLen);
+
+  if (in.gcount() != kCharMapLen) {
+    std::cerr << "Error: Unexpected end of file" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  in.close();
+
+  int return_code;
+
+  switch (mode) {
+    case BitMap:
+      return_code = GeneratePBM(buffer, kCols, kRows, std::cout);
+      break;
+
+    case GrayMode:
+      // return_code = GeneratePGM(buffer, kCols, kRows, std::cout);
+      break;
+
+    default:
+      std::cerr << "Error: Unknown mode specified" << std::endl;
+      return EXIT_FAILURE;
+  }
+  return return_code;
 }
 
 int main(int argc, char* argv[]) {
-  bool modeFound = false;
+  bool mode_found = false;
   int idx = 1;
   Mode mode = BitMap;
-  int offset = 0;
+  std::uint_least32_t offset = 0;
 
   if (argc < 2) {
     std::cerr << "No arguments supplied. Type \"" << argv[0] << " --help\" for usage." << std::endl;
@@ -81,12 +180,12 @@ int main(int argc, char* argv[]) {
 
   if (AnyString(argc, argv, "-1")) {
     mode = BitMap;
-    modeFound = true;
+    mode_found = true;
     ++idx;
   }
 
   if (AnyString(argc, argv, "-2")) {
-    if (modeFound) {
+    if (mode_found) {
       std::cerr << "Error: Only one of -1 or -2 may be specified" << std::endl;
       return EXIT_FAILURE;
     }
@@ -96,11 +195,12 @@ int main(int argc, char* argv[]) {
   }
 
   int position;
+  long signed_offset;
 
   if (AnyString(argc, argv, "-o", position)) {
     if (argc > (position + 1)) {
       try {
-        offset = std::stoi(argv[position + 1]);
+        signed_offset = std::stol(argv[position + 1]);
       }
 
       catch (const std::invalid_argument& e) {
@@ -108,6 +208,12 @@ int main(int argc, char* argv[]) {
         return EXIT_FAILURE;
       }
 
+      if (signed_offset < 0) {
+        std::cerr << "Error: Offset must be non-negative" << std::endl;
+        return EXIT_FAILURE;
+      }
+
+      offset = static_cast<std::uint_least32_t>(signed_offset);
       idx += 2;
     } else {
       std::cerr << "Error: No offset provided" << std::endl;
@@ -120,7 +226,5 @@ int main(int argc, char* argv[]) {
     return EXIT_FAILURE;
   }
 
-  ConvertFile(argv[idx], mode, offset);
-
-  return EXIT_SUCCESS;
+  return ConvertFile(argv[idx], mode, offset);
 }
