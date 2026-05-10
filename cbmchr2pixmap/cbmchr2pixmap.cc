@@ -76,9 +76,6 @@ static int GeneratePBM(const std::vector<char>& buffer, std::uint_least16_t cols
   for (unsigned int rr = 0; rr < rows; ++rr) {
     for (unsigned int cc = 0; cc < col_chars; ++cc) {
       unsigned int idx = cols * (rr / 8) + 8 * cc + (rr & 7);
-
-      //out << rr << " " << cc << " " << idx << "\n";
-
       char c = buffer[idx];
 
       for (int bb = 0; bb < 8; ++bb) {
@@ -100,6 +97,78 @@ static int GeneratePBM(const std::vector<char>& buffer, std::uint_least16_t cols
   return EXIT_SUCCESS;
 }
 
+// This function is really only useful for writing out C64 bitmap data at this point and is not a generic PBM
+// writer (this version assumes multi-color characters)
+static int GeneratePGM(const std::vector<char>& buffer, std::uint_least16_t cols, std::uint_least16_t rows,
+                       std::ostream& out) {
+  // Constants for the gray levels in the output file
+  const unsigned int kMaxGrayVal = 255;
+  const unsigned int kGrayVal00 = 0;
+  const unsigned int kGrayVal01 = 85;
+  const unsigned int kGrayVal10 = 170;
+  const unsigned int kGrayVal11 = 255;
+
+  // Buffer size, in bits, needs to equal number of rows by columns
+  if (rows * cols != 8 * buffer.size()) {
+    std::cerr << "Error: Buffer size != rows * cols" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  if (rows % 8 != 0) {
+    std::cerr << "Error: Number of rows must be divisible by 8" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  if (cols % 8 != 0) {
+    std::cerr << "Error: Number of columns must be divisible by 8" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  // Write header
+  out << "P2" << "\n";
+  out << "# Automatically generated PBM file\n";
+  out << cols << " " << rows << "\n";
+  out << kMaxGrayVal << "\n";
+
+  unsigned int col_chars = cols / 8;
+
+  // This includes all of the funny decoding of the byte ordering
+  for (unsigned int rr = 0; rr < rows; ++rr) {
+    for (unsigned int cc = 0; cc < col_chars; ++cc) {
+      unsigned int idx = cols * (rr / 8) + 8 * cc + (rr & 7);
+      char c = buffer[idx];
+
+      for (int bb = 0; bb < 4; ++bb) {
+        switch (c & (64 + 128)) {
+          case 0:
+            out << kGrayVal00 << " ";
+            break;
+          case 64:
+            out << kGrayVal01 << " ";
+            break;
+          case 128:
+            out << kGrayVal10 << " ";
+            break;
+          case (64 + 128):
+            out << kGrayVal11 << " ";
+            break;
+          default:
+            std::cerr << "Error: Bit sequence is odd (don't know how this could have happened)" << std::endl;
+            return EXIT_FAILURE;
+        }
+
+        c = c << 2;
+      }
+    }
+
+    out << "\n";
+  }
+
+  out << std::endl;
+
+  return EXIT_SUCCESS;
+}
+
 static int ConvertFile(char* name, Mode mode, std::uint_least32_t offset) {
   constexpr std::uint_least32_t kCharMapLen = 2048;  // Size of a C64 charater set in bytes
   constexpr std::uint_least16_t kCols = 16 * 8;      // Number of columns in pixmap to write in pixels
@@ -110,16 +179,12 @@ static int ConvertFile(char* name, Mode mode, std::uint_least32_t offset) {
   // so passing generically to functions is an issue)
   buffer.resize(kCharMapLen);
 
-  // std::cerr << "Filename: " << name << std::endl;
-
   std::error_code ec;
   std::uintmax_t size = std::filesystem::file_size(name, ec);
 
   if (ec.value() != 0) {
     std::cerr << "Error: " << ec.message() << std::endl;
   }
-
-  // std::cerr << "File size: " << size << std::endl;
 
   if ((kCharMapLen + offset) > size) {
     std::cerr << "Error: Attempting to read more data than in file" << std::endl;
@@ -152,7 +217,7 @@ static int ConvertFile(char* name, Mode mode, std::uint_least32_t offset) {
       break;
 
     case GrayMode:
-      // return_code = GeneratePGM(buffer, kCols, kRows, std::cout);
+      return_code = GeneratePGM(buffer, kCols, kRows, std::cout);
       break;
 
     default:
