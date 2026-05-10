@@ -1,0 +1,7 @@
+Language: Cpp
+BasedOnStyle: Google
+ColumnLimit: 110
+IndentWidth: 2
+AllowShortFunctionsOnASingleLine: Inline
+IncludeBlocks: Preserve
+SortIncludes: Never
