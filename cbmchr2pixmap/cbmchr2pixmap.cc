@@ -138,19 +138,20 @@ static int GeneratePGM(const std::vector<char>& buffer, std::uint_least16_t cols
       unsigned int idx = cols * (rr / 8) + 8 * cc + (rr & 7);
       char c = buffer[idx];
 
+      // We write out each pixel twice as C64 pixels are double with in 2-bit / multicolor mode
       for (int bb = 0; bb < 4; ++bb) {
         switch (c & (64 + 128)) {
           case 0:
-            out << kGrayVal00 << " ";
+            out << kGrayVal00 << " " << kGrayVal00 << " ";
             break;
           case 64:
-            out << kGrayVal01 << " ";
+            out << kGrayVal01 << " " << kGrayVal01 << " ";
             break;
           case 128:
-            out << kGrayVal10 << " ";
+            out << kGrayVal10 << " " << kGrayVal10 << " ";
             break;
           case (64 + 128):
-            out << kGrayVal11 << " ";
+            out << kGrayVal11 << " " << kGrayVal11 << " ";
             break;
           default:
             std::cerr << "Error: Bit sequence is odd (don't know how this could have happened)" << std::endl;
