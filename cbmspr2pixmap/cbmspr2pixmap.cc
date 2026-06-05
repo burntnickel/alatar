@@ -9,9 +9,9 @@
 
 enum Mode { BitMap, GrayMode };
 
-constexpr unsigned int kSpriteLen = 63;          // Size of a C64 sprite (without padding) in bytes
-constexpr unsigned int kSpritePad = 1;           // Amount of inter-sprite  padding in bytes
-constexpr unsigned int kCols = 3 * 8;            // Number of columns in sprint to write in pixels
+constexpr unsigned int kSpriteLen = 63;      // Size of a C64 sprite (without padding) in bytes
+constexpr unsigned int kSpritePad = 1;       // Amount of inter-sprite  padding in bytes
+constexpr unsigned int kCols = 3 * 8;        // Number of columns in sprint to write in pixels
 constexpr unsigned int kRowsPerSprite = 21;  // Number of rows in sprint to write in pixels
 
 static void DisplayUsage(std::string name) {
@@ -67,11 +67,6 @@ static int GeneratePBM(const std::vector<char>& buffer, std::uint_least16_t num_
   out << "# Automatically generated PBM file\n";
   out << kCols << " " << rows << "\n";
 
-  //std::cerr << "num_sprites = " << num_sprites << std::endl;
-  //std::cerr << "rows        = " << rows << std::endl;
-  //std::cerr << "col_bytes   = " << col_bytes << std::endl;
-  //std::cerr << "buffer.size = " << buffer.size() << std::endl;
-
   for (unsigned int sprite = 0; sprite < num_sprites; ++sprite) {
     for (unsigned int rr = 0; rr < kRowsPerSprite; ++rr) {
       for (unsigned int cc = 0; cc < col_bytes; ++cc) {
@@ -93,28 +88,6 @@ static int GeneratePBM(const std::vector<char>& buffer, std::uint_least16_t num_
     }
   }
 
-  /*
-
-  // This includes all of the funny decoding of the byte ordering
-  for (unsigned int rr = 0; rr < rows; ++rr) {
-    for (unsigned int cc = 0; cc < col_bytes; ++cc) {
-      unsigned int idx = cols * (rr / 8) + 8 * cc + (rr & 7);
-      char c = buffer[idx];
-
-      for (int bb = 0; bb < 8; ++bb) {
-        if (c & 128) {
-          out << "1 ";
-        } else {
-          out << "0 ";
-        }
-
-        c = c << 1;
-      }
-    }
-
-    out << "\n";
-  }
-*/
   out << std::endl;
 
   return EXIT_SUCCESS;
@@ -148,7 +121,7 @@ static int GeneratePGM(const std::vector<char>& buffer, std::uint_least16_t num_
   for (unsigned int sprite = 0; sprite < num_sprites; ++sprite) {
     for (unsigned int rr = 0; rr < kRowsPerSprite; ++rr) {
       for (unsigned int cc = 0; cc < col_bytes; ++cc) {
-        auto idx = sprite * (kSpriteLen + kSpritePad ) + rr * col_bytes + cc;
+        auto idx = sprite * (kSpriteLen + kSpritePad) + rr * col_bytes + cc;
         auto c = buffer[idx];
 
         for (int bb = 0; bb < 4; ++bb) {
@@ -183,81 +156,6 @@ static int GeneratePGM(const std::vector<char>& buffer, std::uint_least16_t num_
 
   return EXIT_SUCCESS;
 }
-
-/*
-// This function is really only useful for writing out C64 bitmap data at this point and is not a generic
-PBM
-// writer (this version assumes multi-color characters)
-static int GeneratePGM(const std::vector<char>& buffer, std::uint_least16_t cols, std::uint_least16_t rows,
-                       std::ostream& out) {
-  // Constants for the gray levels in the output file
-  const unsigned int kMaxGrayVal = 255;
-  const unsigned int kGrayVal00 = 0;
-  const unsigned int kGrayVal01 = 85;
-  const unsigned int kGrayVal10 = 170;
-  const unsigned int kGrayVal11 = 255;
-
-  // Buffer size, in bits, needs to equal number of rows by columns
-  if (rows * cols != 8 * buffer.size()) {
-    std::cerr << "Error: Buffer size != rows * cols" << std::endl;
-    return EXIT_FAILURE;
-  }
-
-  if (rows % 8 != 0) {
-    std::cerr << "Error: Number of rows must be divisible by 8" << std::endl;
-    return EXIT_FAILURE;
-  }
-
-  if (cols % 8 != 0) {
-    std::cerr << "Error: Number of columns must be divisible by 8" << std::endl;
-    return EXIT_FAILURE;
-  }
-
-  // Write header
-  out << "P2" << "\n";
-  out << "# Automatically generated PBM file\n";
-  out << cols << " " << rows << "\n";
-  out << kMaxGrayVal << "\n";
-
-  unsigned int col_bytes = cols / 8;
-
-  // This includes all of the funny decoding of the byte ordering
-  for (unsigned int rr = 0; rr < rows; ++rr) {
-    for (unsigned int cc = 0; cc < col_bytes; ++cc) {
-      unsigned int idx = cols * (rr / 8) + 8 * cc + (rr & 7);
-      char c = buffer[idx];
-
-      // We write out each pixel twice as C64 pixels are double with in 2-bit / multicolor mode
-      for (int bb = 0; bb < 4; ++bb) {
-        switch (c & (64 + 128)) {
-          case 0:
-            out << kGrayVal00 << " " << kGrayVal00 << " ";
-            break;
-          case 64:
-            out << kGrayVal01 << " " << kGrayVal01 << " ";
-            break;
-          case 128:
-            out << kGrayVal10 << " " << kGrayVal10 << " ";
-            break;
-          case (64 + 128):
-            out << kGrayVal11 << " " << kGrayVal11 << " ";
-            break;
-          default:
-            std::cerr << "Error: Bit sequence is odd (don't know how this could have happened)" <<
-std::endl; return EXIT_FAILURE;
-        }
-
-        c = c << 2;
-      }
-    }
-
-    out << "\n";
-  }
-
-  out << std::endl;
-
-  return EXIT_SUCCESS;
-}*/
 
 static int ConvertFile(char* name, Mode mode, std::uint_least32_t offset) {
   std::vector<char> buffer;
