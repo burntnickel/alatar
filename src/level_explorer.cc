@@ -3,8 +3,10 @@
 #include <format>
 #include <fstream>
 #include <iostream>
+#include <map>
 #include <span>
 #include <string>
+#include <string_view>
 
 // Move a bunch of this to a header and its own .cc file
 namespace wizard_level {
@@ -55,7 +57,7 @@ enum {
   kSlide2Time = 96
 };
 
-const unsigned int kSlideTileBase = 0xc400;
+constexpr unsigned int kSlideTileBase = 0xc400;
 
 enum {
   kMonster0SpriteID = 98,
@@ -88,15 +90,6 @@ enum {
 enum { kTileDataStart = 299, kTileDataEnd = 1096 };
 
 enum { kLevelNameStart = 1106, kLevelNameEnd = 1129 };
-
-/*struct MosterInfo {
-  int initial_pos_x;
-  int initial_pos_y;
-  int color_code;
-  int sprite_number;
-  int animation_length;
-  int monster_id;
-};*/
 
 std::array<const std::string, 16> kColorStrings = {{"black", "white", "red", "cyan", "purple", "green",
                                                     "blue", "yellow", "orange", "brown", "pink", "dark grey",
@@ -135,38 +128,51 @@ static unsigned char MonsterRangeCheck(unsigned char c) {
   throw std::out_of_range("Monster number out of range");
 }
 
-static char ScreenCodeToASCII(unsigned char c) {
-  const char lower_case[] = "abcdefghijklmnopqrstuvwxyz";
-  const char upper_case[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  const char numbers[] = "0123456789";
-  const char symbols1[] = "[\u00A3]\u2191\u2190 !\"#$%&\'()*+,-./";
-  const char symbols2[] = ":;<=>\?";
+static void ScreenToAsciiHelper(std::map<unsigned char, std::string>& m, std::string_view chars,
+                                unsigned char start) {
+  for (unsigned char ii = 0; ii < chars.size(); ++ii) {
+    m[start + ii] = chars[ii];
+  }
+}
 
-  if (c == 0) {
-    return '@';
+static void InitScreenToAscii(std::map<unsigned char, std::string>& m) {
+  const std::string lower_case{"abcdefghijklmnopqrstuvwxyz"};
+  const std::string upper_case{"ABCDEFGHIJKLMNOPQRSTUVWXYZ"};
+  const std::string numbers{"0123456789"};
+  const std::string symbols1{" !\"#$%&\'()*+,-./"};
+  const std::string symbols2{":;<=>\?"};
+
+  m[0] = '@';
+
+  ScreenToAsciiHelper(m, lower_case, 1);
+  ScreenToAsciiHelper(m, upper_case, 65);
+  ScreenToAsciiHelper(m, numbers, 48);
+  ScreenToAsciiHelper(m, symbols1, 32);
+  ScreenToAsciiHelper(m, symbols2, 58);
+
+  m[27] = '[';
+  m[28] = "\u00A3";  // unicode pound symbol
+  m[29] = ']';
+  m[30] = "\u2191";  // unicode up arrow
+  m[31] = "\u2190";   // unicode left arrow
+}
+
+static std::string ScreenCodeToASCII(unsigned char c) {
+  static std::map<unsigned char, std::string> screen_to_ascii;
+  static bool init = false;
+
+  if (!init) {
+    init = true;
+    InitScreenToAscii(screen_to_ascii);
   }
 
-  if ((c >= 1) && (c <= 26)) {
-    return lower_case[c - 1];
+  try {
+    return screen_to_ascii.at(c);
   }
 
-  if ((c >= 65) && (c <= 90)) {
-    return upper_case[c - 65];
+  catch (const std::out_of_range& e) {
+    throw std::out_of_range("Screen code out of range: " + std::to_string(static_cast<unsigned int>(c)));
   }
-
-  if ((c >= 48) && (c <= 57)) {
-    return numbers[c - 48];
-  }
-
-  if ((c >= 27) && (c <= 47)) {
-    return symbols1[c - 27];
-  }
-
-  if ((c >= 58) && (c <= 63)) {
-    return symbols2[c - 58];
-  }
-
-  throw std::out_of_range("Screen code out of range: " + std::to_string(static_cast<unsigned int>(c)));
 }
 
 // Use if staments to split up by range
