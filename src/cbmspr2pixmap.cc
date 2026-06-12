@@ -165,6 +165,7 @@ static int ConvertFile(char* name, Mode mode, std::uint_least32_t offset) {
 
   if (ec.value() != 0) {
     std::cerr << "Error: " << ec.message() << std::endl;
+    return EXIT_FAILURE;
   }
 
   std::uintmax_t buffer_size = size - offset;

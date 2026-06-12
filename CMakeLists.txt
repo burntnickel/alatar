@@ -46,6 +46,14 @@ add_executable( cbmspr2pixmap ${SPRITEEXTRACT_SRCS} ${MY_HEADERS} )
 
 target_compile_features( cbmspr2pixmap PRIVATE cxx_std_20 )
 
+# Build level explorer
+set( LEVELEXPLORER_SRCS ${CMAKE_SOURCE_DIR}/src/level_explorer.cc )
+
+add_executable( level_explorer ${LEVELEXPLORER_SRCS} ${MY_HEADERS} )
+
+target_compile_features( level_explorer PRIVATE cxx_std_20 )
+
+
 
 
 
