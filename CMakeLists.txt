@@ -48,12 +48,29 @@ target_compile_features( cbmspr2pixmap PRIVATE cxx_std_20 )
 
 # Build level explorer
 set( LEVELEXPLORER_SRCS ${CMAKE_SOURCE_DIR}/src/level_explorer.cc )
+set( LEVELEXPLORER_SRCS ${LEVELEXPLORER_SRCS} ${CMAKE_SOURCE_DIR}/src/wiz_level.cc )
 
 add_executable( level_explorer ${LEVELEXPLORER_SRCS} ${MY_HEADERS} )
 
 target_compile_features( level_explorer PRIVATE cxx_std_20 )
 
+# Build level viewer
+set( LEVELVIEWER_SRCS ${CMAKE_SOURCE_DIR}/src/level_display.cc )
+set( LEVELVIEWER_SRCS ${LEVELVIEWER_SRCS} ${CMAKE_SOURCE_DIR}/src/c64_clut.cc )
+set( LEVELVIEWER_SRCS ${LEVELVIEWER_SRCS} ${CMAKE_SOURCE_DIR}/src/getexepath.cc )
+set( LEVELVIEWER_SRCS ${LEVELVIEWER_SRCS} ${CMAKE_SOURCE_DIR}/src/getrespath.cc )
+set( LEVELVIEWER_SRCS ${LEVELVIEWER_SRCS} ${CMAKE_SOURCE_DIR}/src/opengl_helper.cc )
+set( LEVELVIEWER_SRCS ${LEVELVIEWER_SRCS} ${CMAKE_SOURCE_DIR}/src/wiz_level.cc )
 
+add_executable( level_display ${LEVELVIEWER_SRCS} ${MY_HEADERS} )
+
+# OpenGL stuff
+target_link_libraries( level_display "-lGLEW -lGL" )
+target_compile_definitions ( level_display PRIVATE BL_USE_OPENGL=1 )
+
+target_include_directories( level_display PUBLIC ${SDL2_INCLUDE_DIRS} )
+target_link_libraries( level_display ${SDL2_LIBRARIES} )
+target_compile_features( level_display PRIVATE cxx_std_20 )
 
 
 
