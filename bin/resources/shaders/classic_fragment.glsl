@@ -6,6 +6,7 @@
 // ----------------------------------
 uniform usamplerBuffer u_tile_buffer;
 uniform usamplerBuffer u_color_buffer;
+uniform usamplerBuffer u_tileset_buffer;
 
 // Inputs
 // ----------------------------------
@@ -18,6 +19,8 @@ out vec4 frag_color;
 // Named constants
 const int kTilesInRow = 40;
 const int kTilesInColumn = 25;
+const int kTilePixelWidth = 8;
+const int kTilePixelHeight = 8;
 
 void main() {
     // Normalized and flipped coordinates
@@ -30,31 +33,23 @@ void main() {
     int tile_buffer_index = tile_x + tile_y * kTilesInRow;
 
     // Get tile id from the tile buffer
-    vec4 tile_index = texelFetch(u_tile_buffer, tile_buffer_index);
+    vec4 tile_index4 = texelFetch(u_tile_buffer, tile_buffer_index);
+    int tile_index = int(tile_index4.r);
 
     // Get color index from the color buffer
     vec4 color_index = texelFetch(u_color_buffer, tile_buffer_index);
 
+    // Which pixel and offset within the tile set
+    int pixel_x = int((kTilesInRow * xx - tile_x) * kTilePixelWidth);
+    int pixel_y = int((kTilesInColumn * yy - tile_y) * kTilePixelHeight);
+    int pixel_offset = pixel_x + kTilePixelHeight * pixel_y;
+    int tileset_index = kTilePixelWidth * kTilePixelHeight * tile_index + pixel_offset;
+    vec4 pixel_val4 = texelFetch(u_tileset_buffer, tileset_index);
+    float pixel_val = pixel_val4.r;
 
+    vec4 local_color = vec4(tile_index/255.0, color_index.r/15.0, 0.0, 1.0);
 
-    //vec4 raw_color = texelFetch(u_clut, color_index);
-
-    //vec4 local_color = raw_color / 255.0;
-    //local_color.a = 0.0;
-
-    //frag_color = local_color;
-    //frag_color = vec4(1.0, 0.5, 0.25, 1.0);
- 
-    
-
-    //int pixel_x = int((kTilesInRow * xx - tile_x) * 8);
-    //int pixel_y = int((kTilesInColumn * yy - tile_y) * 8);
-    //int pixel_offset = pixel_x + 8 * pixel_y;
-    //int pixel_idx = 64 * tile_idx + pixel_offset;
-
-    //frag_color = vec4(shader_coord.x, shader_coord.y, shader_coord.z, 1.0);
-    //frag_color = vec4(qq.a/255.0, tile_x/40.0, tile_y/25.0, 1.0);
-    frag_color = vec4(0.0001*tile_index.r/255.0, color_index.r/15.0, 0.0, 1.0);
+    frag_color = local_color * (pixel_val / 255.0);
 }
 
 
