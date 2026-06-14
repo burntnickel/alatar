@@ -321,9 +321,14 @@ static void PaintRect(ShaderVars shader_vars, Rect r) {
               static_cast<GLfloat>(kScreenHeight));
   BurningLogic::PrintGLError("PaintRect:glUniform2f");*/
 
-  // Texture stuff
+  // Texture stuff (tile buffer)
   GLint tilebuffer_location = BurningLogic::GetShaderUniformLocation(shader_vars.program, "u_tile_buffer");
   glUniform1i(tilebuffer_location, 0);
+  BurningLogic::PrintGLError("PaintRect:glUniform1i");
+
+  // Texture stuff (color buffer)
+  GLint colorbuffer_location = BurningLogic::GetShaderUniformLocation(shader_vars.program, "u_color_buffer");
+  glUniform1i(colorbuffer_location, 1);
   BurningLogic::PrintGLError("PaintRect:glUniform1i");
 
   /*GLint clut_location = BurningLogic::GetShaderUniformLocation(shader_vars.program, "u_clut");
@@ -420,7 +425,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
   }
 
   // Just for testing purposes
-  for (unsigned int ii = 0; ii < 1024; ++ii) {
+  for (unsigned int ii = 0; ii < (kRowTiles * kColTiles); ++ii) {
     tile_buffer[ii] = ii & 0xff;
     color_buffer[ii] = ii & 0x0f;
   }
@@ -440,31 +445,11 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
   TextureSetupHelper(GL_TEXTURE0, &g_tbo_tile_buffer, tile_buffer, GL_DYNAMIC_DRAW, &g_tbo_tex_tile_buffer,
                      GL_R8UI);
 
-  /* glActiveTexture(GL_TEXTURE0);
-   BurningLogic::PrintGLError("main:glActiveTexture");
+  // Color buffer
+  TextureSetupHelper(GL_TEXTURE1, &g_tbo_color_buffer, color_buffer, GL_DYNAMIC_DRAW, &g_tbo_tex_color_buffer,
+                     GL_R8UI);
 
-   glGenBuffers(1, &g_tbo_tile_buffer);
-   BurningLogic::PrintGLError("main:glGenBuffers");
-
-   glBindBuffer(GL_TEXTURE_BUFFER, g_tbo_tile_buffer);
-   BurningLogic::PrintGLError("main:glBindBuffer");
-
-   glBufferData(GL_TEXTURE_BUFFER, static_cast<GLsizeiptr>(tile_buffer.size()), tile_buffer.data(),
-                GL_DYNAMIC_DRAW);
-   BurningLogic::PrintGLError("main:glBufferData");
-
-   glGenTextures(1, &g_tbo_tex_tile_buffer);
-   BurningLogic::PrintGLError("main:glGenTextures");
-
-   glBindTexture(GL_TEXTURE_BUFFER, g_tbo_tex_tile_buffer);
-   BurningLogic::PrintGLError("main:glBindTexture");
-
-   // GL_R8UI gives us just 1 byte per pixel in the red component
-   glTexBuffer(GL_TEXTURE_BUFFER, GL_R8UI, g_tbo_tile_buffer);
-   BurningLogic::PrintGLError("main:glTexBuffer");*/
-
-  // Color buffer calls
-  glActiveTexture(GL_TEXTURE1);
+  /*glActiveTexture(GL_TEXTURE1);
   BurningLogic::PrintGLError("main:glActiveTexture");
 
   glGenBuffers(1, &g_tbo_color_buffer);
@@ -485,7 +470,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
 
   // GL_R8UI gives us just 1 byte per pixel in the red component
   glTexBuffer(GL_TEXTURE_BUFFER, GL_R8UI, g_tbo_color_buffer);
-  BurningLogic::PrintGLError("main:glTexBuffer");
+  BurningLogic::PrintGLError("main:glTexBuffer");*/
 
   // Tile set buffer calls
   glActiveTexture(GL_TEXTURE2);

@@ -5,7 +5,7 @@
 // Uniforms
 // ----------------------------------
 uniform usamplerBuffer u_tile_buffer;
-//uniform usamplerBuffer u_clut;
+uniform usamplerBuffer u_color_buffer;
 
 // Inputs
 // ----------------------------------
@@ -30,13 +30,12 @@ void main() {
     int tile_buffer_index = tile_x + tile_y * kTilesInRow;
 
     // Get tile id from the tile buffer
-    vec4 tile_idx = texelFetch(u_tile_buffer, tile_buffer_index);
+    vec4 tile_index = texelFetch(u_tile_buffer, tile_buffer_index);
+
+    // Get color index from the color buffer
+    vec4 color_index = texelFetch(u_color_buffer, tile_buffer_index);
 
 
-
-    //vec4 fb = texelFetch(u_frame_buffer, pixel_index);
-
-    //int color_index = int(fb.r);
 
     //vec4 raw_color = texelFetch(u_clut, color_index);
 
@@ -55,7 +54,7 @@ void main() {
 
     //frag_color = vec4(shader_coord.x, shader_coord.y, shader_coord.z, 1.0);
     //frag_color = vec4(qq.a/255.0, tile_x/40.0, tile_y/25.0, 1.0);
-    frag_color = vec4(tile_idx.r/255.0, 0.0, 0.0, 1.0);
+    frag_color = vec4(0.0001*tile_index.r/255.0, color_index.r/15.0, 0.0, 1.0);
 }
 
 
