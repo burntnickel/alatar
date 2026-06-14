@@ -336,6 +336,11 @@ static void PaintRect(ShaderVars shader_vars, Rect r) {
   glUniform1i(tileset_location, 2);
   BurningLogic::PrintGLError("PaintRect:glUniform1i");
 
+  // Texture stuff (clut)
+  GLint clut_location = BurningLogic::GetShaderUniformLocation(shader_vars.program, "u_clut_buffer");
+  glUniform1i(clut_location, 3);
+  BurningLogic::PrintGLError("PaintRect:glUniform1i");
+
   /*GLint clut_location = BurningLogic::GetShaderUniformLocation(shader_vars.program, "u_clut");
   glUniform1i(clut_location, 1);
   BurningLogic::PrintGLError("PaintRect:glUniform1i");*/
@@ -373,7 +378,7 @@ static void PaintRect(ShaderVars shader_vars, Rect r) {
   glUseProgram(0);
 }
 
-static void TextureSetupHelper(GLenum texture, GLuint* opengl_buffer, std::span<unsigned char> buffer,
+static void TextureSetupHelper(GLenum texture, GLuint* opengl_buffer, std::span<const unsigned char> buffer,
                                GLenum usage, GLuint* opengl_texture, GLenum internalformat) {
   glActiveTexture(texture);
   BurningLogic::PrintGLError("TextureSetupHelper:glActiveTexture");
@@ -444,7 +449,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
     return EXIT_FAILURE;
   }
 
-  // TODO: ger rid of all of these globals
+  // TODO: get rid of all of these globals
 
   // Tile buffer
   TextureSetupHelper(GL_TEXTURE0, &g_tbo_tile_buffer, tile_buffer, GL_DYNAMIC_DRAW, &g_tbo_tex_tile_buffer,
@@ -458,31 +463,12 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
   TextureSetupHelper(GL_TEXTURE2, &g_tbo_tileset_buffer, tile_set, GL_STATIC_DRAW, &g_tbo_tex_tileset_buffer,
                      GL_R8UI);
 
-  // Tile set buffer calls
-  /*glActiveTexture(GL_TEXTURE2);
-  BurningLogic::PrintGLError("main:glActiveTexture");
+  // CLUT buffer calls
+  TextureSetupHelper(GL_TEXTURE3, &g_tbo_clut_buffer, kDefaultC64Clut, GL_STATIC_DRAW, &g_tbo_tex_clut_buffer,
+                     GL_RGBA8UI);
 
-  glGenBuffers(1, &g_tbo_tileset_buffer);
-  BurningLogic::PrintGLError("main:glGenBuffers");
-
-  glBindBuffer(GL_TEXTURE_BUFFER, g_tbo_tileset_buffer);
-  BurningLogic::PrintGLError("main:glBindBuffer");
-
-  glBufferData(GL_TEXTURE_BUFFER, static_cast<GLsizeiptr>(tile_set.size()), tile_set.data(), GL_STATIC_DRAW);
-  BurningLogic::PrintGLError("main:glBufferData");
-
-  glGenTextures(1, &g_tbo_tex_tileset_buffer);
-  BurningLogic::PrintGLError("main:glGenTextures");
-
-  glBindTexture(GL_TEXTURE_BUFFER, g_tbo_tex_tileset_buffer);
-  BurningLogic::PrintGLError("main:glBindTexture");
-
-  // GL_R8UI gives us just 1 byte per pixel in the red component
-  glTexBuffer(GL_TEXTURE_BUFFER, GL_R8UI, g_tbo_tileset_buffer);
-  BurningLogic::PrintGLError("main:glTexBuffer");*/
-
-  // CLUT set buffer calls
-  glActiveTexture(GL_TEXTURE3);
+  // CLUT buffer calls
+  /*glActiveTexture(GL_TEXTURE3);
   BurningLogic::PrintGLError("main:glActiveTexture");
 
   glGenBuffers(1, &g_tbo_clut_buffer);
@@ -503,7 +489,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
 
   // GL_RGBA8UI gives us 4 bytes per pixel (RGBA)
   glTexBuffer(GL_TEXTURE_BUFFER, GL_RGBA8UI, g_tbo_clut_buffer);
-  BurningLogic::PrintGLError("main:glTexBuffer");
+  BurningLogic::PrintGLError("main:glTexBuffer");*/
 
   // Set up shaders
   const std::filesystem::path kShaderPath = kResourcePath / kShadersDirName;

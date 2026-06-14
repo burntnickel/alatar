@@ -7,6 +7,7 @@
 uniform usamplerBuffer u_tile_buffer;
 uniform usamplerBuffer u_color_buffer;
 uniform usamplerBuffer u_tileset_buffer;
+uniform usamplerBuffer u_clut_buffer;
 
 // Inputs
 // ----------------------------------
@@ -37,7 +38,8 @@ void main() {
     int tile_index = int(tile_index4.r);
 
     // Get color index from the color buffer
-    vec4 color_index = texelFetch(u_color_buffer, tile_buffer_index);
+    vec4 color_index4 = texelFetch(u_color_buffer, tile_buffer_index);
+    int color_index = int(color_index4.r);
 
     // Which pixel and offset within the tile set
     int pixel_x = int((kTilesInRow * xx - tile_x) * kTilePixelWidth);
@@ -47,9 +49,12 @@ void main() {
     vec4 pixel_val4 = texelFetch(u_tileset_buffer, tileset_index);
     float pixel_val = pixel_val4.r;
 
-    vec4 local_color = vec4(tile_index/255.0, color_index.r/15.0, 0.0, 1.0);
+    //vec4 local_color = vec4(tile_index/255.0, color_index.r/15.0, 0.0, 1.0);
+    vec4 local_color = texelFetch(u_clut_buffer, color_index);
+    //local_color.g=0;
+    //local_color.b=0;
 
-    frag_color = local_color * (pixel_val / 255.0);
+    frag_color = (local_color / 255.0) * (pixel_val / 255.0);
 }
 
 
