@@ -6,7 +6,7 @@
 namespace wizard_level {
 
 constexpr int kFileLength = 1138;
-constexpr int kTileDataCols = 38;
+constexpr int kTileDataCols = 40;
 constexpr int kTileDataRows = 21;
 
 enum {
@@ -83,9 +83,44 @@ enum {
   kMonster5MonsterID = 119
 };
 
-enum { kTileDataStart = 299, kTileDataEnd = 1096 };
+enum { kTileDataStart = 298, kTileDataEnd = 1137 };
 
 enum { kLevelNameStart = 1106, kLevelNameEnd = 1129 };
+
+enum TileGroup {
+  kUnknown,
+  kKnownUnknown,
+  kText,
+  kKey,
+  kTreasure,
+  kKeyhole,
+  kBrick,
+  kRope,
+  kLadder,
+  kPortal,
+  kTeleport,
+  kDeath,
+  kFire
+};
+
+enum C64Colors {
+  kColorBlack = 0,
+  kColorWhite = 1,
+  kColorRed = 2,
+  kColorCyan = 3,
+  kColorPurple = 4,
+  kColorGreen = 5,
+  kColorBlue = 6,
+  kColorYellow = 7,
+  kColorOrange = 8,
+  kColorBrown = 9,
+  kColorPink = 10,
+  kColorDarkGrey = 11,
+  kColorGrey = 12,
+  kColorLightGreen = 13,
+  kColorLightBlur = 14,
+  kColorLightGrey = 15
+};
 
 class LevelClass {
  public:
@@ -96,6 +131,7 @@ class LevelClass {
   unsigned char GetLadderColor(void) const;
   unsigned char GetRopeColor(void) const;
   unsigned char GetPortalColor(void) const;
+  unsigned char GetTileColor(unsigned char c) const;
 
  private:
   std::array<unsigned char, kFileLength> raw_data_{};
@@ -108,6 +144,7 @@ class LevelClass {
 std::string GetC64Color(unsigned char c);
 std::string GetSpellName(unsigned char c);
 std::string GetMonsterName(unsigned char c);
+TileGroup GetTileGroup(unsigned char c);
 
 }  // namespace wizard_level
 

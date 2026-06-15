@@ -51,7 +51,7 @@ struct Rect {
 };
 
 // For now we'll just scale off the C64 and later we'll adjust to fix theaspect ratio
-constexpr uint_least32_t kScreenWidth = 8 * kColTiles * 5;
+constexpr uint_least32_t kScreenWidth = 8 * kColTiles * 5 * 0.75;
 constexpr uint_least32_t kScreenHeight = 8 * kRowTiles * 5;
 
 constexpr unsigned int kCharSetSize = 8 * 256;
@@ -176,8 +176,36 @@ static bool LoadCharSet(std::filesystem::path path_and_name,
   return true;
 }
 
-static bool LoadLevel(std::string file_name, std::span<unsigned char, wizard_level::kFileLength> data) {
-  // TODO: actually load the level
+static bool LoadLevel(std::string file_name, std::span<unsigned char, wizard_level::kFileLength> level_data) {
+  std::error_code ec;
+  std::uintmax_t size = std::filesystem::file_size(file_name, ec);
+
+  if (ec.value() != 0) {
+    std::cerr << "Error: " << ec.message() << std::endl;
+    return false;
+  }
+
+  if (size != wizard_level::kFileLength) {
+    std::cerr << "Error: File is of the incorrect size" << std::endl;
+    return false;
+  }
+
+  std::ifstream in(file_name, std::ios::binary);
+
+  if (!in.is_open()) {
+    std::cerr << "Error: Unable to open file" << std::endl;
+    return false;
+  }
+
+  in.read(reinterpret_cast<char*>(level_data.data()), wizard_level::kFileLength);
+
+  if (in.gcount() != wizard_level::kFileLength) {
+    std::cerr << "Error: Unexpected end of file" << std::endl;
+    return false;
+  }
+
+  in.close();
+
   return true;
 }
 
@@ -341,15 +369,6 @@ static void PaintRect(ShaderVars shader_vars, Rect r) {
   glUniform1i(clut_location, 3);
   BurningLogic::PrintGLError("PaintRect:glUniform1i");
 
-  /*GLint clut_location = BurningLogic::GetShaderUniformLocation(shader_vars.program, "u_clut");
-  glUniform1i(clut_location, 1);
-  BurningLogic::PrintGLError("PaintRect:glUniform1i");*/
-
-  // Pass row bytes to the shader
-  /*GLint stride_location = BurningLogic::GetShaderUniformLocation(shader_vars.program, "u_stride");
-  glUniform1i(stride_location, static_cast<GLint>(g_row_bytes));
-  BurningLogic::PrintGLError("PaintRect:glUniform1ui");*/
-
   // ------
   glActiveTexture(GL_TEXTURE0);
   BurningLogic::PrintGLError("PaintRect:glActiveTexture");
@@ -412,7 +431,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
   const std::filesystem::path kResourcePath = BurningLogic::GetResPath();
 
   const std::string kShadersDirName{"shaders"};
-  const std::string kCharSetsDirName{"char_sets"};
+  const std::string kCharSetsDirName{"classic"};
   const std::string kCharSetName{"chrw"};
 
   if (argc != 2) {
@@ -434,10 +453,25 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
     return EXIT_FAILURE;
   }
 
-  // Just for testing purposes
+  // Set to 32 (space) as blank character & black
   for (unsigned int ii = 0; ii < (kRowTiles * kColTiles); ++ii) {
-    tile_buffer[ii] = ii & 0xff;
-    color_buffer[ii] = ii & 0x0f;
+    tile_buffer[ii] = 32;
+    color_buffer[ii] = 0;
+  }
+
+  wizard_level::LevelClass level(level_data);
+
+  for (int row = 0; row < wizard_level::kTileDataRows; ++row) {
+    for (int col = 0; col < wizard_level::kTileDataCols; ++col) {
+      unsigned int screen_row = static_cast<unsigned int>(row) + 1;
+      unsigned int screen_col = static_cast<unsigned int>(col);
+      unsigned int screen_index = kColTiles * screen_row + screen_col;
+
+      unsigned char tile = level.GetTileAt(row, col);
+
+      tile_buffer[screen_index] = tile;
+      color_buffer[screen_index] = level.GetTileColor(tile);
+    }
   }
 
   // Move these strings to constants above?
@@ -466,30 +500,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
   // CLUT buffer calls
   TextureSetupHelper(GL_TEXTURE3, &g_tbo_clut_buffer, kDefaultC64Clut, GL_STATIC_DRAW, &g_tbo_tex_clut_buffer,
                      GL_RGBA8UI);
-
-  // CLUT buffer calls
-  /*glActiveTexture(GL_TEXTURE3);
-  BurningLogic::PrintGLError("main:glActiveTexture");
-
-  glGenBuffers(1, &g_tbo_clut_buffer);
-  BurningLogic::PrintGLError("main:glGenBuffers");
-
-  glBindBuffer(GL_TEXTURE_BUFFER, g_tbo_clut_buffer);
-  BurningLogic::PrintGLError("main:glBindBuffer");
-
-  glBufferData(GL_TEXTURE_BUFFER, static_cast<GLsizeiptr>(kDefaultC64Clut.size()), kDefaultC64Clut.data(),
-               GL_STATIC_DRAW);
-  BurningLogic::PrintGLError("main:glBufferData");
-
-  glGenTextures(1, &g_tbo_tex_clut_buffer);
-  BurningLogic::PrintGLError("main:glGenTextures");
-
-  glBindTexture(GL_TEXTURE_BUFFER, g_tbo_tex_clut_buffer);
-  BurningLogic::PrintGLError("main:glBindTexture");
-
-  // GL_RGBA8UI gives us 4 bytes per pixel (RGBA)
-  glTexBuffer(GL_TEXTURE_BUFFER, GL_RGBA8UI, g_tbo_clut_buffer);
-  BurningLogic::PrintGLError("main:glTexBuffer");*/
 
   // Set up shaders
   const std::filesystem::path kShaderPath = kResourcePath / kShadersDirName;

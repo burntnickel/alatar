@@ -1,5 +1,7 @@
 #include <algorithm>
 #include <array>
+#include <format>
+#include <iostream>
 #include <stdexcept>
 #include <string>
 
@@ -56,15 +58,84 @@ std::string GetMonsterName(unsigned char c) {
   return kMonsterNames[MonsterRangeCheck(c)];
 }
 
+TileGroup GetTileGroup(unsigned char c) {
+  if ((c >= 1) && (c <= 26)) {
+    return kText;
+  }
+
+  if (c == 27) {
+    return kKey;
+  }
+
+  if ((c >= 28) && (c <= 31)) {
+    return kTreasure;
+  }
+
+  if ((c >= 32) && (c <= 63)) {
+    return kText;
+  }
+
+  if (c == 64) {
+    return kKeyhole;
+  }
+
+  if ((c >= 65) && (c <= 90)) {
+    return kText;
+  }
+
+  if ((c >= 91) && (c <= 98)) {
+    return kBrick;
+  }
+
+  if ((c >= 99) && (c <= 100)) {
+    return kRope;
+  }
+
+  if ((c >= 101) && (c <= 103)) {
+    return kLadder;
+  }
+
+  if (c == 108) {
+    return kTeleport;
+  }
+
+  if (c == 109) {
+    return kDeath;
+  }
+
+  if ((c >= 104) && (c <= 107)) {
+    return kPortal;
+  }
+
+  if ((c >= 110) && (c <= 113)) {
+    return kTeleport;
+  }
+
+  if ((c >= 114) && (c <= 117)) {
+    return kFire;
+  }
+
+  if ((c >= 122) && (c <= 123)) {
+    return kBrick;
+  }
+
+  if (c == 160) {
+    return kKnownUnknown;
+  }
+
+  return kUnknown;
+}
+
 //------------------------------------------------------------
 LevelClass::LevelClass(std::span<unsigned char, kFileLength> data) {
   std::copy(data.begin(), data.end(), raw_data_.begin());
 
   // Tile colors
-  brick_color_ = raw_data_[kBrickColorCode];
-  ladder_color_ = raw_data_[kLadderColorCode];
-  rope_color_ = raw_data_[kRopeColorCode];
-  portal_color_ = raw_data_[kPortalColorCode];
+  brick_color_ = raw_data_[kBrickColorCode] & 0x0f;
+  ladder_color_ = raw_data_[kLadderColorCode] & 0x0f;
+  rope_color_ = raw_data_[kRopeColorCode] & 0x0f;
+  portal_color_ = raw_data_[kPortalColorCode] & 0x0f;
+  std::cout << "brick color: " << std::format("{:#04x}", brick_color_) << "\n";
 }
 
 unsigned char LevelClass::GetTileAt(int row, int col) const {
@@ -95,6 +166,40 @@ unsigned char LevelClass::GetRopeColor(void) const {
 
 unsigned char LevelClass::GetPortalColor(void) const {
   return portal_color_;
+}
+
+unsigned char LevelClass::GetTileColor(unsigned char c) const {
+  TileGroup group = GetTileGroup(c);
+
+  switch (group) {
+    case kKnownUnknown:
+      return kColorWhite;
+    case kText:
+      return kColorWhite;
+    case kKey:
+      return kColorWhite;
+    case kTreasure:
+      return kColorYellow;
+    case kKeyhole:
+      return kColorWhite;
+    case kBrick:
+      return brick_color_;
+    case kRope:
+      return rope_color_;
+    case kLadder:
+      return ladder_color_;
+    case kPortal:
+      return portal_color_;
+    case kTeleport:
+      return kColorCyan;
+    case kDeath:
+      return kColorCyan;
+    case kFire:
+      return 2;  // red
+    default:
+      std::cerr << "Unknown tile: " << std::format("{:#04x}", c) << "\n";
+      return 0;
+  }
 }
 
 }  // namespace wizard_level
