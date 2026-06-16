@@ -20,7 +20,7 @@ constexpr unsigned int kRowTiles = 25;
 constexpr unsigned int kColTiles = 40;
 
 const std::string kVertexShaderName{"vertex.glsl"};
-const std::string kFragmentShaderName{"classic_fragment.glsl"};
+const std::string kFragmentShaderName{"classic_tile_fragment.glsl"};
 
 SDL_Window* g_window = NULL;
 SDL_GLContext g_sdl_glcontext;
@@ -35,13 +35,6 @@ GLuint g_tbo_tileset_buffer;
 GLuint g_tbo_tex_tileset_buffer;
 GLuint g_tbo_clut_buffer;
 GLuint g_tbo_tex_clut_buffer;
-
-struct ShaderVars {
-  GLuint vbo;
-  GLuint ibo;
-  GLuint vao;
-  GLuint program;
-};
 
 struct Rect {
   double top;
@@ -209,86 +202,8 @@ static bool LoadLevel(std::string file_name, std::span<unsigned char, wizard_lev
   return true;
 }
 
-static ShaderVars BuildShaderProgram(const std::string& vertex_shader_source,
-                                     const std::string& fragment_shader_source) {
-  ShaderVars shader_vars;
-
-  // Create VBO, IBO & IBO
-  glGenBuffers(1, &(shader_vars.vbo));
-  glGenBuffers(1, &(shader_vars.ibo));
-  glGenVertexArrays(1, &(shader_vars.vao));
-
-  // Generate program
-  const GLuint shader_program = glCreateProgram();
-
-  // Create vertex shader
-  const GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-
-  // Set vertex source & compile
-  const char* vertex_shader_source_c_str = vertex_shader_source.c_str();
-  glShaderSource(vertex_shader, 1, &vertex_shader_source_c_str, NULL);
-  glCompileShader(vertex_shader);
-
-  // Check vertex shader for errors
-  GLint v_shader_complied = GL_FALSE;
-  glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &v_shader_complied);
-
-  if (v_shader_complied != GL_TRUE) {
-    std::cerr << "Unable to compile vertex shader " << vertex_shader << "\n";
-    BurningLogic::PrintShaderLog(vertex_shader);
-    throw std::runtime_error("Unable to compile vertex shader");
-  }
-
-  // Attach vertex shader to program
-  glAttachShader(shader_program, vertex_shader);
-
-  // Create fragment shader
-  const GLuint fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-
-  // Set fragment source & complie
-  const char* fragment_shader_source_c_str = fragment_shader_source.c_str();
-  glShaderSource(fragment_shader, 1, &fragment_shader_source_c_str, NULL);
-  glCompileShader(fragment_shader);
-
-  // Check fragment shader for errors
-  GLint f_shader_compiled = GL_FALSE;
-  glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &f_shader_compiled);
-
-  if (f_shader_compiled != GL_TRUE) {
-    std::cout << "Unable to compile fragment shader " << fragment_shader << "\n";
-    BurningLogic::PrintShaderLog(fragment_shader);
-    throw std::runtime_error("Unable to compile fragmant shader");
-  }
-
-  // Attach fragment shader to program
-  glAttachShader(shader_program, fragment_shader);
-
-  // Link program
-  glLinkProgram(shader_program);
-
-  // Check for errors
-  GLint program_success = GL_TRUE;
-  glGetProgramiv(shader_program, GL_LINK_STATUS, &program_success);
-
-  if (program_success != GL_TRUE) {
-    std::cout << "Error linking program " << shader_program << "\n";
-    BurningLogic::PrintProgramLog(shader_program);
-    throw std::runtime_error("Unable to link shader program");
-  }
-
-  // Detatch and delete shaders
-  glDetachShader(shader_program, vertex_shader);
-  glDeleteShader(vertex_shader);
-  glDetachShader(shader_program, fragment_shader);
-  glDeleteShader(fragment_shader);
-
-  shader_vars.program = shader_program;
-
-  return shader_vars;
-}
-
 // TODO: A lot of this should be moved into a new data structure as it doesn't change with use
-static void PaintRect(ShaderVars shader_vars, Rect r) {
+static void PaintRect(BurningLogic::ShaderVars shader_vars, Rect r) {
   SDL_FRect sdl_rect;
 
   sdl_rect.x = static_cast<float>(r.left);
@@ -342,13 +257,6 @@ static void PaintRect(ShaderVars shader_vars, Rect r) {
   SDL_GL_GetDrawableSize(g_window, &screen_width, &screen_height);
   // glViewport(0, 0, screen_width, screen_height);
 
-  // Pass window dimensions to the shader
-  /*GLint viewport_dims_location =
-      BurningLogic::GetShaderUniformLocation(shader_vars.program, "u_viewport_dims");
-  glUniform2f(viewport_dims_location, static_cast<GLfloat>(kScreenWidth),
-              static_cast<GLfloat>(kScreenHeight));
-  BurningLogic::PrintGLError("PaintRect:glUniform2f");*/
-
   // Texture stuff (tile buffer)
   GLint tilebuffer_location = BurningLogic::GetShaderUniformLocation(shader_vars.program, "u_tile_buffer");
   glUniform1i(tilebuffer_location, 0);
@@ -395,30 +303,6 @@ static void PaintRect(ShaderVars shader_vars, Rect r) {
 
   // Unbind program
   glUseProgram(0);
-}
-
-static void TextureSetupHelper(GLenum texture, GLuint* opengl_buffer, std::span<const unsigned char> buffer,
-                               GLenum usage, GLuint* opengl_texture, GLenum internalformat) {
-  glActiveTexture(texture);
-  BurningLogic::PrintGLError("TextureSetupHelper:glActiveTexture");
-
-  glGenBuffers(1, opengl_buffer);
-  BurningLogic::PrintGLError("TextureSetupHelper:glGenBuffers");
-
-  glBindBuffer(GL_TEXTURE_BUFFER, *opengl_buffer);
-  BurningLogic::PrintGLError("TextureSetupHelper:glBindBuffer");
-
-  glBufferData(GL_TEXTURE_BUFFER, static_cast<GLsizeiptr>(buffer.size()), buffer.data(), usage);
-  BurningLogic::PrintGLError("TextureSetupHelper:glBufferData");
-
-  glGenTextures(1, opengl_texture);
-  BurningLogic::PrintGLError("TextureSetupHelper:glGenTextures");
-
-  glBindTexture(GL_TEXTURE_BUFFER, *opengl_texture);
-  BurningLogic::PrintGLError("TextureSetupHelper:glBindTexture");
-
-  glTexBuffer(GL_TEXTURE_BUFFER, internalformat, *opengl_buffer);
-  BurningLogic::PrintGLError("main:glTexBuffer");
 }
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
@@ -486,20 +370,20 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
   // TODO: get rid of all of these globals
 
   // Tile buffer
-  TextureSetupHelper(GL_TEXTURE0, &g_tbo_tile_buffer, tile_buffer, GL_DYNAMIC_DRAW, &g_tbo_tex_tile_buffer,
-                     GL_R8UI);
+  BurningLogic::TextureSetupHelper(GL_TEXTURE0, &g_tbo_tile_buffer, tile_buffer, GL_DYNAMIC_DRAW,
+                                   &g_tbo_tex_tile_buffer, GL_R8UI);
 
   // Color buffer
-  TextureSetupHelper(GL_TEXTURE1, &g_tbo_color_buffer, color_buffer, GL_DYNAMIC_DRAW, &g_tbo_tex_color_buffer,
-                     GL_R8UI);
+  BurningLogic::TextureSetupHelper(GL_TEXTURE1, &g_tbo_color_buffer, color_buffer, GL_DYNAMIC_DRAW,
+                                   &g_tbo_tex_color_buffer, GL_R8UI);
 
   // Tile set buffer
-  TextureSetupHelper(GL_TEXTURE2, &g_tbo_tileset_buffer, tile_set, GL_STATIC_DRAW, &g_tbo_tex_tileset_buffer,
-                     GL_R8UI);
+  BurningLogic::TextureSetupHelper(GL_TEXTURE2, &g_tbo_tileset_buffer, tile_set, GL_STATIC_DRAW,
+                                   &g_tbo_tex_tileset_buffer, GL_R8UI);
 
   // CLUT buffer calls
-  TextureSetupHelper(GL_TEXTURE3, &g_tbo_clut_buffer, kDefaultC64Clut, GL_STATIC_DRAW, &g_tbo_tex_clut_buffer,
-                     GL_RGBA8UI);
+  BurningLogic::TextureSetupHelper(GL_TEXTURE3, &g_tbo_clut_buffer, kDefaultC64Clut, GL_STATIC_DRAW,
+                                   &g_tbo_tex_clut_buffer, GL_RGBA8UI);
 
   // Set up shaders
   const std::filesystem::path kShaderPath = kResourcePath / kShadersDirName;
@@ -509,7 +393,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
   const std::string line_vertex_shader_string = BurningLogic::LoadShaderSource(kVertexShaderFilename);
   const std::string line_fragment_shader_source = BurningLogic::LoadShaderSource(kFragmentShaderFilename);
 
-  auto my_shader_vars = BuildShaderProgram(line_vertex_shader_string, line_fragment_shader_source);
+  auto my_shader_vars =
+      BurningLogic::BuildShaderProgram(line_vertex_shader_string, line_fragment_shader_source);
 
   bool gDone = false;
   SDL_Event sdl_event;

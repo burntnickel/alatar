@@ -1,6 +1,6 @@
 #version 400 core
 
-// OpenGL fragment shader for Alatar classic graphics mode
+// OpenGL tile fragment shader for Alatar classic graphics mode
 
 // Uniforms
 // ----------------------------------
@@ -49,10 +49,7 @@ void main() {
     vec4 pixel_val4 = texelFetch(u_tileset_buffer, tileset_index);
     float pixel_val = pixel_val4.r;
 
-    //vec4 local_color = vec4(tile_index/255.0, color_index.r/15.0, 0.0, 1.0);
     vec4 local_color = texelFetch(u_clut_buffer, color_index);
-    //local_color.g=0;
-    //local_color.b=0;
 
     frag_color = (local_color / 255.0) * (pixel_val / 255.0);
 }

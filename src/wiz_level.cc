@@ -123,6 +123,10 @@ TileGroup GetTileGroup(unsigned char c) {
     return kKnownUnknown;
   }
 
+  if (c == 243) {
+    return kKnownUnknown;
+  }
+
   return kUnknown;
 }
 
@@ -135,7 +139,6 @@ LevelClass::LevelClass(std::span<unsigned char, kFileLength> data) {
   ladder_color_ = raw_data_[kLadderColorCode] & 0x0f;
   rope_color_ = raw_data_[kRopeColorCode] & 0x0f;
   portal_color_ = raw_data_[kPortalColorCode] & 0x0f;
-  std::cout << "brick color: " << std::format("{:#04x}", brick_color_) << "\n";
 }
 
 unsigned char LevelClass::GetTileAt(int row, int col) const {
