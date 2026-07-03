@@ -115,9 +115,9 @@ void PrintGLError(const std::string& s, const std::source_location loc) {
   }
 }
 
-void TextureSetupHelper(GLenum texture, GLuint* opengl_buffer, std::span<const unsigned char> buffer,
+void TextureSetupHelper(GLenum texture_unit, GLuint* opengl_buffer, std::span<const unsigned char> buffer,
                         GLenum usage, GLuint* opengl_texture, GLenum internalformat) {
-  glActiveTexture(texture);
+  glActiveTexture(texture_unit);
   PrintGLError("TextureSetupHelper:glActiveTexture");
 
   glGenBuffers(1, opengl_buffer);

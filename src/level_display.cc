@@ -1,63 +1,67 @@
 #include <GL/glew.h>
 #include <SDL.h>
 
-// #include <array>
+#include <array>
+#include <cstdint>
 #include <cstdlib>
-#include <filesystem>
-#include <fstream>
 #include <iostream>
 #include <span>
 #include <string>
+#include <string_view>
 
 #include "c64_clut.h"
 #include "getrespath.h"
+#include "load_data.h"
 #include "opengl_helper.h"
+#include "sprites_classic.h"
+#include "tiles_classic.h"
 #include "wiz_level.h"
+
+// TODO: set alpha blend mode
 
 constexpr double kMsPerFrame = 1000.0 / 60.0;
 
 constexpr unsigned int kRowTiles = 25;
 constexpr unsigned int kColTiles = 40;
 
-const std::string kVertexShaderName{"vertex.glsl"};
-const std::string kFragmentShaderName{"classic_tile_fragment.glsl"};
+const std::string kClassicTileVertexShaderName{"classic_tile_vertex.glsl"};
+const std::string kClassicTileFragmentShaderName{"classic_tile_fragment.glsl"};
+const std::string kClassicSpriteVertexShaderName{"classic_sprite_vertex.glsl"};
+const std::string kClassicSpriteFragmentShaderName{"classic_sprite_fragment.glsl"};
 
 SDL_Window* g_window = NULL;
 SDL_GLContext g_sdl_glcontext;
 
-uint_least32_t g_row_bytes;
-
-GLuint g_tbo_tile_buffer;
-GLuint g_tbo_tex_tile_buffer;
-GLuint g_tbo_color_buffer;
-GLuint g_tbo_tex_color_buffer;
-GLuint g_tbo_tileset_buffer;
-GLuint g_tbo_tex_tileset_buffer;
-GLuint g_tbo_clut_buffer;
-GLuint g_tbo_tex_clut_buffer;
-
-struct Rect {
-  double top;
-  double left;
-  double bottom;
-  double right;
-};
+tiles_classic::ClassicTileGLBuffers g_tile_glbuffers;
+sprites_classic::ClassicSpriteGLBuffers g_sprite_glbuffers;
 
 // For now we'll just scale off the C64 and later we'll adjust to fix theaspect ratio
 constexpr uint_least32_t kScreenWidth = 8 * kColTiles * 5 * 0.75;
 constexpr uint_least32_t kScreenHeight = 8 * kRowTiles * 5;
 
-constexpr unsigned int kCharSetSize = 8 * 256;
-constexpr unsigned int kTileBufferSize = 8 * 8 * 256;
+// 256 characters at 8 bytes each
+constexpr std::size_t kCharSetSize = 256 * 8;
+
+// Character set represented with a byte per pixel
+constexpr std::size_t kTileBufferSize = 256 * 8 * 8;
+
+// Number of bytes to skip in files starting with a loading address
+constexpr unsigned int kLoadAddressOffset = 2;
+
+static bool ErrorEvalPrintSDL(bool condition, std::string_view message) {
+  if (condition) {
+    std::cerr << message << " " << SDL_GetError() << "\n";
+    return false;
+  }
+
+  return true;
+}
 
 static bool Initialize(void) {
   bool success = true;
 
   // Initalize SDL
-  if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-    std::cerr << "SDL could not be initialized: " << SDL_GetError() << "\n";
-    success = false;
-  }
+  success = ErrorEvalPrintSDL(SDL_Init(SDL_INIT_VIDEO) < 0, "SDL could not be initialized:");
 
   if (success) {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
@@ -68,20 +72,14 @@ static bool Initialize(void) {
     g_window = SDL_CreateWindow("SDL Window", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, kScreenWidth,
                                 kScreenHeight, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
 
-    if (g_window == NULL) {
-      std::cerr << "Window could not be created: " << SDL_GetError() << "\n";
-      success = false;
-    }
+    success = ErrorEvalPrintSDL(g_window == NULL, "Window could not be created:");
   }
 
   if (success) {
     // Create context
     g_sdl_glcontext = SDL_GL_CreateContext(g_window);
 
-    if (g_sdl_glcontext == NULL) {
-      std::cerr << "OpenGL context could not be created: " << SDL_GetError() << "\n";
-      success = false;
-    }
+    success = ErrorEvalPrintSDL(g_sdl_glcontext == NULL, "OpenGL context could not be created:");
   }
 
   if (success) {
@@ -102,6 +100,9 @@ static bool Initialize(void) {
     }
   }
 
+  // Set blend mode
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glDisable(GL_DEPTH_TEST);
 
   return success;
@@ -109,40 +110,13 @@ static bool Initialize(void) {
 
 static bool LoadCharSet(std::filesystem::path path_and_name,
                         std::span<unsigned char, kTileBufferSize> char_set) {
-  constexpr int kDataOffset = 2;
+  std::array<unsigned char, kCharSetSize> buffer;
 
-  std::error_code ec;
-  std::uintmax_t size = std::filesystem::file_size(path_and_name, ec);
+  bool success = alatar::LoadData(path_and_name, buffer, kLoadAddressOffset);
 
-  if (ec.value() != 0) {
-    std::cerr << "Error: " << ec.message() << "(" << path_and_name << ")" << std::endl;
+  if (!success) {
     return false;
   }
-
-  if (size != (kCharSetSize + kDataOffset)) {
-    std::cerr << "Error: File is of the incorrect size" << std::endl;
-    return false;
-  }
-
-  std::ifstream in(path_and_name, std::ios::binary);
-
-  if (!in.is_open()) {
-    std::cerr << "Error: Unable to open file" << std::endl;
-    return false;
-  }
-
-  in.seekg(kDataOffset, std::ios::beg);
-
-  std::array<char, kCharSetSize> buffer;
-
-  in.read(buffer.data(), static_cast<std::streamsize>(kCharSetSize));
-
-  if (in.gcount() != static_cast<std::streamsize>(kCharSetSize)) {
-    std::cerr << "Error: Unexpected end of file" << std::endl;
-    return false;
-  }
-
-  in.close();
 
   // This includes all of the funny decoding of the byte/bit ordering
   for (unsigned int chr = 0; chr < 256; ++chr) {
@@ -169,164 +143,23 @@ static bool LoadCharSet(std::filesystem::path path_and_name,
   return true;
 }
 
-static bool LoadLevel(std::string file_name, std::span<unsigned char, wizard_level::kFileLength> level_data) {
-  std::error_code ec;
-  std::uintmax_t size = std::filesystem::file_size(file_name, ec);
-
-  if (ec.value() != 0) {
-    std::cerr << "Error: " << ec.message() << std::endl;
-    return false;
-  }
-
-  if (size != wizard_level::kFileLength) {
-    std::cerr << "Error: File is of the incorrect size" << std::endl;
-    return false;
-  }
-
-  std::ifstream in(file_name, std::ios::binary);
-
-  if (!in.is_open()) {
-    std::cerr << "Error: Unable to open file" << std::endl;
-    return false;
-  }
-
-  in.read(reinterpret_cast<char*>(level_data.data()), wizard_level::kFileLength);
-
-  if (in.gcount() != wizard_level::kFileLength) {
-    std::cerr << "Error: Unexpected end of file" << std::endl;
-    return false;
-  }
-
-  in.close();
-
-  return true;
-}
-
-// TODO: A lot of this should be moved into a new data structure as it doesn't change with use
-static void PaintRect(BurningLogic::ShaderVars shader_vars, Rect r) {
-  SDL_FRect sdl_rect;
-
-  sdl_rect.x = static_cast<float>(r.left);
-  sdl_rect.y = static_cast<float>(r.top);
-  sdl_rect.w = static_cast<float>((r.right - r.left));
-  sdl_rect.h = static_cast<float>((r.bottom - r.top));
-
-  std::array<GLfloat, 8> vertex_buffer = {{sdl_rect.x, sdl_rect.y, sdl_rect.x + sdl_rect.w, sdl_rect.y,
-                                           sdl_rect.x, sdl_rect.y + sdl_rect.h, sdl_rect.x + sdl_rect.w,
-                                           sdl_rect.y + sdl_rect.h}};
-  std::array<GLuint, 8> index_buffer = {{0, 1, 2, 3}};
-
-  // Bind program
-  glUseProgram(shader_vars.program);
-  BurningLogic::PrintGLError("PaintRect:glUseProgram");
-
-  glBindVertexArray(shader_vars.vao);
-  BurningLogic::PrintGLError("PaintRect:glBindVertexArray");
-
-  glBindBuffer(GL_ARRAY_BUFFER, shader_vars.vbo);
-  BurningLogic::PrintGLError("PaintRect:glBindBuffer");
-
-  glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(vertex_buffer.size() * sizeof(GLfloat)),
-               vertex_buffer.data(), GL_STREAM_DRAW);
-  BurningLogic::PrintGLError("PaintRect:glBufferData");
-
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, shader_vars.ibo);
-  BurningLogic::PrintGLError("PaintRect:glBindBuffer");
-
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<GLsizeiptr>(index_buffer.size() * sizeof(GLuint)),
-               index_buffer.data(), GL_STREAM_DRAW);
-  BurningLogic::PrintGLError("PaintRect:glBufferData");
-
-  // Enable vertex position
-  GLuint vpos_location = BurningLogic::GetShaderAttributeLocation(shader_vars.program, "v_pos");
-  glEnableVertexAttribArray(vpos_location);
-  BurningLogic::PrintGLError("PaintRect:glEnableVertexAttribArray");
-
-  // Set vertex data
-  glBindBuffer(GL_ARRAY_BUFFER, shader_vars.vbo);
-  BurningLogic::PrintGLError("PaintRect:glBindBuffer");
-
-  glVertexAttribPointer(vpos_location, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), NULL);
-  BurningLogic::PrintGLError("PaintRect:glVertexAttribPointer");
-
-  // Set scaling and translation uniforms
-  // TODO save this stuff off and only update if the window size changes
-  int screen_width;
-  int screen_height;
-
-  SDL_GL_GetDrawableSize(g_window, &screen_width, &screen_height);
-  // glViewport(0, 0, screen_width, screen_height);
-
-  // Texture stuff (tile buffer)
-  GLint tilebuffer_location = BurningLogic::GetShaderUniformLocation(shader_vars.program, "u_tile_buffer");
-  glUniform1i(tilebuffer_location, 0);
-  BurningLogic::PrintGLError("PaintRect:glUniform1i");
-
-  // Texture stuff (color buffer)
-  GLint colorbuffer_location = BurningLogic::GetShaderUniformLocation(shader_vars.program, "u_color_buffer");
-  glUniform1i(colorbuffer_location, 1);
-  BurningLogic::PrintGLError("PaintRect:glUniform1i");
-
-  // Texture stuff (tile set buffer)
-  GLint tileset_location = BurningLogic::GetShaderUniformLocation(shader_vars.program, "u_tileset_buffer");
-  glUniform1i(tileset_location, 2);
-  BurningLogic::PrintGLError("PaintRect:glUniform1i");
-
-  // Texture stuff (clut)
-  GLint clut_location = BurningLogic::GetShaderUniformLocation(shader_vars.program, "u_clut_buffer");
-  glUniform1i(clut_location, 3);
-  BurningLogic::PrintGLError("PaintRect:glUniform1i");
-
-  // ------
-  glActiveTexture(GL_TEXTURE0);
-  BurningLogic::PrintGLError("PaintRect:glActiveTexture");
-
-  glBindTexture(GL_TEXTURE_BUFFER, g_tbo_tile_buffer);
-  BurningLogic::PrintGLError("PaintRect:glBindTexture");
-
-  // ------
-  glActiveTexture(GL_TEXTURE1);
-  BurningLogic::PrintGLError("PaintRect:glActiveTexture");
-
-  glBindTexture(GL_TEXTURE_BUFFER, g_tbo_color_buffer);
-  BurningLogic::PrintGLError("PaintRect:glBindTexture");
-
-  // Set index data and render
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, shader_vars.ibo);
-  BurningLogic::PrintGLError("PaintRect:glBindBuffer");
-
-  glDrawElements(GL_TRIANGLE_STRIP, 2 * 2, GL_UNSIGNED_INT, NULL);
-  BurningLogic::PrintGLError("PaintRect:glDrawElements");
-
-  // Disable vertex position
-  glDisableVertexAttribArray(vpos_location);
-
-  // Unbind program
-  glUseProgram(0);
-}
-
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
   bool success;
   std::array<unsigned char, kRowTiles * kColTiles> tile_buffer{};
   std::array<unsigned char, kRowTiles * kColTiles> color_buffer{};
   std::array<unsigned char, kTileBufferSize> tile_set{};
   std::array<unsigned char, wizard_level::kFileLength> level_data{};
+  std::array<unsigned char, sprites_classic::kSpriteProcDataSize> processed_sprites{};
 
   const std::filesystem::path kResourcePath = BurningLogic::GetResPath();
 
   const std::string kShadersDirName{"shaders"};
   const std::string kCharSetsDirName{"classic"};
   const std::string kCharSetName{"chrw"};
+  const std::string kSpriteSetName{"sprw"};
 
   if (argc != 2) {
     std::cerr << "Exactly one arguement must be supplied, the level file name" << std::endl;
-    return EXIT_FAILURE;
-  }
-
-  success = LoadLevel(argv[1], level_data);
-
-  if (!success) {
-    std::cerr << "Failed to load level file, exiting\n";
     return EXIT_FAILURE;
   }
 
@@ -341,6 +174,13 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
   for (unsigned int ii = 0; ii < (kRowTiles * kColTiles); ++ii) {
     tile_buffer[ii] = 32;
     color_buffer[ii] = 0;
+  }
+
+  success = alatar::LoadData(argv[1], level_data);
+
+  if (!success) {
+    std::cerr << "Failed to load level file, exiting\n";
+    return EXIT_FAILURE;
   }
 
   wizard_level::LevelClass level(level_data);
@@ -358,7 +198,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
     }
   }
 
-  // Move these strings to constants above?
   auto tile_set_path_and_name = kResourcePath / kCharSetsDirName / kCharSetName;
   success = LoadCharSet(tile_set_path_and_name, tile_set);
 
@@ -367,34 +206,95 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
     return EXIT_FAILURE;
   }
 
-  // TODO: get rid of all of these globals
+  auto sprite_set_path_and_name = kResourcePath / kCharSetsDirName / kSpriteSetName;
+  success = sprites_classic::LoadSpriteData(sprite_set_path_and_name, processed_sprites);
+
+  if (!success) {
+    std::cerr << "Failed to load sprite set, exiting\n";
+    return EXIT_FAILURE;
+  }
+
+  // TODO: Move this stuff out of main
+  // Set up the various buffers for the display data
+  GLuint tbo_tile_buffer;
+  GLuint tbo_tex_tile_buffer;
+  GLuint tbo_color_buffer;
+  GLuint tbo_tex_color_buffer;
+  GLuint tbo_tileset_buffer;
+  GLuint tbo_tex_tileset_buffer;
+  GLuint tbo_clut_buffer;
+  GLuint tbo_tex_clut_buffer;
+  GLuint tbo_sprite_buffer;
+  GLuint tbo_tex_sprite_buffer;
 
   // Tile buffer
-  BurningLogic::TextureSetupHelper(GL_TEXTURE0, &g_tbo_tile_buffer, tile_buffer, GL_DYNAMIC_DRAW,
-                                   &g_tbo_tex_tile_buffer, GL_R8UI);
+  BurningLogic::TextureSetupHelper(GL_TEXTURE0, &tbo_tile_buffer, tile_buffer, GL_DYNAMIC_DRAW,
+                                   &tbo_tex_tile_buffer, GL_R8UI);
 
   // Color buffer
-  BurningLogic::TextureSetupHelper(GL_TEXTURE1, &g_tbo_color_buffer, color_buffer, GL_DYNAMIC_DRAW,
-                                   &g_tbo_tex_color_buffer, GL_R8UI);
+  BurningLogic::TextureSetupHelper(GL_TEXTURE1, &tbo_color_buffer, color_buffer, GL_DYNAMIC_DRAW,
+                                   &tbo_tex_color_buffer, GL_R8UI);
 
-  // Tile set buffer
-  BurningLogic::TextureSetupHelper(GL_TEXTURE2, &g_tbo_tileset_buffer, tile_set, GL_STATIC_DRAW,
-                                   &g_tbo_tex_tileset_buffer, GL_R8UI);
+  // Tile set
+  BurningLogic::TextureSetupHelper(GL_TEXTURE2, &tbo_tileset_buffer, tile_set, GL_STATIC_DRAW,
+                                   &tbo_tex_tileset_buffer, GL_R8UI);
 
-  // CLUT buffer calls
-  BurningLogic::TextureSetupHelper(GL_TEXTURE3, &g_tbo_clut_buffer, kDefaultC64Clut, GL_STATIC_DRAW,
-                                   &g_tbo_tex_clut_buffer, GL_RGBA8UI);
+  // CLUT
+  BurningLogic::TextureSetupHelper(GL_TEXTURE3, &tbo_clut_buffer, kDefaultC64Clut, GL_STATIC_DRAW,
+                                   &tbo_tex_clut_buffer, GL_RGBA8UI);
+
+  // Sprite set
+  BurningLogic::TextureSetupHelper(GL_TEXTURE4, &tbo_sprite_buffer, processed_sprites, GL_STATIC_DRAW,
+                                   &tbo_tex_sprite_buffer, GL_R8UI);
+
+  // TODO: Add textur4e units here as well
+  // GL buffers for tiles
+  g_tile_glbuffers.tbo_tile_buffer = tbo_tile_buffer;
+  g_tile_glbuffers.tbo_tex_tile_buffer = tbo_tex_tile_buffer;
+  g_tile_glbuffers.tbo_color_buffer = tbo_color_buffer;
+  g_tile_glbuffers.tbo_tex_color_buffer = tbo_tex_color_buffer;
+  g_tile_glbuffers.tbo_tileset_buffer = tbo_tileset_buffer;
+  g_tile_glbuffers.tbo_tex_tileset_buffer = tbo_tex_tileset_buffer;
+  g_tile_glbuffers.tbo_clut_buffer = tbo_clut_buffer;
+  g_tile_glbuffers.tbo_tex_clut_buffer = tbo_tex_clut_buffer;
+
+  // GL buffers for sprites
+  g_sprite_glbuffers.tbo_sprite_buffer = tbo_sprite_buffer;
+  g_sprite_glbuffers.tbo_tex_sprite_buffer = tbo_tex_sprite_buffer;
+  g_sprite_glbuffers.sprite_texture_unit = GL_TEXTURE4;
+  g_sprite_glbuffers.tbo_clut_buffer = tbo_clut_buffer;
+  g_sprite_glbuffers.tbo_tex_clut_buffer = tbo_tex_clut_buffer;
+  g_sprite_glbuffers.clut_texture_unit = GL_TEXTURE3;
 
   // Set up shaders
   const std::filesystem::path kShaderPath = kResourcePath / kShadersDirName;
-  const std::filesystem::path kVertexShaderFilename = kShaderPath / kVertexShaderName;
-  const std::filesystem::path kFragmentShaderFilename = kShaderPath / kFragmentShaderName;
+  const std::filesystem::path kClassicTileVertexShaderFilename = kShaderPath / kClassicTileVertexShaderName;
+  const std::filesystem::path kClassicTileFragmentShaderFilename =
+      kShaderPath / kClassicTileFragmentShaderName;
+  const std::filesystem::path kClassicSpriteVertexShaderFilename =
+      kShaderPath / kClassicSpriteVertexShaderName;
+  const std::filesystem::path kClassicSpriteFragmentShaderFilename =
+      kShaderPath / kClassicSpriteFragmentShaderName;
 
-  const std::string line_vertex_shader_string = BurningLogic::LoadShaderSource(kVertexShaderFilename);
-  const std::string line_fragment_shader_source = BurningLogic::LoadShaderSource(kFragmentShaderFilename);
+  // Tile shaders
+  const std::string classic_tile_vertex_shader_source =
+      BurningLogic::LoadShaderSource(kClassicTileVertexShaderFilename);
+  const std::string classic_tile_fragment_shader_source =
+      BurningLogic::LoadShaderSource(kClassicTileFragmentShaderFilename);
 
-  auto my_shader_vars =
-      BurningLogic::BuildShaderProgram(line_vertex_shader_string, line_fragment_shader_source);
+  // Sprite shaders
+  const std::string classic_sprite_vertex_shader_source =
+      BurningLogic::LoadShaderSource(kClassicSpriteVertexShaderFilename);
+  const std::string classic_sprite_fragment_shader_source =
+      BurningLogic::LoadShaderSource(kClassicSpriteFragmentShaderFilename);
+
+  auto classic_tile_shader_vars = BurningLogic::BuildShaderProgram(classic_tile_vertex_shader_source,
+                                                                   classic_tile_fragment_shader_source);
+  auto classic_sprite_shader_vars = BurningLogic::BuildShaderProgram(classic_sprite_vertex_shader_source,
+                                                                     classic_sprite_fragment_shader_source);
+
+  wizard_level::WizardInfo wizard_info = level.GetWizardInfo();
+  wizard_level::MonsterInfoArray monster_info = level.GetMonsterInfo();
 
   bool gDone = false;
   SDL_Event sdl_event;
@@ -417,8 +317,21 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
     glClear(GL_COLOR_BUFFER_BIT);
 
     // Draw
-    // TODO: Should probably rename this as well
-    PaintRect(my_shader_vars, Rect({-1.0, -1.0, 2.0, 2.0}));
+    tiles_classic::PaintClassicTiles(classic_tile_shader_vars, SDL_FRect({-1.0, -1.0, 2.0, 2.0}),
+                                     g_tile_glbuffers);
+
+    for (unsigned int ii = 0; ii < 6; ++ii) {
+      if (monster_info[ii].active) {
+        sprites_classic::DrawClassicSpriteC64(
+            classic_sprite_shader_vars, g_sprite_glbuffers, monster_info[ii].sprite_id, monster_info[ii].x,
+            monster_info[ii].y,
+            {{wizard_level::kColorLightBlue, monster_info[ii].color, wizard_level::kColorWhite}});
+      }
+    }
+
+    sprites_classic::DrawClassicSpriteC64(
+        classic_sprite_shader_vars, g_sprite_glbuffers, 0, wizard_info.x, wizard_info.y,
+        {{wizard_level::kColorLightBlue, wizard_info.color, wizard_level::kColorWhite}});
 
     // Present
     SDL_GL_SwapWindow(g_window);

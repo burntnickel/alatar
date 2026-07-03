@@ -1,6 +1,7 @@
 #ifndef H_ALATAR_WIZ_LEVEL
 #define H_ALATAR_WIZ_LEVEL
 
+#include <array>
 #include <span>
 
 namespace wizard_level {
@@ -118,9 +119,60 @@ enum C64Colors {
   kColorDarkGrey = 11,
   kColorGrey = 12,
   kColorLightGreen = 13,
-  kColorLightBlur = 14,
+  kColorLightBlue = 14,
   kColorLightGrey = 15
 };
+
+// High bit of x-position masks
+enum XMask {
+  kXMaskMonster0 = 1,
+  kXMaskMonster1 = 2,
+  kXMaskMonster2 = 4,
+  kXMaskMonster3 = 8,
+  kXMaskMonster4 = 16,
+  kXMaskMonster5 = 32,
+  kXMaskWizard = 64 + 128  // Not sure about this one
+};
+
+enum MonsterType {
+  kNone = 0,
+  kArrow = 1,
+  kBat = 2,
+  kGhost = 3,
+  kEvitWizard = 4,
+  kWitch = 5,
+  kFallingRock = 6,
+  kElevator = 7,
+  kLava = 8,
+  kPit = 9,
+  kTrapDoor = 10,
+  kSlidingGate = 11,
+  kLavaTroll = 12,
+  kRollingRock = 13,
+  kGiantRat = 14,
+  kScorpion = 15,
+  kSlime = 16,
+  kGiantSpider = 17,
+  kShadowLord = 18,
+  kTheif = 19,
+  kWizardsCat = 20
+};
+
+struct WizardInfo {
+  int x;
+  int y;
+  int color;
+};
+
+struct MonsterInfo {
+  bool active;
+  int x;
+  int y;
+  int color;
+  int sprite_id;
+};
+
+using MonsterInfoArray = std::array<MonsterInfo, 6>;
 
 class LevelClass {
  public:
@@ -132,6 +184,11 @@ class LevelClass {
   unsigned char GetRopeColor(void) const;
   unsigned char GetPortalColor(void) const;
   unsigned char GetTileColor(unsigned char c) const;
+  WizardInfo GetWizardInfo(void) const;
+  MonsterInfoArray GetMonsterInfo(void) const;
+
+ private:
+  void SetTileAt(int row, int col, unsigned char c);
 
  private:
   std::array<unsigned char, kFileLength> raw_data_{};

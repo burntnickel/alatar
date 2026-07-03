@@ -1,17 +1,20 @@
 #version 400 core
 
-// OpenGL vertex shader for BeforeDawn frame buffer
+// OpenGL classic sprite vertex shader for Alatar
 
 // Per vertex inputs
 // ----------------------------------
-in vec2 v_pos;
+in vec2 in_pos;
+in vec2 in_uv;
 
 // Outputs
 // ----------------------------------
 out vec4 shader_coord;
+out vec2 UV;
 
 void main() {
-    gl_Position = vec4(v_pos.x, v_pos.y, 0.0, 1.0);
+    gl_Position = vec4(in_pos.x, in_pos.y, 0.0, 1.0);
     shader_coord = gl_Position;
+    UV = in_uv;
 }
 

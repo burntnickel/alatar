@@ -134,6 +134,12 @@ TileGroup GetTileGroup(unsigned char c) {
 LevelClass::LevelClass(std::span<unsigned char, kFileLength> data) {
   std::copy(data.begin(), data.end(), raw_data_.begin());
 
+  // Clear regions that shoudn't have tiles (I found some levels have stray characxters there)
+  for (int rr = 0; rr < (kTileDataRows-1); ++rr) {
+    SetTileAt(rr, 0, 32);
+    SetTileAt(rr, kTileDataCols - 1, 32);
+  }
+
   // Tile colors
   brick_color_ = raw_data_[kBrickColorCode] & 0x0f;
   ladder_color_ = raw_data_[kLadderColorCode] & 0x0f;
@@ -203,6 +209,53 @@ unsigned char LevelClass::GetTileColor(unsigned char c) const {
       std::cerr << "Unknown tile: " << std::format("{:#04x}", c) << "\n";
       return 0;
   }
+}
+
+WizardInfo LevelClass::GetWizardInfo(void) const {
+  WizardInfo tmp;
+
+  tmp.x = raw_data_[kWizardXLow];
+  tmp.y = raw_data_[kWizardY];
+  tmp.color = kColorPurple;
+
+  if (raw_data_[kSpriteXHighBits] & kXMaskWizard) {
+    tmp.x = tmp.x + 256;
+  }
+
+  return tmp;
+}
+
+MonsterInfoArray LevelClass::GetMonsterInfo(void) const {
+  MonsterInfoArray tmp;
+
+  for (unsigned int ii = 0; ii < 6; ++ii) {
+    tmp[ii].active = (raw_data_[kMonster0MonsterID + ii] != kNone);
+    tmp[ii].x = raw_data_[kMonster0XLow + ii];
+    tmp[ii].y = raw_data_[kMonster0Y + ii];
+    tmp[ii].color = raw_data_[kMonster0ColorCode + ii];
+    tmp[ii].sprite_id =
+        raw_data_[kMonster0SpriteID + ii] & 0x7f;  // Not sure why the high bit needs to be cleared
+
+    if (raw_data_[kSpriteXHighBits] & (1 << ii)) {
+      tmp[ii].x = tmp[ii].x + 256;
+    }
+  }
+
+  return tmp;
+}
+
+void LevelClass::SetTileAt(int row, int col, unsigned char c) {
+  if ((row < 0) || (row > (kTileDataRows - 1))) {
+    throw std::out_of_range("Tile column out of range");
+  }
+
+  if ((col < 0) || (col > (kTileDataCols - 1))) {
+    throw std::out_of_range("Tile row out of range");
+  }
+
+  unsigned int offset = static_cast<unsigned int>(row * kTileDataCols + col);
+
+  raw_data_[kTileDataStart + offset] = c;
 }
 
 }  // namespace wizard_level
