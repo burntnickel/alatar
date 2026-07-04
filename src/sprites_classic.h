@@ -8,7 +8,7 @@
 
 #include "opengl_helper.h"
 
-namespace sprites_classic {
+namespace alatar_classic {
 
 struct ClassicSpriteGLBuffers {
   GLuint tbo_sprite_buffer;
@@ -45,6 +45,6 @@ void DrawClassicSprite(BurningLogic::ShaderVars shader_vars, ClassicSpriteGLBuff
 void DrawClassicSpriteC64(BurningLogic::ShaderVars shader_vars, ClassicSpriteGLBuffers gl_buffers, int id,
                           int x, int y, std::array<int, 3> colors, int modifier = kSpriteNormal);
 
-}  // namespace sprites_classic
+}  // namespace alatar_classic
 
 #endif

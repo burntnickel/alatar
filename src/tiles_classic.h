@@ -5,7 +5,7 @@
 
 #include "opengl_helper.h"
 
-namespace tiles_classic {
+namespace alatar_classic {
 
 struct ClassicTileGLBuffers {
   GLuint tbo_tile_buffer;
@@ -21,6 +21,6 @@ struct ClassicTileGLBuffers {
 void PaintClassicTiles(BurningLogic::ShaderVars shader_vars, SDL_FRect sdl_rect,
                        ClassicTileGLBuffers gl_buffers);
 
-}  // namespace tiles_classic
+}  // namespace alatar_classic
 
 #endif

@@ -32,8 +32,8 @@ const std::string kClassicSpriteFragmentShaderName{"classic_sprite_fragment.glsl
 SDL_Window* g_window = NULL;
 SDL_GLContext g_sdl_glcontext;
 
-tiles_classic::ClassicTileGLBuffers g_tile_glbuffers;
-sprites_classic::ClassicSpriteGLBuffers g_sprite_glbuffers;
+alatar_classic::ClassicTileGLBuffers g_tile_glbuffers;
+alatar_classic::ClassicSpriteGLBuffers g_sprite_glbuffers;
 
 // For now we'll just scale off the C64 and later we'll adjust to fix theaspect ratio
 constexpr uint_least32_t kScreenWidth = 8 * kColTiles * 5 * 0.75;
@@ -149,7 +149,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
   std::array<unsigned char, kRowTiles * kColTiles> color_buffer{};
   std::array<unsigned char, kTileBufferSize> tile_set{};
   std::array<unsigned char, wizard_level::kFileLength> level_data{};
-  std::array<unsigned char, sprites_classic::kSpriteProcDataSize> processed_sprites{};
+  std::array<unsigned char, alatar_classic::kSpriteProcDataSize> processed_sprites{};
 
   const std::filesystem::path kResourcePath = BurningLogic::GetResPath();
 
@@ -207,7 +207,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
   }
 
   auto sprite_set_path_and_name = kResourcePath / kCharSetsDirName / kSpriteSetName;
-  success = sprites_classic::LoadSpriteData(sprite_set_path_and_name, processed_sprites);
+  success = alatar_classic::LoadSpriteData(sprite_set_path_and_name, processed_sprites);
 
   if (!success) {
     std::cerr << "Failed to load sprite set, exiting\n";
@@ -317,19 +317,19 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
     glClear(GL_COLOR_BUFFER_BIT);
 
     // Draw
-    tiles_classic::PaintClassicTiles(classic_tile_shader_vars, SDL_FRect({-1.0, -1.0, 2.0, 2.0}),
+    alatar_classic::PaintClassicTiles(classic_tile_shader_vars, SDL_FRect({-1.0, -1.0, 2.0, 2.0}),
                                      g_tile_glbuffers);
 
     for (unsigned int ii = 0; ii < 6; ++ii) {
       if (monster_info[ii].active) {
-        sprites_classic::DrawClassicSpriteC64(
+        alatar_classic::DrawClassicSpriteC64(
             classic_sprite_shader_vars, g_sprite_glbuffers, monster_info[ii].sprite_id, monster_info[ii].x,
             monster_info[ii].y,
             {{wizard_level::kColorLightBlue, monster_info[ii].color, wizard_level::kColorWhite}});
       }
     }
 
-    sprites_classic::DrawClassicSpriteC64(
+    alatar_classic::DrawClassicSpriteC64(
         classic_sprite_shader_vars, g_sprite_glbuffers, 0, wizard_info.x, wizard_info.y,
         {{wizard_level::kColorLightBlue, wizard_info.color, wizard_level::kColorWhite}});
 

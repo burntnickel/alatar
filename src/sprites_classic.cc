@@ -3,7 +3,7 @@
 #include "load_data.h"
 #include "sprites_classic.h"
 
-namespace sprites_classic {
+namespace alatar_classic {
 
 static constexpr unsigned int kSpriteWidth = 24;
 static constexpr unsigned int kSpriteWidthBytes = kSpriteWidth / 8;

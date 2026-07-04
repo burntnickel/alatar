@@ -1,6 +1,6 @@
 #include "tiles_classic.h"
 
-namespace tiles_classic {
+namespace alatar_classic {
 
 void PaintClassicTiles(BurningLogic::ShaderVars shader_vars, SDL_FRect sdl_rect,
                        ClassicTileGLBuffers gl_buffers) {
