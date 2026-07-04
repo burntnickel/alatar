@@ -10,16 +10,18 @@
 #include <string_view>
 
 #include "c64_clut.h"
+#include "classic.h"
 #include "getrespath.h"
 #include "load_data.h"
 #include "opengl_helper.h"
 #include "sprites_classic.h"
 #include "tiles_classic.h"
+#include "value_cycle.h"
 #include "wiz_level.h"
 
-// TODO: set alpha blend mode
-
+// Default to 60 frames per second
 constexpr double kMsPerFrame = 1000.0 / 60.0;
+//constexpr double kMsPerFrame = 1000.0 / 15.0;
 
 constexpr unsigned int kRowTiles = 25;
 constexpr unsigned int kColTiles = 40;
@@ -158,6 +160,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
   const std::string kCharSetName{"chrw"};
   const std::string kSpriteSetName{"sprw"};
 
+  alatar::ValueCycle<unsigned char> treasure_color_cycle{alatar_classic::kTreasureCycleColors};
+  alatar::ValueCycle<unsigned char> fire_color_cycle{alatar_classic::kFireCycleColors};
+
   if (argc != 2) {
     std::cerr << "Exactly one arguement must be supplied, the level file name" << std::endl;
     return EXIT_FAILURE;
@@ -247,7 +252,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
   BurningLogic::TextureSetupHelper(GL_TEXTURE4, &tbo_sprite_buffer, processed_sprites, GL_STATIC_DRAW,
                                    &tbo_tex_sprite_buffer, GL_R8UI);
 
-  // TODO: Add textur4e units here as well
+  // TODO: Add texture units here as well
   // GL buffers for tiles
   g_tile_glbuffers.tbo_tile_buffer = tbo_tile_buffer;
   g_tile_glbuffers.tbo_tex_tile_buffer = tbo_tex_tile_buffer;
@@ -318,7 +323,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
 
     // Draw
     alatar_classic::PaintClassicTiles(classic_tile_shader_vars, SDL_FRect({-1.0, -1.0, 2.0, 2.0}),
-                                     g_tile_glbuffers);
+                                      g_tile_glbuffers);
 
     for (unsigned int ii = 0; ii < 6; ++ii) {
       if (monster_info[ii].active) {
@@ -335,6 +340,54 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
 
     // Present
     SDL_GL_SwapWindow(g_window);
+
+    // Update graphics (these probably don't upate at 60 Hz, need to get te correct number)
+    ++treasure_color_cycle;
+    unsigned char treasure_color_idx = treasure_color_cycle.GetValue();
+
+    ++fire_color_cycle;
+    unsigned char fire_color_idx = fire_color_cycle.GetValue();
+
+    for (int row = 0; row < wizard_level::kTileDataRows; ++row) {
+      for (int col = 0; col < wizard_level::kTileDataCols; ++col) {
+        unsigned int screen_row = static_cast<unsigned int>(row) + 1;
+        unsigned int screen_col = static_cast<unsigned int>(col);
+        unsigned int screen_index = kColTiles * screen_row + screen_col;
+
+        unsigned char tile = level.GetTileAt(row, col);
+
+        if (wizard_level::GetTileGroup(tile) == wizard_level::kTreasure) {
+          color_buffer[screen_index] = treasure_color_idx;
+        }
+
+        if (wizard_level::GetTileGroup(tile) == wizard_level::kFire) {
+          color_buffer[screen_index] = fire_color_idx;
+
+          auto tmp_tile = tile_buffer[screen_index];
+          tmp_tile = tmp_tile + 1;
+
+          if (tmp_tile > 117) {
+            tmp_tile = 114;
+          }
+
+          tile_buffer[screen_index] = tmp_tile;
+        }
+      }
+    }
+
+    glBindBuffer(GL_TEXTURE_BUFFER, tbo_color_buffer);
+    BurningLogic::PrintGLError("main:glBindBuffer");
+
+    glBufferSubData(GL_TEXTURE_BUFFER, 0, static_cast<GLsizeiptr>(color_buffer.size()), color_buffer.data());
+    BurningLogic::PrintGLError("main:glBufferSubData");
+
+    glBindBuffer(GL_TEXTURE_BUFFER, tbo_tile_buffer);
+    BurningLogic::PrintGLError("main:glBindBuffer");
+
+    glBufferSubData(GL_TEXTURE_BUFFER, 0, static_cast<GLsizeiptr>(tile_buffer.size()), tile_buffer.data());
+    BurningLogic::PrintGLError("main:glBufferSubData");
+
+    // End update
 
     Uint64 end_counter = SDL_GetPerformanceCounter();
 

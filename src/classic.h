@@ -1,5 +1,5 @@
-#ifndef H_ALATAR_C64_CLUT
-#define H_ALATAR_C64_CLUT
+#ifndef H_ALATAR_CLASSIC
+#define H_ALATAR_CLASSIC
 
 #include <array>
 

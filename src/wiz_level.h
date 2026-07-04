@@ -176,7 +176,7 @@ using MonsterInfoArray = std::array<MonsterInfo, 6>;
 
 class LevelClass {
  public:
-  LevelClass(std::span<unsigned char, kFileLength> data);
+  explicit LevelClass(std::span<unsigned char, kFileLength> data);
 
   unsigned char GetTileAt(int row, int col) const;
   unsigned char GetBrickColor(void) const;
