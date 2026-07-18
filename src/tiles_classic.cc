@@ -1,6 +1,43 @@
 #include "tiles_classic.h"
 
+#include "load_data.h"
+
 namespace alatar_classic {
+
+bool LoadCharSet(std::filesystem::path path_and_name,
+                 std::span<unsigned char, wizard_level::kTileBufferSize> char_set) {
+  std::array<unsigned char, wizard_level::kCharSetSize> buffer;
+
+  bool success = alatar::LoadData(path_and_name, buffer, alatar::kLoadAddressOffset);
+
+  if (!success) {
+    return false;
+  }
+
+  // This includes all of the funny decoding of the byte/bit ordering
+  for (unsigned int chr = 0; chr < 256; ++chr) {
+    for (unsigned int in_rr = 0; in_rr < 8; ++in_rr) {
+      unsigned int out_rr = 8 * chr + in_rr;
+      unsigned int in_idx = 8 * chr + in_rr;
+
+      unsigned char c = static_cast<unsigned char>(buffer[in_idx]);
+
+      for (unsigned int bb = 0; bb < 8; ++bb) {
+        unsigned int out_idx = 8 * out_rr + bb;
+
+        if (c & 128) {
+          char_set[out_idx] = 255;
+        } else {
+          char_set[out_idx] = 0;
+        }
+
+        c = c << 1;
+      }
+    }
+  }
+
+  return true;
+}
 
 void PaintClassicTiles(BurningLogic::ShaderVars shader_vars, SDL_FRect sdl_rect,
                        ClassicTileGLBuffers gl_buffers) {
@@ -105,4 +142,4 @@ void PaintClassicTiles(BurningLogic::ShaderVars shader_vars, SDL_FRect sdl_rect,
   glUseProgram(0);
 }
 
-}  // namespace tiles_classic
+}  // namespace alatar_classic

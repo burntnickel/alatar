@@ -3,7 +3,11 @@
 
 #include <SDL.h>
 
+#include <filesystem>
+#include <span>
+
 #include "opengl_helper.h"
+#include "wiz_level.h"
 
 namespace alatar_classic {
 
@@ -17,6 +21,9 @@ struct ClassicTileGLBuffers {
   GLuint tbo_clut_buffer;
   GLuint tbo_tex_clut_buffer;
 };
+
+bool LoadCharSet(std::filesystem::path path_and_name,
+                        std::span<unsigned char, wizard_level::kTileBufferSize> char_set);
 
 void PaintClassicTiles(BurningLogic::ShaderVars shader_vars, SDL_FRect sdl_rect,
                        ClassicTileGLBuffers gl_buffers);

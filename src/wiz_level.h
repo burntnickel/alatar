@@ -2,6 +2,7 @@
 #define H_ALATAR_WIZ_LEVEL
 
 #include <array>
+#include <cstdlib>
 #include <span>
 
 namespace wizard_level {
@@ -9,6 +10,16 @@ namespace wizard_level {
 constexpr int kFileLength = 1138;
 constexpr int kTileDataCols = 40;
 constexpr int kTileDataRows = 21;
+
+constexpr unsigned int kRowTiles = 25;
+constexpr unsigned int kColTiles = 40;
+
+// 256 characters at 8 bytes each
+constexpr std::size_t kNumCharInSet = 256;
+constexpr std::size_t kCharSetSize = kNumCharInSet * 8;
+
+// Character set represented with a byte per pixel
+constexpr std::size_t kTileBufferSize = kCharSetSize * 8;
 
 enum {
   kMonster0XLow = 2,

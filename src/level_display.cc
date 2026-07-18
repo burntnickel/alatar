@@ -20,11 +20,8 @@
 #include "wiz_level.h"
 
 // Default to 60 frames per second
-constexpr double kMsPerFrame = 1000.0 / 60.0;
-//constexpr double kMsPerFrame = 1000.0 / 15.0;
-
-constexpr unsigned int kRowTiles = 25;
-constexpr unsigned int kColTiles = 40;
+constexpr double kDefaultFrameRateHz = 60;
+constexpr double kMsPerFrame = 1000.0 / kDefaultFrameRateHz;
 
 const std::string kClassicTileVertexShaderName{"classic_tile_vertex.glsl"};
 const std::string kClassicTileFragmentShaderName{"classic_tile_fragment.glsl"};
@@ -38,32 +35,23 @@ alatar_classic::ClassicTileGLBuffers g_tile_glbuffers;
 alatar_classic::ClassicSpriteGLBuffers g_sprite_glbuffers;
 
 // For now we'll just scale off the C64 and later we'll adjust to fix theaspect ratio
-constexpr uint_least32_t kScreenWidth = 8 * kColTiles * 5 * 0.75;
-constexpr uint_least32_t kScreenHeight = 8 * kRowTiles * 5;
+// constexpr uint_least32_t kScreenWidth = 8 * wizard_level::kColTiles * 5 * 0.75;
+// constexpr uint_least32_t kScreenHeight = 8 * wizard_level::kRowTiles * 5;
 
-// 256 characters at 8 bytes each
-constexpr std::size_t kCharSetSize = 256 * 8;
-
-// Character set represented with a byte per pixel
-constexpr std::size_t kTileBufferSize = 256 * 8 * 8;
-
-// Number of bytes to skip in files starting with a loading address
-constexpr unsigned int kLoadAddressOffset = 2;
+constexpr uint_least32_t kScreenWidth = 8 * wizard_level::kColTiles * 2.51 * 0.75;
+constexpr uint_least32_t kScreenHeight = 8 * wizard_level::kRowTiles * 2.51;
 
 static bool ErrorEvalPrintSDL(bool condition, std::string_view message) {
   if (condition) {
     std::cerr << message << " " << SDL_GetError() << "\n";
-    return false;
   }
 
-  return true;
+  return !condition;
 }
 
 static bool Initialize(void) {
-  bool success = true;
-
   // Initalize SDL
-  success = ErrorEvalPrintSDL(SDL_Init(SDL_INIT_VIDEO) < 0, "SDL could not be initialized:");
+  bool success = ErrorEvalPrintSDL(SDL_Init(SDL_INIT_VIDEO) < 0, "SDL could not be initialized:");
 
   if (success) {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
@@ -110,46 +98,11 @@ static bool Initialize(void) {
   return success;
 }
 
-static bool LoadCharSet(std::filesystem::path path_and_name,
-                        std::span<unsigned char, kTileBufferSize> char_set) {
-  std::array<unsigned char, kCharSetSize> buffer;
-
-  bool success = alatar::LoadData(path_and_name, buffer, kLoadAddressOffset);
-
-  if (!success) {
-    return false;
-  }
-
-  // This includes all of the funny decoding of the byte/bit ordering
-  for (unsigned int chr = 0; chr < 256; ++chr) {
-    for (unsigned int in_rr = 0; in_rr < 8; ++in_rr) {
-      unsigned int out_rr = 8 * chr + in_rr;
-      unsigned int in_idx = 8 * chr + in_rr;
-
-      unsigned char c = static_cast<unsigned char>(buffer[in_idx]);
-
-      for (unsigned int bb = 0; bb < 8; ++bb) {
-        unsigned int out_idx = 8 * out_rr + bb;
-
-        if (c & 128) {
-          char_set[out_idx] = 255;
-        } else {
-          char_set[out_idx] = 0;
-        }
-
-        c = c << 1;
-      }
-    }
-  }
-
-  return true;
-}
-
-int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
+int main(int argc, char* argv[]) {
   bool success;
-  std::array<unsigned char, kRowTiles * kColTiles> tile_buffer{};
-  std::array<unsigned char, kRowTiles * kColTiles> color_buffer{};
-  std::array<unsigned char, kTileBufferSize> tile_set{};
+  std::array<unsigned char, wizard_level::kRowTiles * wizard_level::kColTiles> tile_buffer{};
+  std::array<unsigned char, wizard_level::kRowTiles * wizard_level::kColTiles> color_buffer{};
+  std::array<unsigned char, wizard_level::kTileBufferSize> tile_set{};
   std::array<unsigned char, wizard_level::kFileLength> level_data{};
   std::array<unsigned char, alatar_classic::kSpriteProcDataSize> processed_sprites{};
 
@@ -176,7 +129,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
   }
 
   // Set to 32 (space) as blank character & black
-  for (unsigned int ii = 0; ii < (kRowTiles * kColTiles); ++ii) {
+  for (unsigned int ii = 0; ii < (wizard_level::kRowTiles * wizard_level::kColTiles); ++ii) {
     tile_buffer[ii] = 32;
     color_buffer[ii] = 0;
   }
@@ -194,7 +147,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
     for (int col = 0; col < wizard_level::kTileDataCols; ++col) {
       unsigned int screen_row = static_cast<unsigned int>(row) + 1;
       unsigned int screen_col = static_cast<unsigned int>(col);
-      unsigned int screen_index = kColTiles * screen_row + screen_col;
+      unsigned int screen_index = wizard_level::kColTiles * screen_row + screen_col;
 
       unsigned char tile = level.GetTileAt(row, col);
 
@@ -204,7 +157,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
   }
 
   auto tile_set_path_and_name = kResourcePath / kCharSetsDirName / kCharSetName;
-  success = LoadCharSet(tile_set_path_and_name, tile_set);
+  success = alatar_classic::LoadCharSet(tile_set_path_and_name, tile_set);
 
   if (!success) {
     std::cerr << "Failed to load charater set, exiting\n";
@@ -304,8 +257,14 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
   bool gDone = false;
   SDL_Event sdl_event;
 
+  Uint64 treasure_color_cycle_counter = SDL_GetPerformanceCounter();
+  Uint64 fire_color_cycle_counter = SDL_GetPerformanceCounter();
+  Uint64 fire_animation_counter = SDL_GetPerformanceCounter();
+
   while (!gDone) {
     Uint64 start_counter = SDL_GetPerformanceCounter();
+
+    double counter_to_ms_scale = 1000.0 / static_cast<double>(SDL_GetPerformanceFrequency());
 
     while (SDL_PollEvent(&sdl_event) != 0) {
       switch (sdl_event.type) {
@@ -342,17 +301,28 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
     SDL_GL_SwapWindow(g_window);
 
     // Update graphics (these probably don't upate at 60 Hz, need to get te correct number)
-    ++treasure_color_cycle;
+    // I think color changes faster then the fire animation
+    if ((static_cast<double>(start_counter - treasure_color_cycle_counter) * counter_to_ms_scale) >
+        alatar_classic::kTreasureColorCycleFrameTimeMs) {
+      ++treasure_color_cycle;
+      treasure_color_cycle_counter = start_counter;
+    }
+
     unsigned char treasure_color_idx = treasure_color_cycle.GetValue();
 
-    ++fire_color_cycle;
+    if ((static_cast<double>(start_counter - fire_color_cycle_counter) * counter_to_ms_scale) >
+        alatar_classic::kFireColorCycleFrameTimeMs) {
+      ++fire_color_cycle;
+      fire_color_cycle_counter = start_counter;
+    }
+
     unsigned char fire_color_idx = fire_color_cycle.GetValue();
 
     for (int row = 0; row < wizard_level::kTileDataRows; ++row) {
       for (int col = 0; col < wizard_level::kTileDataCols; ++col) {
         unsigned int screen_row = static_cast<unsigned int>(row) + 1;
         unsigned int screen_col = static_cast<unsigned int>(col);
-        unsigned int screen_index = kColTiles * screen_row + screen_col;
+        unsigned int screen_index = wizard_level::kColTiles * screen_row + screen_col;
 
         unsigned char tile = level.GetTileAt(row, col);
 
@@ -362,15 +332,32 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
 
         if (wizard_level::GetTileGroup(tile) == wizard_level::kFire) {
           color_buffer[screen_index] = fire_color_idx;
+        }
+      }
+    }
 
-          auto tmp_tile = tile_buffer[screen_index];
-          tmp_tile = tmp_tile + 1;
+    if ((static_cast<double>(start_counter - fire_animation_counter) * counter_to_ms_scale) >
+        alatar_classic::kFireAnimationFrameTimeMs) {
+      fire_animation_counter = start_counter;
 
-          if (tmp_tile > 117) {
-            tmp_tile = 114;
+      for (int row = 0; row < wizard_level::kTileDataRows; ++row) {
+        for (int col = 0; col < wizard_level::kTileDataCols; ++col) {
+          unsigned int screen_row = static_cast<unsigned int>(row) + 1;
+          unsigned int screen_col = static_cast<unsigned int>(col);
+          unsigned int screen_index = wizard_level::kColTiles * screen_row + screen_col;
+
+          unsigned char tile = level.GetTileAt(row, col);
+          if (wizard_level::GetTileGroup(tile) == wizard_level::kFire) {
+            fire_animation_counter = start_counter;
+            auto tmp_tile = tile_buffer[screen_index];
+            tmp_tile = tmp_tile + 1;
+
+            if (tmp_tile > alatar_classic::kFireTileLast) {
+              tmp_tile = alatar_classic::kFireTileFirst;
+            }
+
+            tile_buffer[screen_index] = tmp_tile;
           }
-
-          tile_buffer[screen_index] = tmp_tile;
         }
       }
     }
@@ -391,8 +378,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
 
     Uint64 end_counter = SDL_GetPerformanceCounter();
 
-    double elapsed_ms = static_cast<double>(end_counter - start_counter) /
-                        static_cast<double>(SDL_GetPerformanceFrequency()) * 1000.0;
+    double elapsed_ms = static_cast<double>(end_counter - start_counter) * counter_to_ms_scale;
 
     auto delay_time_ms = std::floor(kMsPerFrame - elapsed_ms);
 
