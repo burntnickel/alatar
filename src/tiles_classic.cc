@@ -41,9 +41,9 @@ bool LoadCharSet(std::filesystem::path path_and_name,
 
 void PaintClassicTiles(BurningLogic::ShaderVars shader_vars, SDL_FRect sdl_rect,
                        ClassicTileGLBuffers gl_buffers) {
-  std::array<GLfloat, 8> vertex_buffer = {{sdl_rect.x, sdl_rect.y, sdl_rect.x + sdl_rect.w, sdl_rect.y,
-                                           sdl_rect.x, sdl_rect.y + sdl_rect.h, sdl_rect.x + sdl_rect.w,
-                                           sdl_rect.y + sdl_rect.h}};
+  std::array<GLfloat, 16> vertex_buffer = {{sdl_rect.x, sdl_rect.y, 0.0, 0.0, sdl_rect.x + sdl_rect.w,
+                                            sdl_rect.y, 1.0, 0.0, sdl_rect.x, sdl_rect.y + sdl_rect.h, 0.0,
+                                            1.0, sdl_rect.x + sdl_rect.w, sdl_rect.y + sdl_rect.h, 1.0, 1.0}};
   std::array<GLuint, 8> index_buffer = {{0, 1, 2, 3}};
 
   // Bind program
@@ -68,15 +68,24 @@ void PaintClassicTiles(BurningLogic::ShaderVars shader_vars, SDL_FRect sdl_rect,
   BurningLogic::PrintGLError("PaintClassicTiles:glBufferData");
 
   // Enable vertex position
-  GLuint vpos_location = BurningLogic::GetShaderAttributeLocation(shader_vars.program, "v_pos");
-  glEnableVertexAttribArray(vpos_location);
+  GLuint in_pos_location = BurningLogic::GetShaderAttributeLocation(shader_vars.program, "in_pos");
+  glEnableVertexAttribArray(in_pos_location);
+  BurningLogic::PrintGLError("PaintClassicTiles:glEnableVertexAttribArray");
+
+  // Enable vertex texture coordinates
+  GLuint in_uv_location = BurningLogic::GetShaderAttributeLocation(shader_vars.program, "in_uv");
+  glEnableVertexAttribArray(in_uv_location);
   BurningLogic::PrintGLError("PaintClassicTiles:glEnableVertexAttribArray");
 
   // Set vertex data
   glBindBuffer(GL_ARRAY_BUFFER, shader_vars.vbo);
   BurningLogic::PrintGLError("PaintClassicTiles:glBindBuffer");
 
-  glVertexAttribPointer(vpos_location, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), NULL);
+ glVertexAttribPointer(in_pos_location, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void*)0);
+  BurningLogic::PrintGLError("PaintClassicTiles:glVertexAttribPointer");
+
+  glVertexAttribPointer(in_uv_location, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat),
+                        (void*)(2 * sizeof(GLfloat)));
   BurningLogic::PrintGLError("PaintClassicTiles:glVertexAttribPointer");
 
   // Texture stuff (tile buffer)
@@ -135,8 +144,9 @@ void PaintClassicTiles(BurningLogic::ShaderVars shader_vars, SDL_FRect sdl_rect,
   glDrawElements(GL_TRIANGLE_STRIP, 2 * 2, GL_UNSIGNED_INT, NULL);
   BurningLogic::PrintGLError("PaintClassicTiles:glDrawElements");
 
-  // Disable vertex position
-  glDisableVertexAttribArray(vpos_location);
+  // Disable vertex attributes
+  glDisableVertexAttribArray(in_pos_location);
+  glDisableVertexAttribArray(in_uv_location);
 
   // Unbind program
   glUseProgram(0);

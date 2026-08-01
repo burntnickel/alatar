@@ -23,9 +23,9 @@
 constexpr double kDefaultFrameRateHz = 60;
 constexpr double kMsPerFrame = 1000.0 / kDefaultFrameRateHz;
 
-const std::string kClassicTileVertexShaderName{"classic_tile_vertex.glsl"};
+const std::string kClassicTileVertexShaderName{"classic_vertex.glsl"};
 const std::string kClassicTileFragmentShaderName{"classic_tile_fragment.glsl"};
-const std::string kClassicSpriteVertexShaderName{"classic_sprite_vertex.glsl"};
+const std::string kClassicSpriteVertexShaderName{"classic_vertex.glsl"};
 const std::string kClassicSpriteFragmentShaderName{"classic_sprite_fragment.glsl"};
 
 SDL_Window* g_window = NULL;
@@ -34,12 +34,9 @@ SDL_GLContext g_sdl_glcontext;
 alatar_classic::ClassicTileGLBuffers g_tile_glbuffers;
 alatar_classic::ClassicSpriteGLBuffers g_sprite_glbuffers;
 
-// For now we'll just scale off the C64 and later we'll adjust to fix theaspect ratio
-// constexpr uint_least32_t kScreenWidth = 8 * wizard_level::kColTiles * 5 * 0.75;
-// constexpr uint_least32_t kScreenHeight = 8 * wizard_level::kRowTiles * 5;
-
-constexpr uint_least32_t kScreenWidth = 8 * wizard_level::kColTiles * 2.51 * 0.75;
-constexpr uint_least32_t kScreenHeight = 8 * wizard_level::kRowTiles * 2.51;
+// The factor of 0.75 is to match the Commodore 64 pixel aspect ratio (NTSC at least)
+constexpr uint_least32_t kScreenWidth = 8 * wizard_level::kColTiles * 2.5 * 0.75;
+constexpr uint_least32_t kScreenHeight = 8 * wizard_level::kRowTiles * 2.5;
 
 static bool ErrorEvalPrintSDL(bool condition, std::string_view message) {
   if (condition) {
@@ -60,7 +57,7 @@ static bool Initialize(void) {
 
     // Create window
     g_window = SDL_CreateWindow("SDL Window", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, kScreenWidth,
-                                kScreenHeight, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+                                kScreenHeight, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 
     success = ErrorEvalPrintSDL(g_window == NULL, "Window could not be created:");
   }
@@ -271,6 +268,11 @@ int main(int argc, char* argv[]) {
         case SDL_QUIT:
           gDone = true;
           break;
+        case SDL_WINDOWEVENT:
+          if (sdl_event.window.event == SDL_WINDOWEVENT_RESIZED) {
+            glViewport(0, 0, sdl_event.window.data1, sdl_event.window.data2);
+          }
+          break;
         default:
           break;
       }
@@ -279,26 +281,6 @@ int main(int argc, char* argv[]) {
     // Clear the screen
     glClearColor(0.0, 0.0, 0.0, 0.0);
     glClear(GL_COLOR_BUFFER_BIT);
-
-    // Draw
-    alatar_classic::PaintClassicTiles(classic_tile_shader_vars, SDL_FRect({-1.0, -1.0, 2.0, 2.0}),
-                                      g_tile_glbuffers);
-
-    for (unsigned int ii = 0; ii < 6; ++ii) {
-      if (monster_info[ii].active) {
-        alatar_classic::DrawClassicSpriteC64(
-            classic_sprite_shader_vars, g_sprite_glbuffers, monster_info[ii].sprite_id, monster_info[ii].x,
-            monster_info[ii].y,
-            {{wizard_level::kColorLightBlue, monster_info[ii].color, wizard_level::kColorWhite}});
-      }
-    }
-
-    alatar_classic::DrawClassicSpriteC64(
-        classic_sprite_shader_vars, g_sprite_glbuffers, 0, wizard_info.x, wizard_info.y,
-        {{wizard_level::kColorLightBlue, wizard_info.color, wizard_level::kColorWhite}});
-
-    // Present
-    SDL_GL_SwapWindow(g_window);
 
     // Update graphics (these probably don't upate at 60 Hz, need to get te correct number)
     // I think color changes faster then the fire animation
@@ -375,6 +357,26 @@ int main(int argc, char* argv[]) {
     BurningLogic::PrintGLError("main:glBufferSubData");
 
     // End update
+
+    // Draw
+    alatar_classic::PaintClassicTiles(classic_tile_shader_vars, SDL_FRect({-1.0, -1.0, 2.0, 2.0}),
+                                      g_tile_glbuffers);
+
+    for (unsigned int ii = 0; ii < 6; ++ii) {
+      if (monster_info[ii].active) {
+        alatar_classic::DrawClassicSpriteC64(
+            classic_sprite_shader_vars, g_sprite_glbuffers, monster_info[ii].sprite_id, monster_info[ii].x,
+            monster_info[ii].y,
+            {{wizard_level::kColorLightBlue, monster_info[ii].color, wizard_level::kColorWhite}});
+      }
+    }
+
+    alatar_classic::DrawClassicSpriteC64(
+        classic_sprite_shader_vars, g_sprite_glbuffers, 0, wizard_info.x, wizard_info.y,
+        {{wizard_level::kColorLightBlue, wizard_info.color, wizard_level::kColorWhite}});
+
+    // Present
+    SDL_GL_SwapWindow(g_window);
 
     Uint64 end_counter = SDL_GetPerformanceCounter();
 

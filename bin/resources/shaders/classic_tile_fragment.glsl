@@ -11,7 +11,7 @@ uniform usamplerBuffer u_clut_buffer;
 
 // Inputs
 // ----------------------------------
-in vec4 shader_coord;
+in vec2 UV;
 
 // Outputs
 // ----------------------------------
@@ -24,9 +24,8 @@ const int kTilePixelWidth = 8;
 const int kTilePixelHeight = 8;
 
 void main() {
-    // Normalized and flipped coordinates
-    float xx = (shader_coord.x + 1.0) / 2.0;
-    float yy = (-1.0 * shader_coord.y + 1.0) / 2.0;
+    float xx = UV.x;
+    float yy = 1.0 - UV.y;
 
     // Determine tile coordinates and index into the tile buffer
     int tile_x = int(xx * kTilesInRow);

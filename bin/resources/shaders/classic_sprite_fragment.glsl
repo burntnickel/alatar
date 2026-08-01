@@ -11,7 +11,6 @@ uniform int u_colors[4] = int[](0,1,2,3);
 
 // Inputs
 // ----------------------------------
-//in vec4 shader_coord;
 in vec2 UV;
 
 // Outputs

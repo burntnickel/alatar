@@ -40,6 +40,7 @@ void TextureSetupHelper(GLenum texture_unit, GLuint* opengl_buffer, std::span<co
                         GLenum usage, GLuint* opengl_texture, GLenum internalformat);
 ShaderVars BuildShaderProgram(const std::string& vertex_shader_source,
                               const std::string& fragment_shader_source);
+void ScaleNormMatHelper2D(std::span<const float, 9> viewMatrix, float x_scale, float y_scale);
 
 }  // namespace BurningLogic
 
