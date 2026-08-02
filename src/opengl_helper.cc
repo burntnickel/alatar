@@ -140,7 +140,7 @@ void TextureSetupHelper(GLenum texture_unit, GLuint* opengl_buffer, std::span<co
 }
 
 ShaderVars BuildShaderProgram(const std::string& vertex_shader_source,
-                                     const std::string& fragment_shader_source) {
+                              const std::string& fragment_shader_source) {
   ShaderVars shader_vars;
 
   // Create VBO, IBO & IBO
@@ -215,6 +215,58 @@ ShaderVars BuildShaderProgram(const std::string& vertex_shader_source,
   shader_vars.program = shader_program;
 
   return shader_vars;
+}
+
+void Identity4(mat4& mat) {
+  mat[0] = 1.0;
+  mat[1] = 0.0;
+  mat[2] = 0.0;
+  mat[3] = 0.0;
+
+  mat[4] = 0.0;
+  mat[5] = 1.0;
+  mat[6] = 0.0;
+  mat[7] = 0.0;
+
+  mat[8] = 0.0;
+  mat[9] = 0.0;
+  mat[10] = 1.0;
+  mat[11] = 0.0;
+
+  mat[12] = 0.0;
+  mat[13] = 0.0;
+  mat[14] = 0.0;
+  mat[15] = 1.0;
+}
+
+mat4 GetIdentity4(void) {
+  mat4 mat;
+
+  Identity4(mat);
+
+  return mat;
+}
+
+void ScaleMatHelper2D(mat4& viewMatrix, float x_scale, float y_scale) {
+  viewMatrix[0] = x_scale;
+  viewMatrix[1] = 0.0;
+  viewMatrix[2] = 0.0;
+  viewMatrix[3] = 0.0;
+
+  viewMatrix[4] = 0.0;
+  viewMatrix[5] = y_scale;
+  viewMatrix[6] = 0.0;
+  viewMatrix[7] = 0.0;
+
+  viewMatrix[8] = 0.0;
+  viewMatrix[9] = 0.0;
+  viewMatrix[10] = 1.0;
+  viewMatrix[11] = 0.0;
+
+  viewMatrix[12] = 0.0;
+  viewMatrix[13] = 0.0;
+  viewMatrix[14] = 0.0;
+  viewMatrix[15] = 1.0;
 }
 
 }  // namespace BurningLogic

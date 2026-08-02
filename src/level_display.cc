@@ -35,8 +35,12 @@ alatar_classic::ClassicTileGLBuffers g_tile_glbuffers;
 alatar_classic::ClassicSpriteGLBuffers g_sprite_glbuffers;
 
 // The factor of 0.75 is to match the Commodore 64 pixel aspect ratio (NTSC at least)
-constexpr uint_least32_t kScreenWidth = 8 * wizard_level::kColTiles * 2.5 * 0.75;
+constexpr float kPixelAspectRatio = 0.75;
+constexpr uint_least32_t kScreenWidth = 8 * wizard_level::kColTiles * 2.5 * kPixelAspectRatio;
 constexpr uint_least32_t kScreenHeight = 8 * wizard_level::kRowTiles * 2.5;
+constexpr float kDesiredScreenAspect = static_cast<float>(kScreenWidth) / static_cast<float>(kScreenHeight);
+
+BurningLogic::mat4 g_view_matrix{};
 
 static bool ErrorEvalPrintSDL(bool condition, std::string_view message) {
   if (condition) {
@@ -243,9 +247,9 @@ int main(int argc, char* argv[]) {
   const std::string classic_sprite_fragment_shader_source =
       BurningLogic::LoadShaderSource(kClassicSpriteFragmentShaderFilename);
 
-  auto classic_tile_shader_vars = BurningLogic::BuildShaderProgram(classic_tile_vertex_shader_source,
+  auto classic_tile_shader = BurningLogic::BuildShaderProgram(classic_tile_vertex_shader_source,
                                                                    classic_tile_fragment_shader_source);
-  auto classic_sprite_shader_vars = BurningLogic::BuildShaderProgram(classic_sprite_vertex_shader_source,
+  auto classic_sprite_shader = BurningLogic::BuildShaderProgram(classic_sprite_vertex_shader_source,
                                                                      classic_sprite_fragment_shader_source);
 
   wizard_level::WizardInfo wizard_info = level.GetWizardInfo();
@@ -257,6 +261,8 @@ int main(int argc, char* argv[]) {
   Uint64 treasure_color_cycle_counter = SDL_GetPerformanceCounter();
   Uint64 fire_color_cycle_counter = SDL_GetPerformanceCounter();
   Uint64 fire_animation_counter = SDL_GetPerformanceCounter();
+
+  BurningLogic::Identity4(g_view_matrix);
 
   while (!gDone) {
     Uint64 start_counter = SDL_GetPerformanceCounter();
@@ -270,7 +276,23 @@ int main(int argc, char* argv[]) {
           break;
         case SDL_WINDOWEVENT:
           if (sdl_event.window.event == SDL_WINDOWEVENT_RESIZED) {
-            glViewport(0, 0, sdl_event.window.data1, sdl_event.window.data2);
+            auto window_width = sdl_event.window.data1;
+            auto window_height = sdl_event.window.data2;
+            float window_aspect = static_cast<float>(window_width) / static_cast<float>(window_height);
+
+            float x_scale;
+            float y_scale;
+
+            if (window_aspect > kDesiredScreenAspect) {
+              x_scale = kDesiredScreenAspect / window_aspect;
+              y_scale = 1.0;
+            } else {
+              x_scale = 1.0;
+              y_scale = window_aspect / kDesiredScreenAspect;
+            }
+
+            BurningLogic::ScaleMatHelper2D(g_view_matrix, x_scale, y_scale);
+            glViewport(0, 0, window_width, window_height);
           }
           break;
         default:
@@ -359,20 +381,20 @@ int main(int argc, char* argv[]) {
     // End update
 
     // Draw
-    alatar_classic::PaintClassicTiles(classic_tile_shader_vars, SDL_FRect({-1.0, -1.0, 2.0, 2.0}),
+    alatar_classic::PaintClassicTiles(classic_tile_shader, g_view_matrix, SDL_FRect({-1.0, -1.0, 2.0, 2.0}),
                                       g_tile_glbuffers);
 
     for (unsigned int ii = 0; ii < 6; ++ii) {
       if (monster_info[ii].active) {
         alatar_classic::DrawClassicSpriteC64(
-            classic_sprite_shader_vars, g_sprite_glbuffers, monster_info[ii].sprite_id, monster_info[ii].x,
+            classic_sprite_shader, g_sprite_glbuffers, monster_info[ii].sprite_id, monster_info[ii].x,
             monster_info[ii].y,
             {{wizard_level::kColorLightBlue, monster_info[ii].color, wizard_level::kColorWhite}});
       }
     }
 
     alatar_classic::DrawClassicSpriteC64(
-        classic_sprite_shader_vars, g_sprite_glbuffers, 0, wizard_info.x, wizard_info.y,
+        classic_sprite_shader, g_sprite_glbuffers, 0, wizard_info.x, wizard_info.y,
         {{wizard_level::kColorLightBlue, wizard_info.color, wizard_level::kColorWhite}});
 
     // Present

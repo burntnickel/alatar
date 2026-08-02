@@ -39,8 +39,8 @@ bool LoadCharSet(std::filesystem::path path_and_name,
   return true;
 }
 
-void PaintClassicTiles(BurningLogic::ShaderVars shader_vars, SDL_FRect sdl_rect,
-                       ClassicTileGLBuffers gl_buffers) {
+void PaintClassicTiles(BurningLogic::ShaderVars shader_vars, BurningLogic::mat4& view_matrix,
+                       SDL_FRect sdl_rect, ClassicTileGLBuffers gl_buffers) {
   std::array<GLfloat, 16> vertex_buffer = {{sdl_rect.x, sdl_rect.y, 0.0, 0.0, sdl_rect.x + sdl_rect.w,
                                             sdl_rect.y, 1.0, 0.0, sdl_rect.x, sdl_rect.y + sdl_rect.h, 0.0,
                                             1.0, sdl_rect.x + sdl_rect.w, sdl_rect.y + sdl_rect.h, 1.0, 1.0}};
@@ -81,7 +81,7 @@ void PaintClassicTiles(BurningLogic::ShaderVars shader_vars, SDL_FRect sdl_rect,
   glBindBuffer(GL_ARRAY_BUFFER, shader_vars.vbo);
   BurningLogic::PrintGLError("PaintClassicTiles:glBindBuffer");
 
- glVertexAttribPointer(in_pos_location, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void*)0);
+  glVertexAttribPointer(in_pos_location, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void*)0);
   BurningLogic::PrintGLError("PaintClassicTiles:glVertexAttribPointer");
 
   glVertexAttribPointer(in_uv_location, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat),
@@ -107,6 +107,11 @@ void PaintClassicTiles(BurningLogic::ShaderVars shader_vars, SDL_FRect sdl_rect,
   GLint clut_location = BurningLogic::GetShaderUniformLocation(shader_vars.program, "u_clut_buffer");
   glUniform1i(clut_location, 3);
   BurningLogic::PrintGLError("PaintClassicTiles:glUniform1i");
+
+  // View Matrix
+  GLint view_mat_location = BurningLogic::GetShaderUniformLocation(shader_vars.program, "u_view_matrix");
+  glUniformMatrix4fv(view_mat_location, 1, GL_FALSE, view_matrix.data());
+  BurningLogic::PrintGLError("PaintClassicTiles:glUniformMatrix4fv");
 
   // TODO: do I need these?
   //  ------

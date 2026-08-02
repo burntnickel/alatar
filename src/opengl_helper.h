@@ -3,6 +3,7 @@
 
 #include <GL/glew.h>
 
+#include <array>
 #include <filesystem>
 #include <source_location>
 #include <span>
@@ -30,6 +31,8 @@ struct ShaderVars {
   GLuint program;
 };
 
+using mat4 = std::array<float, 16>;
+
 void PrintShaderLog(GLuint shader);
 void PrintProgramLog(GLuint program);
 GLuint GetShaderAttributeLocation(GLuint program, const std::string& attribute_name);
@@ -40,7 +43,9 @@ void TextureSetupHelper(GLenum texture_unit, GLuint* opengl_buffer, std::span<co
                         GLenum usage, GLuint* opengl_texture, GLenum internalformat);
 ShaderVars BuildShaderProgram(const std::string& vertex_shader_source,
                               const std::string& fragment_shader_source);
-void ScaleNormMatHelper2D(std::span<const float, 9> viewMatrix, float x_scale, float y_scale);
+void Identity4(mat4& mat);
+mat4 GetIdentity4(void);
+void ScaleMatHelper2D(mat4& viewMatrix, float x_scale, float y_scale);
 
 }  // namespace BurningLogic
 
