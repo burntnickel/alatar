@@ -91,29 +91,25 @@ static bool Initialize(void) {
   return success;
 }
 
-struct CommonData {
-  std::array<unsigned char, wizard_level::kFileLength> level_data{};
-
-  wizard_level::LevelClass level; // Should this really be here?  Maybe get rid of this structure?
-};
-
-static bool SetupCommon(CommonData& data, const char* level_filename) {
-  bool success = alatar::LoadData(level_filename, data.level_data);
+static bool SetupCommon(std::span<unsigned char, wizard_level::kFileLength> level_data,
+                        wizard_level::LevelClass& level, const char* level_filename) {
+  bool success = alatar::LoadData(level_filename, level_data);
 
   if (!success) {
     std::cerr << "Failed to load level file\n";
     return false;
   }
 
-  data.level = wizard_level::LevelClass(data.level_data);
+  level = wizard_level::LevelClass(level_data);
 
   return true;
 }
 
 int main(int argc, char* argv[]) {
   bool success;
-  CommonData common_data;
   alatar_classic::ClassicData classic_data;
+  std::array<unsigned char, wizard_level::kFileLength> level_data{};
+  wizard_level::LevelClass level;
 
   const std::filesystem::path kResourcePath = BurningLogic::GetResPath();
   const std::string kShadersDirName{"shaders"};
@@ -132,22 +128,22 @@ int main(int argc, char* argv[]) {
     return EXIT_FAILURE;
   }
 
-  success = SetupCommon(common_data, argv[1]);
+  success = SetupCommon(level_data, level, argv[1]);
 
   if (!success) {
     std::cerr << "Failed to complete SetupCommon, exiting\n";
     return EXIT_FAILURE;
   }
 
-  success = SetupClassic(classic_data, common_data.level, kResourcePath, kShaderPath);
+  success = SetupClassic(classic_data, level, kResourcePath, kShaderPath);
 
   if (!success) {
     std::cerr << "Failed to complete SetupClassic, exiting\n";
     return EXIT_FAILURE;
   }
 
-  wizard_level::WizardInfo wizard_info = common_data.level.GetWizardInfo();
-  wizard_level::MonsterInfoArray monster_info = common_data.level.GetMonsterInfo();
+  wizard_level::WizardInfo wizard_info = level.GetWizardInfo();
+  wizard_level::MonsterInfoArray monster_info = level.GetMonsterInfo();
 
   bool gDone = false;
   SDL_Event sdl_event;
@@ -231,7 +227,7 @@ int main(int argc, char* argv[]) {
         unsigned int screen_col = static_cast<unsigned int>(col);
         unsigned int screen_index = wizard_level::kColTiles * screen_row + screen_col;
 
-        unsigned char tile = common_data.level.GetTileAt(row, col);
+        unsigned char tile = level.GetTileAt(row, col);
 
         if (wizard_level::GetTileGroup(tile) == wizard_level::kTreasure) {
           classic_data.color_buffer[screen_index] = treasure_color_idx;
@@ -255,7 +251,7 @@ int main(int argc, char* argv[]) {
           unsigned int screen_col = static_cast<unsigned int>(col);
           unsigned int screen_index = wizard_level::kColTiles * screen_row + screen_col;
 
-          unsigned char tile = common_data.level.GetTileAt(row, col);
+          unsigned char tile = level.GetTileAt(row, col);
           if (wizard_level::GetTileGroup(tile) == wizard_level::kFire) {
             fire_animation_counter = start_counter;
             auto tmp_tile = classic_data.tile_buffer[screen_index];
