@@ -187,6 +187,7 @@ using MonsterInfoArray = std::array<MonsterInfo, 6>;
 
 class LevelClass {
  public:
+  explicit LevelClass(void) = default;
   explicit LevelClass(std::span<unsigned char, kFileLength> data);
 
   unsigned char GetTileAt(int row, int col) const;

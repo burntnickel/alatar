@@ -13,10 +13,10 @@ namespace alatar_classic {
 struct ClassicSpriteGLBuffers {
   GLuint tbo_sprite_buffer;
   GLuint tbo_tex_sprite_buffer;
-  GLenum sprite_texture_unit;
+  //GLenum sprite_texture_unit;
   GLuint tbo_clut_buffer;
   GLuint tbo_tex_clut_buffer;
-  GLenum clut_texture_unit;
+  //GLenum clut_texture_unit;
 };
 
 enum { kSpriteNormal = 0, kSpriteFlipX = 1, kSpriteExpandX = 2, kSpriteExpandY = 4 };
@@ -35,15 +35,18 @@ constexpr std::size_t kSpriteProcDataSize = kNumSprites * 8 * 64 * 8 * 4;
 bool LoadSpriteData(std::filesystem::path path_and_name,
                     std::span<unsigned char, kSpriteProcDataSize> proc_sprite_data);
 
-void PaintClassicSprite(BurningLogic::ShaderVars shader_vars, SDL_FRect sdl_rect,
-                        ClassicSpriteGLBuffers gl_buffers, int id, std::array<int, 3> colors, int modifier);
+void PaintClassicSprite(BurningLogic::ShaderVars shader_vars, BurningLogic::mat4& view_matrix,
+                        SDL_FRect sdl_rect, ClassicSpriteGLBuffers gl_buffers, int id,
+                        std::array<int, 3> colors, int modifier);
 
-void DrawClassicSprite(BurningLogic::ShaderVars shader_vars, ClassicSpriteGLBuffers gl_buffers, int id, int x,
-                       int y, std::array<int, 3> colors, int modifier = kSpriteNormal);
+void DrawClassicSprite(BurningLogic::ShaderVars shader_vars, BurningLogic::mat4& view_matrix,
+                       ClassicSpriteGLBuffers gl_buffers, int id, int x, int y, std::array<int, 3> colors,
+                       int modifier = kSpriteNormal);
 
 // Same as DrawClassicSprite but uses the Commorode 64 coordinates
-void DrawClassicSpriteC64(BurningLogic::ShaderVars shader_vars, ClassicSpriteGLBuffers gl_buffers, int id,
-                          int x, int y, std::array<int, 3> colors, int modifier = kSpriteNormal);
+void DrawClassicSpriteC64(BurningLogic::ShaderVars shader_vars, BurningLogic::mat4& view_matrix,
+                          ClassicSpriteGLBuffers gl_buffers, int id, int x, int y, std::array<int, 3> colors,
+                          int modifier = kSpriteNormal);
 
 }  // namespace alatar_classic
 

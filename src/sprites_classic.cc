@@ -130,8 +130,9 @@ bool LoadSpriteData(std::filesystem::path path_and_name,
   return true;
 }
 
-void PaintClassicSprite(BurningLogic::ShaderVars shader_vars, SDL_FRect sdl_rect,
-                        ClassicSpriteGLBuffers gl_buffers, int id, std::array<int, 3> colors, int modifier) {
+void PaintClassicSprite(BurningLogic::ShaderVars shader_vars, BurningLogic::mat4& view_matrix,
+                        SDL_FRect sdl_rect, ClassicSpriteGLBuffers gl_buffers, int id,
+                        std::array<int, 3> colors, int modifier) {
   std::array<GLfloat, 16> vertex_buffer = {{sdl_rect.x, sdl_rect.y, 0.0, 0.0, sdl_rect.x + sdl_rect.w,
                                             sdl_rect.y, 1.0, 0.0, sdl_rect.x, sdl_rect.y + sdl_rect.h, 0.0,
                                             1.0, sdl_rect.x + sdl_rect.w, sdl_rect.y + sdl_rect.h, 1.0, 1.0}};
@@ -218,6 +219,11 @@ void PaintClassicSprite(BurningLogic::ShaderVars shader_vars, SDL_FRect sdl_rect
   glUniform1i(clut_location, 3);
   BurningLogic::PrintGLError("PaintClassicSprites:glUniform1i");
 
+  // View Matrix
+  GLint view_mat_location = BurningLogic::GetShaderUniformLocation(shader_vars.program, "u_view_matrix");
+  glUniformMatrix4fv(view_mat_location, 1, GL_FALSE, view_matrix.data());
+  BurningLogic::PrintGLError("PaintClassicTiles:glUniformMatrix4fv");
+
   // TODO: do I need these?
   //  ------
   glActiveTexture(GL_TEXTURE4);  // TODO: capture these inthe buffer struct
@@ -248,8 +254,9 @@ void PaintClassicSprite(BurningLogic::ShaderVars shader_vars, SDL_FRect sdl_rect
   glUseProgram(0);
 }
 
-void DrawClassicSprite(BurningLogic::ShaderVars shader_vars, ClassicSpriteGLBuffers gl_buffers, int id, int x,
-                       int y, std::array<int, 3> colors, int modifier) {
+void DrawClassicSprite(BurningLogic::ShaderVars shader_vars, BurningLogic::mat4& view_matrix,
+                       ClassicSpriteGLBuffers gl_buffers, int id, int x, int y, std::array<int, 3> colors,
+                       int modifier) {
   constexpr int screen_width_pixels = 320;  // TODO: move stuff like this into a common header
   constexpr int screen_height_pixels = 200;
   constexpr int sprite_width_1x = 24;
@@ -264,13 +271,14 @@ void DrawClassicSprite(BurningLogic::ShaderVars shader_vars, ClassicSpriteGLBuff
   rect.w = 2.0f * static_cast<float>(sprite_width_draw) / static_cast<float>(screen_width_pixels);
   rect.h = -2.0f * static_cast<float>(sprite_height_draw) / static_cast<float>(screen_height_pixels);
 
-  PaintClassicSprite(shader_vars, rect, gl_buffers, id, colors, modifier);
+  PaintClassicSprite(shader_vars, view_matrix, rect, gl_buffers, id, colors, modifier);
 }
 
 // Same as DrawClassicSprite but uses the Commorode 64 coordinates
-void DrawClassicSpriteC64(BurningLogic::ShaderVars shader_vars, ClassicSpriteGLBuffers gl_buffers, int id,
-                          int x, int y, std::array<int, 3> colors, int modifier) {
-  DrawClassicSprite(shader_vars, gl_buffers, id, x - 24, y - 50, colors, modifier);
+void DrawClassicSpriteC64(BurningLogic::ShaderVars shader_vars, BurningLogic::mat4& view_matrix,
+                          ClassicSpriteGLBuffers gl_buffers, int id, int x, int y, std::array<int, 3> colors,
+                          int modifier) {
+  DrawClassicSprite(shader_vars, view_matrix, gl_buffers, id, x - 24, y - 50, colors, modifier);
 }
 
-}  // namespace sprites_classic
+}  // namespace alatar_classic
