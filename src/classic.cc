@@ -6,8 +6,8 @@
 
 namespace alatar_classic {
 
-bool SetupClassic(alatar_classic::ClassicData& data, const wizard_level::LevelClass& level,
-                  std::filesystem::path resource_path, std::filesystem::path shader_path) {
+bool SetupClassic(alatar_classic::ClassicData& data, std::filesystem::path resource_path,
+                  std::filesystem::path shader_path) {
   const std::string kClassicDirName{"classic"};
   const std::string kCharSetName{"chrw"};
   const std::string kSpriteSetName{"sprw"};
@@ -27,25 +27,6 @@ bool SetupClassic(alatar_classic::ClassicData& data, const wizard_level::LevelCl
   if (!success) {
     std::cerr << "Failed to load classic sprite set\n";
     return false;
-  }
-
-  // Set to 32 (space) as blank character & black
-  for (unsigned int ii = 0; ii < (wizard_level::kRowTiles * wizard_level::kColTiles); ++ii) {
-    data.tile_buffer[ii] = 32;
-    data.color_buffer[ii] = 0;
-  }
-
-  for (int row = 0; row < wizard_level::kTileDataRows; ++row) {
-    for (int col = 0; col < wizard_level::kTileDataCols; ++col) {
-      unsigned int screen_row = static_cast<unsigned int>(row) + 1;
-      unsigned int screen_col = static_cast<unsigned int>(col);
-      unsigned int screen_index = wizard_level::kColTiles * screen_row + screen_col;
-
-      unsigned char tile = level.GetTileAt(row, col);
-
-      data.tile_buffer[screen_index] = tile;
-      data.color_buffer[screen_index] = level.GetTileColor(tile);
-    }
   }
 
   // Tile buffer
@@ -104,6 +85,27 @@ bool SetupClassic(alatar_classic::ClassicData& data, const wizard_level::LevelCl
                                                         classic_sprite_fragment_shader_source);
 
   return true;
+}
+
+void ClassicLevelInit(alatar_classic::ClassicData& data, const wizard_level::LevelClass& level) {
+  // Set to 32 (space) as blank character & black (0)
+  for (unsigned int ii = 0; ii < (wizard_level::kRowTiles * wizard_level::kColTiles); ++ii) {
+    data.tile_buffer[ii] = 32;
+    data.color_buffer[ii] = 0;
+  }
+
+  for (int row = 0; row < wizard_level::kTileDataRows; ++row) {
+    for (int col = 0; col < wizard_level::kTileDataCols; ++col) {
+      unsigned int screen_row = static_cast<unsigned int>(row) + 1;
+      unsigned int screen_col = static_cast<unsigned int>(col);
+      unsigned int screen_index = wizard_level::kColTiles * screen_row + screen_col;
+
+      unsigned char tile = level.GetTileAt(row, col);
+
+      data.tile_buffer[screen_index] = tile;
+      data.color_buffer[screen_index] = level.GetTileColor(tile);
+    }
+  }
 }
 
 }  // namespace alatar_classic

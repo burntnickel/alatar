@@ -9,7 +9,6 @@
 #include <string>
 #include <string_view>
 
-#include "c64_clut.h"
 #include "classic.h"
 #include "getrespath.h"
 #include "load_data.h"
@@ -135,12 +134,14 @@ int main(int argc, char* argv[]) {
     return EXIT_FAILURE;
   }
 
-  success = SetupClassic(classic_data, level, kResourcePath, kShaderPath);
+  success = SetupClassic(classic_data, kResourcePath, kShaderPath);
 
   if (!success) {
     std::cerr << "Failed to complete SetupClassic, exiting\n";
     return EXIT_FAILURE;
   }
+
+  ClassicLevelInit(classic_data, level);
 
   wizard_level::WizardInfo wizard_info = level.GetWizardInfo();
   wizard_level::MonsterInfoArray monster_info = level.GetMonsterInfo();

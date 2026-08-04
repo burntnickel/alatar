@@ -57,9 +57,10 @@ struct ClassicData {
   BurningLogic::ShaderVars sprite_shader;
 };
 
-// This will need to get refactored to seprate inital setup and per-level setup
-bool SetupClassic(alatar_classic::ClassicData& data, const wizard_level::LevelClass& level,
-                  std::filesystem::path resource_path, std::filesystem::path shader_path);
+bool SetupClassic(alatar_classic::ClassicData& data, std::filesystem::path resource_path,
+                  std::filesystem::path shader_path);
+
+void ClassicLevelInit(alatar_classic::ClassicData& data, const wizard_level::LevelClass& level);
 
 }  // namespace alatar_classic
 
