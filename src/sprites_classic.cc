@@ -130,7 +130,7 @@ bool LoadSpriteData(std::filesystem::path path_and_name,
   return true;
 }
 
-void PaintClassicSprite(BurningLogic::ShaderVars shader_vars, BurningLogic::mat4& view_matrix,
+void PaintClassicSprite(BurningLogic::ShaderVars shader_vars, const BurningLogic::mat4& view_matrix,
                         SDL_FRect sdl_rect, ClassicSpriteGLBuffers gl_buffers, int id,
                         std::array<int, 3> colors, int modifier) {
   std::array<GLfloat, 16> vertex_buffer = {{sdl_rect.x, sdl_rect.y, 0.0, 0.0, sdl_rect.x + sdl_rect.w,
@@ -254,7 +254,7 @@ void PaintClassicSprite(BurningLogic::ShaderVars shader_vars, BurningLogic::mat4
   glUseProgram(0);
 }
 
-void DrawClassicSprite(BurningLogic::ShaderVars shader_vars, BurningLogic::mat4& view_matrix,
+void DrawClassicSprite(BurningLogic::ShaderVars shader_vars, const BurningLogic::mat4& view_matrix,
                        ClassicSpriteGLBuffers gl_buffers, int id, int x, int y, std::array<int, 3> colors,
                        int modifier) {
   constexpr int screen_width_pixels = 320;  // TODO: move stuff like this into a common header
@@ -275,7 +275,7 @@ void DrawClassicSprite(BurningLogic::ShaderVars shader_vars, BurningLogic::mat4&
 }
 
 // Same as DrawClassicSprite but uses the Commorode 64 coordinates
-void DrawClassicSpriteC64(BurningLogic::ShaderVars shader_vars, BurningLogic::mat4& view_matrix,
+void DrawClassicSpriteC64(BurningLogic::ShaderVars shader_vars, const BurningLogic::mat4& view_matrix,
                           ClassicSpriteGLBuffers gl_buffers, int id, int x, int y, std::array<int, 3> colors,
                           int modifier) {
   DrawClassicSprite(shader_vars, view_matrix, gl_buffers, id, x - 24, y - 50, colors, modifier);

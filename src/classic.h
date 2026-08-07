@@ -66,6 +66,13 @@ bool SetupClassic(ClassicData& data, std::filesystem::path resource_path, std::f
 
 void ClassicLevelInit(ClassicData& data, const wizard_level::LevelClass& level);
 
+void ClassicUpdate(alatar_classic::ClassicData& classic_data, Uint64 start_counter,
+                   double counter_to_ms_scale, const wizard_level::LevelClass& level);
+
+void ClassicDraw(const alatar_classic::ClassicData& classic_data,
+                 const wizard_level::MonsterInfoArray& monster_info,
+                 const wizard_level::WizardInfo& wizard_info, const BurningLogic::mat4& view_matrix);
+
 }  // namespace alatar_classic
 
 #endif

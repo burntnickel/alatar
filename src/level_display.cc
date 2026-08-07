@@ -31,8 +31,6 @@ constexpr uint_least32_t kScreenWidth = 8 * wizard_level::kColTiles * 2.5 * kPix
 constexpr uint_least32_t kScreenHeight = 8 * wizard_level::kRowTiles * 2.5;
 constexpr float kDesiredScreenAspect = static_cast<float>(kScreenWidth) / static_cast<float>(kScreenHeight);
 
-BurningLogic::mat4 g_view_matrix{};
-
 static bool ErrorEvalPrintSDL(bool condition, std::string_view message) {
   if (condition) {
     std::cerr << message << " " << SDL_GetError() << "\n";
@@ -106,8 +104,8 @@ static bool SetupCommon(std::span<unsigned char, wizard_level::kFileLength> leve
 
 enum GraphicsMode { Classic, Updated, NoColoring };
 
-static void parse_command_line(int argc, char* argv[], std::filesystem::path& filename,
-                               GraphicsMode& graphics_mode) {
+static void ParseCommandLine(int argc, char* argv[], std::filesystem::path& filename,
+                             GraphicsMode& graphics_mode) {
   if ((argc < 2) || (argc > 3)) {
     std::cerr << "Usage: level_display [-classic | -updated] <filename>" << std::endl;
     exit(EXIT_FAILURE);
@@ -146,7 +144,7 @@ int main(int argc, char* argv[]) {
   std::filesystem::path filename;
   GraphicsMode graphics_mode;
 
-  parse_command_line(argc, argv, filename, graphics_mode);
+  ParseCommandLine(argc, argv, filename, graphics_mode);
 
   success = Initialize();
 
@@ -169,15 +167,17 @@ int main(int argc, char* argv[]) {
       std::cerr << "Failed to complete SetupClassic, exiting\n";
       return EXIT_FAILURE;
     }
-  }
 
-  ClassicLevelInit(classic_data, level);
+    ClassicLevelInit(classic_data, level);
+  }
 
   wizard_level::WizardInfo wizard_info = level.GetWizardInfo();
   wizard_level::MonsterInfoArray monster_info = level.GetMonsterInfo();
 
   bool gDone = false;
   SDL_Event sdl_event;
+
+  double counter_to_ms_scale = 1000.0 / static_cast<double>(SDL_GetPerformanceFrequency());
 
   if (graphics_mode == Classic) {
     Uint64 sdl_counter = SDL_GetPerformanceCounter();
@@ -187,12 +187,11 @@ int main(int argc, char* argv[]) {
     classic_data.fire_animation_counter = sdl_counter;
   }
 
-  BurningLogic::Identity4(g_view_matrix);
+  BurningLogic::mat4 view_matrix{};
+  BurningLogic::Identity4(view_matrix);
 
   while (!gDone) {
     Uint64 start_counter = SDL_GetPerformanceCounter();
-
-    double counter_to_ms_scale = 1000.0 / static_cast<double>(SDL_GetPerformanceFrequency());
 
     while (SDL_PollEvent(&sdl_event) != 0) {
       switch (sdl_event.type) {
@@ -216,7 +215,7 @@ int main(int argc, char* argv[]) {
               y_scale = window_aspect / kDesiredScreenAspect;
             }
 
-            BurningLogic::ScaleMatHelper2D(g_view_matrix, x_scale, y_scale);
+            BurningLogic::ScaleMatHelper2D(view_matrix, x_scale, y_scale);
             glViewport(0, 0, window_width, window_height);
           }
           break;
@@ -229,111 +228,14 @@ int main(int argc, char* argv[]) {
     glClearColor(0.0, 0.0, 0.0, 0.0);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    // Start update
-
+    // Update
     if (graphics_mode == Classic) {
-      // Update graphics (these probably don't upate at 60 Hz, need to get the correct number)
-      // I think color changes faster then the fire animation
-      if ((static_cast<double>(start_counter - classic_data.treasure_color_cycle_counter) *
-           counter_to_ms_scale) > alatar_classic::kTreasureColorCycleFrameTimeMs) {
-        ++classic_data.treasure_color_cycle;
-        classic_data.treasure_color_cycle_counter = start_counter;
-      }
-
-      unsigned char treasure_color_idx = classic_data.treasure_color_cycle.GetValue();
-
-      if ((static_cast<double>(start_counter - classic_data.fire_color_cycle_counter) * counter_to_ms_scale) >
-          alatar_classic::kFireColorCycleFrameTimeMs) {
-        ++classic_data.fire_color_cycle;
-        classic_data.fire_color_cycle_counter = start_counter;
-      }
-
-      unsigned char fire_color_idx = classic_data.fire_color_cycle.GetValue();
-
-      // Set updated fire and treasure colors
-      for (int row = 0; row < wizard_level::kTileDataRows; ++row) {
-        for (int col = 0; col < wizard_level::kTileDataCols; ++col) {
-          unsigned int screen_row = static_cast<unsigned int>(row) + 1;
-          unsigned int screen_col = static_cast<unsigned int>(col);
-          unsigned int screen_index = wizard_level::kColTiles * screen_row + screen_col;
-
-          unsigned char tile = level.GetTileAt(row, col);
-
-          if (wizard_level::GetTileGroup(tile) == wizard_level::kTreasure) {
-            classic_data.color_buffer[screen_index] = treasure_color_idx;
-          }
-
-          if (wizard_level::GetTileGroup(tile) == wizard_level::kFire) {
-            classic_data.color_buffer[screen_index] = fire_color_idx;
-          }
-        }
-      }
-
-      // Cycle fire tile charaters for animation
-      if ((static_cast<double>(start_counter - classic_data.fire_animation_counter) * counter_to_ms_scale) >
-          alatar_classic::kFireAnimationFrameTimeMs) {
-        classic_data.fire_animation_counter = start_counter;
-
-        for (int row = 0; row < wizard_level::kTileDataRows; ++row) {
-          for (int col = 0; col < wizard_level::kTileDataCols; ++col) {
-            unsigned int screen_row = static_cast<unsigned int>(row) + 1;
-            unsigned int screen_col = static_cast<unsigned int>(col);
-            unsigned int screen_index = wizard_level::kColTiles * screen_row + screen_col;
-
-            unsigned char tile = level.GetTileAt(row, col);
-            if (wizard_level::GetTileGroup(tile) == wizard_level::kFire) {
-              classic_data.fire_animation_counter = start_counter;
-              auto tmp_tile = classic_data.tile_buffer[screen_index];
-              tmp_tile = tmp_tile + 1;
-
-              if (tmp_tile > alatar_classic::kFireTileLast) {
-                tmp_tile = alatar_classic::kFireTileFirst;
-              }
-
-              classic_data.tile_buffer[screen_index] = tmp_tile;
-            }
-          }
-        }
-      }
-
-      glBindBuffer(GL_TEXTURE_BUFFER, classic_data.tile_glbuffers.tbo_color_buffer);
-      BurningLogic::PrintGLError("main:glBindBuffer");
-
-      glBufferSubData(GL_TEXTURE_BUFFER, 0, static_cast<GLsizeiptr>(classic_data.color_buffer.size()),
-                      classic_data.color_buffer.data());
-      BurningLogic::PrintGLError("main:glBufferSubData");
-
-      glBindBuffer(GL_TEXTURE_BUFFER, classic_data.tile_glbuffers.tbo_tile_buffer);
-      BurningLogic::PrintGLError("main:glBindBuffer");
-
-      glBufferSubData(GL_TEXTURE_BUFFER, 0, static_cast<GLsizeiptr>(classic_data.tile_buffer.size()),
-                      classic_data.tile_buffer.data());
-      BurningLogic::PrintGLError("main:glBufferSubData");
+      ClassicUpdate(classic_data, start_counter, counter_to_ms_scale, level);
     }
 
-    // End update
-
     // Draw
-
     if (graphics_mode == Classic) {
-      // Classic specific
-      alatar_classic::PaintClassicTiles(classic_data.tile_shader, g_view_matrix,
-                                        SDL_FRect({-1.0, -1.0, 2.0, 2.0}), classic_data.tile_glbuffers);
-
-      // Draw monster sprites
-      for (unsigned int ii = 0; ii < 6; ++ii) {
-        if (monster_info[ii].active) {
-          alatar_classic::DrawClassicSpriteC64(
-              classic_data.sprite_shader, g_view_matrix, classic_data.sprite_glbuffers,
-              monster_info[ii].sprite_id, monster_info[ii].x, monster_info[ii].y,
-              {{wizard_level::kColorLightBlue, monster_info[ii].color, wizard_level::kColorWhite}});
-        }
-      }
-
-      // Draw wizard sprite
-      alatar_classic::DrawClassicSpriteC64(
-          classic_data.sprite_shader, g_view_matrix, classic_data.sprite_glbuffers, 0, wizard_info.x,
-          wizard_info.y, {{wizard_level::kColorLightBlue, wizard_info.color, wizard_level::kColorWhite}});
+      ClassicDraw(classic_data, monster_info, wizard_info, view_matrix);
     }
 
     // Present

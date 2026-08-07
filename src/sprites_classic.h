@@ -35,16 +35,16 @@ constexpr std::size_t kSpriteProcDataSize = kNumSprites * 8 * 64 * 8 * 4;
 bool LoadSpriteData(std::filesystem::path path_and_name,
                     std::span<unsigned char, kSpriteProcDataSize> proc_sprite_data);
 
-void PaintClassicSprite(BurningLogic::ShaderVars shader_vars, BurningLogic::mat4& view_matrix,
+void PaintClassicSprite(BurningLogic::ShaderVars shader_vars, const BurningLogic::mat4& view_matrix,
                         SDL_FRect sdl_rect, ClassicSpriteGLBuffers gl_buffers, int id,
                         std::array<int, 3> colors, int modifier);
 
-void DrawClassicSprite(BurningLogic::ShaderVars shader_vars, BurningLogic::mat4& view_matrix,
+void DrawClassicSprite(BurningLogic::ShaderVars shader_vars, const BurningLogic::mat4& view_matrix,
                        ClassicSpriteGLBuffers gl_buffers, int id, int x, int y, std::array<int, 3> colors,
                        int modifier = kSpriteNormal);
 
 // Same as DrawClassicSprite but uses the Commorode 64 coordinates
-void DrawClassicSpriteC64(BurningLogic::ShaderVars shader_vars, BurningLogic::mat4& view_matrix,
+void DrawClassicSpriteC64(BurningLogic::ShaderVars shader_vars, const BurningLogic::mat4& view_matrix,
                           ClassicSpriteGLBuffers gl_buffers, int id, int x, int y, std::array<int, 3> colors,
                           int modifier = kSpriteNormal);
 

@@ -107,4 +107,107 @@ void ClassicLevelInit(ClassicData& data, const wizard_level::LevelClass& level) 
   }
 }
 
+void ClassicUpdate(alatar_classic::ClassicData& classic_data, Uint64 start_counter,
+                   double counter_to_ms_scale, const wizard_level::LevelClass& level) {
+  // Update graphics (these probably don't upate at 60 Hz, need to get the correct number)
+  // I think color changes faster then the fire animation
+  if ((static_cast<double>(start_counter - classic_data.treasure_color_cycle_counter) * counter_to_ms_scale) >
+      alatar_classic::kTreasureColorCycleFrameTimeMs) {
+    ++classic_data.treasure_color_cycle;
+    classic_data.treasure_color_cycle_counter = start_counter;
+  }
+
+  unsigned char treasure_color_idx = classic_data.treasure_color_cycle.GetValue();
+
+  if ((static_cast<double>(start_counter - classic_data.fire_color_cycle_counter) * counter_to_ms_scale) >
+      alatar_classic::kFireColorCycleFrameTimeMs) {
+    ++classic_data.fire_color_cycle;
+    classic_data.fire_color_cycle_counter = start_counter;
+  }
+
+  unsigned char fire_color_idx = classic_data.fire_color_cycle.GetValue();
+
+  // Set updated fire and treasure colors
+  for (int row = 0; row < wizard_level::kTileDataRows; ++row) {
+    for (int col = 0; col < wizard_level::kTileDataCols; ++col) {
+      unsigned int screen_row = static_cast<unsigned int>(row) + 1;
+      unsigned int screen_col = static_cast<unsigned int>(col);
+      unsigned int screen_index = wizard_level::kColTiles * screen_row + screen_col;
+
+      unsigned char tile = level.GetTileAt(row, col);
+
+      if (wizard_level::GetTileGroup(tile) == wizard_level::kTreasure) {
+        classic_data.color_buffer[screen_index] = treasure_color_idx;
+      }
+
+      if (wizard_level::GetTileGroup(tile) == wizard_level::kFire) {
+        classic_data.color_buffer[screen_index] = fire_color_idx;
+      }
+    }
+  }
+
+  // Cycle fire tile charaters for animation
+  if ((static_cast<double>(start_counter - classic_data.fire_animation_counter) * counter_to_ms_scale) >
+      alatar_classic::kFireAnimationFrameTimeMs) {
+    classic_data.fire_animation_counter = start_counter;
+
+    for (int row = 0; row < wizard_level::kTileDataRows; ++row) {
+      for (int col = 0; col < wizard_level::kTileDataCols; ++col) {
+        unsigned int screen_row = static_cast<unsigned int>(row) + 1;
+        unsigned int screen_col = static_cast<unsigned int>(col);
+        unsigned int screen_index = wizard_level::kColTiles * screen_row + screen_col;
+
+        unsigned char tile = level.GetTileAt(row, col);
+        if (wizard_level::GetTileGroup(tile) == wizard_level::kFire) {
+          classic_data.fire_animation_counter = start_counter;
+          auto tmp_tile = classic_data.tile_buffer[screen_index];
+          tmp_tile = tmp_tile + 1;
+
+          if (tmp_tile > alatar_classic::kFireTileLast) {
+            tmp_tile = alatar_classic::kFireTileFirst;
+          }
+
+          classic_data.tile_buffer[screen_index] = tmp_tile;
+        }
+      }
+    }
+  }
+
+  glBindBuffer(GL_TEXTURE_BUFFER, classic_data.tile_glbuffers.tbo_color_buffer);
+  BurningLogic::PrintGLError("main:glBindBuffer");
+
+  glBufferSubData(GL_TEXTURE_BUFFER, 0, static_cast<GLsizeiptr>(classic_data.color_buffer.size()),
+                  classic_data.color_buffer.data());
+  BurningLogic::PrintGLError("main:glBufferSubData");
+
+  glBindBuffer(GL_TEXTURE_BUFFER, classic_data.tile_glbuffers.tbo_tile_buffer);
+  BurningLogic::PrintGLError("main:glBindBuffer");
+
+  glBufferSubData(GL_TEXTURE_BUFFER, 0, static_cast<GLsizeiptr>(classic_data.tile_buffer.size()),
+                  classic_data.tile_buffer.data());
+  BurningLogic::PrintGLError("main:glBufferSubData");
+}
+
+void ClassicDraw(const alatar_classic::ClassicData& classic_data,
+                 const wizard_level::MonsterInfoArray& monster_info,
+                 const wizard_level::WizardInfo& wizard_info, const BurningLogic::mat4& view_matrix) {
+  alatar_classic::PaintClassicTiles(classic_data.tile_shader, view_matrix,
+                                    SDL_FRect({-1.0, -1.0, 2.0, 2.0}), classic_data.tile_glbuffers);
+
+  // Draw monster sprites
+  for (unsigned int ii = 0; ii < 6; ++ii) {
+    if (monster_info[ii].active) {
+      alatar_classic::DrawClassicSpriteC64(
+          classic_data.sprite_shader, view_matrix, classic_data.sprite_glbuffers,
+          monster_info[ii].sprite_id, monster_info[ii].x, monster_info[ii].y,
+          {{wizard_level::kColorLightBlue, monster_info[ii].color, wizard_level::kColorWhite}});
+    }
+  }
+
+  // Draw wizard sprite
+  alatar_classic::DrawClassicSpriteC64(
+      classic_data.sprite_shader, view_matrix, classic_data.sprite_glbuffers, 0, wizard_info.x,
+      wizard_info.y, {{wizard_level::kColorLightBlue, wizard_info.color, wizard_level::kColorWhite}});
+}
+
 }  // namespace alatar_classic

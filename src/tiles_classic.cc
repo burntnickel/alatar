@@ -39,7 +39,7 @@ bool LoadCharSet(std::filesystem::path path_and_name,
   return true;
 }
 
-void PaintClassicTiles(BurningLogic::ShaderVars shader_vars, BurningLogic::mat4& view_matrix,
+void PaintClassicTiles(BurningLogic::ShaderVars shader_vars, const BurningLogic::mat4& view_matrix,
                        SDL_FRect sdl_rect, ClassicTileGLBuffers gl_buffers) {
   std::array<GLfloat, 16> vertex_buffer = {{sdl_rect.x, sdl_rect.y, 0.0, 0.0, sdl_rect.x + sdl_rect.w,
                                             sdl_rect.y, 1.0, 0.0, sdl_rect.x, sdl_rect.y + sdl_rect.h, 0.0,
