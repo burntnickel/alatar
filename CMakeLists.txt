@@ -10,6 +10,8 @@ set ( CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} /usr/lib/x86_64-linux-gnu/cmake )
 
 find_package( SDL2 REQUIRED )
 
+find_package( SDL2_image REQUIRED )
+
 set( CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/bin )
 
 set( EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR} )

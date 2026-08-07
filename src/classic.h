@@ -4,6 +4,7 @@
 // Miscelanaeous data / functions that only apply to the classic mode display
 
 #include <array>
+#include <string>
 
 #include "opengl_helper.h"
 #include "sprites_classic.h"
@@ -55,12 +56,15 @@ struct ClassicData {
 
   BurningLogic::ShaderVars tile_shader;
   BurningLogic::ShaderVars sprite_shader;
+
+  Uint64 treasure_color_cycle_counter;
+  Uint64 fire_color_cycle_counter;
+  Uint64 fire_animation_counter;
 };
 
-bool SetupClassic(alatar_classic::ClassicData& data, std::filesystem::path resource_path,
-                  std::filesystem::path shader_path);
+bool SetupClassic(ClassicData& data, std::filesystem::path resource_path, std::filesystem::path shader_path);
 
-void ClassicLevelInit(alatar_classic::ClassicData& data, const wizard_level::LevelClass& level);
+void ClassicLevelInit(ClassicData& data, const wizard_level::LevelClass& level);
 
 }  // namespace alatar_classic
 

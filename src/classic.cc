@@ -6,8 +6,7 @@
 
 namespace alatar_classic {
 
-bool SetupClassic(alatar_classic::ClassicData& data, std::filesystem::path resource_path,
-                  std::filesystem::path shader_path) {
+bool SetupClassic(ClassicData& data, std::filesystem::path resource_path, std::filesystem::path shader_path) {
   const std::string kClassicDirName{"classic"};
   const std::string kCharSetName{"chrw"};
   const std::string kSpriteSetName{"sprw"};
@@ -87,7 +86,7 @@ bool SetupClassic(alatar_classic::ClassicData& data, std::filesystem::path resou
   return true;
 }
 
-void ClassicLevelInit(alatar_classic::ClassicData& data, const wizard_level::LevelClass& level) {
+void ClassicLevelInit(ClassicData& data, const wizard_level::LevelClass& level) {
   // Set to 32 (space) as blank character & black (0)
   for (unsigned int ii = 0; ii < (wizard_level::kRowTiles * wizard_level::kColTiles); ++ii) {
     data.tile_buffer[ii] = 32;
