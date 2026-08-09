@@ -15,6 +15,7 @@
 #include "opengl_helper.h"
 #include "sprites_classic.h"
 #include "tiles_classic.h"
+#include "updated.h"
 #include "value_cycle.h"
 #include "wiz_level.h"
 
@@ -134,6 +135,7 @@ static void ParseCommandLine(int argc, char* argv[], std::filesystem::path& file
 int main(int argc, char* argv[]) {
   bool success;
   alatar_classic::ClassicData classic_data;
+  alatar_updated::UpdatedData updated_data;
   std::array<unsigned char, wizard_level::kFileLength> level_data{};
   wizard_level::LevelClass level;
 
@@ -161,7 +163,7 @@ int main(int argc, char* argv[]) {
   }
 
   if (graphics_mode == Classic) {
-    success = SetupClassic(classic_data, kResourcePath, kShaderPath);
+    success = alatar_classic::SetupClassic(classic_data, kResourcePath, kShaderPath);
 
     if (!success) {
       std::cerr << "Failed to complete SetupClassic, exiting\n";
@@ -169,6 +171,16 @@ int main(int argc, char* argv[]) {
     }
 
     ClassicLevelInit(classic_data, level);
+  } else if (graphics_mode == Updated) {
+    success = alatar_updated::SetupUpdated(updated_data, kResourcePath, kShaderPath);
+
+    if (!success) {
+      std::cerr << "Failed to complete SetupUpdated, exiting\n";
+      return EXIT_FAILURE;
+    }
+  } else {
+    std::cerr << "Unimplemented graphics mode" << std::endl;
+    return EXIT_FAILURE;
   }
 
   wizard_level::WizardInfo wizard_info = level.GetWizardInfo();
@@ -236,6 +248,11 @@ int main(int argc, char* argv[]) {
     // Draw
     if (graphics_mode == Classic) {
       ClassicDraw(classic_data, monster_info, wizard_info, view_matrix);
+    } else if (graphics_mode == Updated) {
+      UpdatedDraw(updated_data, monster_info, wizard_info, view_matrix);
+    } else {
+      std::cerr << "Unimplemented graphics mode" << std::endl;
+      return EXIT_FAILURE;
     }
 
     // Present

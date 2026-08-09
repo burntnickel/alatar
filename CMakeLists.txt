@@ -66,6 +66,8 @@ set( LEVELVIEWER_SRCS ${LEVELVIEWER_SRCS} ${CMAKE_SOURCE_DIR}/src/load_data.cc )
 set( LEVELVIEWER_SRCS ${LEVELVIEWER_SRCS} ${CMAKE_SOURCE_DIR}/src/opengl_helper.cc )
 set( LEVELVIEWER_SRCS ${LEVELVIEWER_SRCS} ${CMAKE_SOURCE_DIR}/src/sprites_classic.cc )
 set( LEVELVIEWER_SRCS ${LEVELVIEWER_SRCS} ${CMAKE_SOURCE_DIR}/src/tiles_classic.cc )
+set( LEVELVIEWER_SRCS ${LEVELVIEWER_SRCS} ${CMAKE_SOURCE_DIR}/src/tiles_updated.cc )
+set( LEVELVIEWER_SRCS ${LEVELVIEWER_SRCS} ${CMAKE_SOURCE_DIR}/src/updated.cc )
 set( LEVELVIEWER_SRCS ${LEVELVIEWER_SRCS} ${CMAKE_SOURCE_DIR}/src/wiz_level.cc )
 
 add_executable( level_display ${LEVELVIEWER_SRCS} ${MY_HEADERS} )

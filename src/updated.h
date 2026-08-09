@@ -7,6 +7,7 @@
 #include <string>
 
 #include "opengl_helper.h"
+#include "tiles_updated.h"
 
 namespace alatar_updated {
 
@@ -16,6 +17,13 @@ const std::string kUpdatedTileFragmentShaderName{"updated_tile_fragment.glsl"};
 // const std::string kClassicSpriteVertexShaderName{"classic_vertex.glsl"};
 // const std::string kClassicSpriteFragmentShaderName{"classic_sprite_fragment.glsl"};
 
+// Texture mappings used by the classic shaders
+/*const auto classic_tile_texture = GL_TEXTURE0;
+const auto classic_color_texture = GL_TEXTURE1;
+const auto classic_tileset_texture = GL_TEXTURE2;*/
+const auto updated_clut_texture = GL_TEXTURE3;
+//const auto classic_sprite_texture = GL_TEXTURE4;
+
 // Data use in main program for the updated display mode
 struct UpdatedData {
   // std::array<unsigned char, wizard_level::kTileBufferSize> tile_set{};
@@ -23,16 +31,21 @@ struct UpdatedData {
   // std::array<unsigned char, wizard_level::kRowTiles * wizard_level::kColTiles> color_buffer{};
   // std::array<unsigned char, alatar_classic::kSpriteProcDataSize> processed_sprites{};
 
-  // alatar_classic::ClassicTileGLBuffers tile_glbuffers;
+  UpdatedTileGLBuffers tile_glbuffers;
   // alatar_classic::ClassicSpriteGLBuffers sprite_glbuffers;
 
   BurningLogic::ShaderVars tile_shader;
   BurningLogic::ShaderVars sprite_shader;
+
+  UpdatedTileVertexManager vertex_manager;
 };
 
 bool SetupUpdated(UpdatedData& data, std::filesystem::path resource_path, std::filesystem::path shader_path);
 
 void UpdatedLevelInit(void);
+
+void UpdatedDraw(const UpdatedData& updated_data, const wizard_level::MonsterInfoArray& monster_info,
+                 const wizard_level::WizardInfo& wizard_info, const BurningLogic::mat4& view_matrix);
 
 }  // namespace alatar_updated
 

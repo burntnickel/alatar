@@ -46,13 +46,13 @@ struct ClassicData {
   std::array<unsigned char, wizard_level::kTileBufferSize> tile_set{};
   std::array<unsigned char, wizard_level::kRowTiles * wizard_level::kColTiles> tile_buffer{};
   std::array<unsigned char, wizard_level::kRowTiles * wizard_level::kColTiles> color_buffer{};
-  std::array<unsigned char, alatar_classic::kSpriteProcDataSize> processed_sprites{};
+  std::array<unsigned char, kSpriteProcDataSize> processed_sprites{};
 
-  alatar::ValueCycle<unsigned char> treasure_color_cycle{alatar_classic::kTreasureCycleColors};
-  alatar::ValueCycle<unsigned char> fire_color_cycle{alatar_classic::kFireCycleColors};
+  alatar::ValueCycle<unsigned char> treasure_color_cycle{kTreasureCycleColors};
+  alatar::ValueCycle<unsigned char> fire_color_cycle{kFireCycleColors};
 
-  alatar_classic::ClassicTileGLBuffers tile_glbuffers;
-  alatar_classic::ClassicSpriteGLBuffers sprite_glbuffers;
+  ClassicTileGLBuffers tile_glbuffers;
+  ClassicSpriteGLBuffers sprite_glbuffers;
 
   BurningLogic::ShaderVars tile_shader;
   BurningLogic::ShaderVars sprite_shader;
@@ -66,11 +66,10 @@ bool SetupClassic(ClassicData& data, std::filesystem::path resource_path, std::f
 
 void ClassicLevelInit(ClassicData& data, const wizard_level::LevelClass& level);
 
-void ClassicUpdate(alatar_classic::ClassicData& classic_data, Uint64 start_counter,
-                   double counter_to_ms_scale, const wizard_level::LevelClass& level);
+void ClassicUpdate(ClassicData& classic_data, Uint64 start_counter, double counter_to_ms_scale,
+                   const wizard_level::LevelClass& level);
 
-void ClassicDraw(const alatar_classic::ClassicData& classic_data,
-                 const wizard_level::MonsterInfoArray& monster_info,
+void ClassicDraw(const ClassicData& classic_data, const wizard_level::MonsterInfoArray& monster_info,
                  const wizard_level::WizardInfo& wizard_info, const BurningLogic::mat4& view_matrix);
 
 }  // namespace alatar_classic
