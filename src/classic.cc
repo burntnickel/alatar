@@ -14,14 +14,14 @@ bool SetupClassic(ClassicData& data, std::filesystem::path resource_path, std::f
   auto tile_set_path_and_name = resource_path / kClassicDirName / kCharSetName;
   auto sprite_set_path_and_name = resource_path / kClassicDirName / kSpriteSetName;
 
-  bool success = alatar_classic::LoadCharSet(tile_set_path_and_name, data.tile_set);
+  bool success = LoadCharSet(tile_set_path_and_name, data.tile_set);
 
   if (!success) {
     std::cerr << "Failed to load classic charater set\n";
     return false;
   }
 
-  success = alatar_classic::LoadSpriteData(sprite_set_path_and_name, data.processed_sprites);
+  success = LoadSpriteData(sprite_set_path_and_name, data.processed_sprites);
 
   if (!success) {
     std::cerr << "Failed to load classic sprite set\n";
@@ -107,12 +107,12 @@ void ClassicLevelInit(ClassicData& data, const wizard_level::LevelClass& level) 
   }
 }
 
-void ClassicUpdate(alatar_classic::ClassicData& classic_data, Uint64 start_counter,
-                   double counter_to_ms_scale, const wizard_level::LevelClass& level) {
+void ClassicUpdate(ClassicData& classic_data, Uint64 start_counter, double counter_to_ms_scale,
+                   const wizard_level::LevelClass& level) {
   // Update graphics (these probably don't upate at 60 Hz, need to get the correct number)
   // I think color changes faster then the fire animation
   if ((static_cast<double>(start_counter - classic_data.treasure_color_cycle_counter) * counter_to_ms_scale) >
-      alatar_classic::kTreasureColorCycleFrameTimeMs) {
+      kTreasureColorCycleFrameTimeMs) {
     ++classic_data.treasure_color_cycle;
     classic_data.treasure_color_cycle_counter = start_counter;
   }
@@ -120,7 +120,7 @@ void ClassicUpdate(alatar_classic::ClassicData& classic_data, Uint64 start_count
   unsigned char treasure_color_idx = classic_data.treasure_color_cycle.GetValue();
 
   if ((static_cast<double>(start_counter - classic_data.fire_color_cycle_counter) * counter_to_ms_scale) >
-      alatar_classic::kFireColorCycleFrameTimeMs) {
+      kFireColorCycleFrameTimeMs) {
     ++classic_data.fire_color_cycle;
     classic_data.fire_color_cycle_counter = start_counter;
   }
@@ -148,7 +148,7 @@ void ClassicUpdate(alatar_classic::ClassicData& classic_data, Uint64 start_count
 
   // Cycle fire tile charaters for animation
   if ((static_cast<double>(start_counter - classic_data.fire_animation_counter) * counter_to_ms_scale) >
-      alatar_classic::kFireAnimationFrameTimeMs) {
+      kFireAnimationFrameTimeMs) {
     classic_data.fire_animation_counter = start_counter;
 
     for (int row = 0; row < wizard_level::kTileDataRows; ++row) {
@@ -163,8 +163,8 @@ void ClassicUpdate(alatar_classic::ClassicData& classic_data, Uint64 start_count
           auto tmp_tile = classic_data.tile_buffer[screen_index];
           tmp_tile = tmp_tile + 1;
 
-          if (tmp_tile > alatar_classic::kFireTileLast) {
-            tmp_tile = alatar_classic::kFireTileFirst;
+          if (tmp_tile > kFireTileLast) {
+            tmp_tile = kFireTileFirst;
           }
 
           classic_data.tile_buffer[screen_index] = tmp_tile;
@@ -188,26 +188,25 @@ void ClassicUpdate(alatar_classic::ClassicData& classic_data, Uint64 start_count
   BurningLogic::PrintGLError("main:glBufferSubData");
 }
 
-void ClassicDraw(const alatar_classic::ClassicData& classic_data,
-                 const wizard_level::MonsterInfoArray& monster_info,
+void ClassicDraw(const ClassicData& classic_data, const wizard_level::MonsterInfoArray& monster_info,
                  const wizard_level::WizardInfo& wizard_info, const BurningLogic::mat4& view_matrix) {
-  alatar_classic::PaintClassicTiles(classic_data.tile_shader, view_matrix,
-                                    SDL_FRect({-1.0, -1.0, 2.0, 2.0}), classic_data.tile_glbuffers);
+  PaintClassicTiles(classic_data.tile_shader, view_matrix, SDL_FRect({-1.0, -1.0, 2.0, 2.0}),
+                    classic_data.tile_glbuffers);
 
   // Draw monster sprites
   for (unsigned int ii = 0; ii < 6; ++ii) {
     if (monster_info[ii].active) {
-      alatar_classic::DrawClassicSpriteC64(
-          classic_data.sprite_shader, view_matrix, classic_data.sprite_glbuffers,
-          monster_info[ii].sprite_id, monster_info[ii].x, monster_info[ii].y,
+      DrawClassicSpriteC64(
+          classic_data.sprite_shader, view_matrix, classic_data.sprite_glbuffers, monster_info[ii].sprite_id,
+          monster_info[ii].x, monster_info[ii].y,
           {{wizard_level::kColorLightBlue, monster_info[ii].color, wizard_level::kColorWhite}});
     }
   }
 
   // Draw wizard sprite
-  alatar_classic::DrawClassicSpriteC64(
-      classic_data.sprite_shader, view_matrix, classic_data.sprite_glbuffers, 0, wizard_info.x,
-      wizard_info.y, {{wizard_level::kColorLightBlue, wizard_info.color, wizard_level::kColorWhite}});
+  DrawClassicSpriteC64(classic_data.sprite_shader, view_matrix, classic_data.sprite_glbuffers, 0,
+                       wizard_info.x, wizard_info.y,
+                       {{wizard_level::kColorLightBlue, wizard_info.color, wizard_level::kColorWhite}});
 }
 
 }  // namespace alatar_classic

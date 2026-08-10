@@ -3,6 +3,8 @@
 
 // Miscelanaeous data / functions that only apply to the updated mode display
 
+#include <SDL.h>
+
 #include <filesystem>
 #include <string>
 
@@ -38,6 +40,8 @@ struct UpdatedData {
   BurningLogic::ShaderVars sprite_shader;
 
   UpdatedTileVertexManager vertex_manager;
+
+  SDL_Surface* wall_texture_surface = nullptr;
 };
 
 bool SetupUpdated(UpdatedData& data, std::filesystem::path resource_path, std::filesystem::path shader_path);

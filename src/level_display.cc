@@ -13,6 +13,7 @@
 #include "getrespath.h"
 #include "load_data.h"
 #include "opengl_helper.h"
+#include "sdl_helper.h"
 #include "sprites_classic.h"
 #include "tiles_classic.h"
 #include "updated.h"
@@ -31,14 +32,6 @@ constexpr float kPixelAspectRatio = 0.75;
 constexpr uint_least32_t kScreenWidth = 8 * wizard_level::kColTiles * 2.5 * kPixelAspectRatio;
 constexpr uint_least32_t kScreenHeight = 8 * wizard_level::kRowTiles * 2.5;
 constexpr float kDesiredScreenAspect = static_cast<float>(kScreenWidth) / static_cast<float>(kScreenHeight);
-
-static bool ErrorEvalPrintSDL(bool condition, std::string_view message) {
-  if (condition) {
-    std::cerr << message << " " << SDL_GetError() << "\n";
-  }
-
-  return !condition;
-}
 
 static bool Initialize(void) {
   // Initalize SDL

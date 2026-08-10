@@ -5,6 +5,10 @@ if( ${CMAKE_VERSION} VERSION_LESS 3.12 )
     cmake_policy( VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} )
 endif()
 
+project( MyProject VERSION 0.0
+                   DESCRIPTION "Alatar"
+                   LANGUAGES CXX )
+
 # Why do I need this?????
 set ( CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} /usr/lib/x86_64-linux-gnu/cmake )
 
@@ -15,10 +19,6 @@ find_package( SDL2_image REQUIRED )
 set( CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/bin )
 
 set( EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR} )
-
-project( MyProject VERSION 0.0
-                   DESCRIPTION "Alatar"
-                   LANGUAGES CXX )
 
 message( CMAKE_BUILD_TYPE= "${CMAKE_BUILD_TYPE}" )
 
@@ -64,6 +64,7 @@ set( LEVELVIEWER_SRCS ${LEVELVIEWER_SRCS} ${CMAKE_SOURCE_DIR}/src/getexepath.cc 
 set( LEVELVIEWER_SRCS ${LEVELVIEWER_SRCS} ${CMAKE_SOURCE_DIR}/src/getrespath.cc )
 set( LEVELVIEWER_SRCS ${LEVELVIEWER_SRCS} ${CMAKE_SOURCE_DIR}/src/load_data.cc )
 set( LEVELVIEWER_SRCS ${LEVELVIEWER_SRCS} ${CMAKE_SOURCE_DIR}/src/opengl_helper.cc )
+set( LEVELVIEWER_SRCS ${LEVELVIEWER_SRCS} ${CMAKE_SOURCE_DIR}/src/sdl_helper.cc )
 set( LEVELVIEWER_SRCS ${LEVELVIEWER_SRCS} ${CMAKE_SOURCE_DIR}/src/sprites_classic.cc )
 set( LEVELVIEWER_SRCS ${LEVELVIEWER_SRCS} ${CMAKE_SOURCE_DIR}/src/tiles_classic.cc )
 set( LEVELVIEWER_SRCS ${LEVELVIEWER_SRCS} ${CMAKE_SOURCE_DIR}/src/tiles_updated.cc )
@@ -74,11 +75,15 @@ add_executable( level_display ${LEVELVIEWER_SRCS} ${MY_HEADERS} )
 
 # OpenGL stuff
 target_link_libraries( level_display "-lGLEW -lGL" )
-target_compile_definitions ( level_display PRIVATE BL_USE_OPENGL=1 )
+#target_compile_definitions ( level_display PRIVATE BL_USE_OPENGL=1 )
 
-target_include_directories( level_display PUBLIC ${SDL2_INCLUDE_DIRS} )
-target_link_libraries( level_display ${SDL2_LIBRARIES} )
+target_include_directories( level_display PUBLIC ${SDL2_INCLUDE_DIRS} ${SDL_IMAGE_INCLUDE_DIRS} )
+target_link_libraries( level_display ${SDL2_LIBRARIES} SDL2_image )
 target_compile_features( level_display PRIVATE cxx_std_20 )
+
+message( SDL2_LIBRARIES= "${SDL2_LIBRARIES}" )
+message( SDL_IMAGE_LIBRARIES= "${SDL_IMAGE_LIBRARIES}" )
+
 
 
 

@@ -1,31 +1,56 @@
 
 #include "updated.h"
 
+#include <SDL_image.h>
+
+#include <iostream>
+
 #include "c64_clut.h"
+#include "sdl_helper.h"
 
 namespace alatar_updated {
 
+static bool LoadWallTexture(std::filesystem::path path_and_name, UpdatedData& data) {
+  SDL_Surface* raw_surface = IMG_Load(path_and_name.c_str());
+
+  bool success = ErrorEvalPrintSDL(raw_surface == NULL, "Error calling IMG_Load:");
+
+  // Convert to the required RGBA format here
+  SDL_Surface* converted_surface;
+
+  if (success) {
+    converted_surface = SDL_ConvertSurfaceFormat(raw_surface, SDL_PIXELFORMAT_RGBA8888, 0);
+
+    success = ErrorEvalPrintSDL(raw_surface == NULL, "Error calling SDL_ConvertSurfaceFormat:");
+  }
+
+  if (raw_surface != NULL) {
+    SDL_FreeSurface(raw_surface);
+  }
+
+  if (success) {
+    data.wall_texture_surface = converted_surface;
+  }
+
+  // TODO: Need to add another function to do the clean up for make the UpdatedData a class with a destructor
+
+  return success;
+}
+
 bool SetupUpdated(UpdatedData& data, std::filesystem::path resource_path, std::filesystem::path shader_path) {
-  /*const std::string kClassicDirName{"classic"};
-  const std::string kCharSetName{"chrw"};
-  const std::string kSpriteSetName{"sprw"};
+  const std::string kUpdatedDirName{"updated"};
+  const std::string kWallTextureName{"wall_texture.png"};
 
-  auto tile_set_path_and_name = resource_path / kClassicDirName / kCharSetName;
-  auto sprite_set_path_and_name = resource_path / kClassicDirName / kSpriteSetName;
+  auto wall_texture_path_and_name = resource_path / kUpdatedDirName / kWallTextureName;
 
-  bool success = alatar_classic::LoadCharSet(tile_set_path_and_name, data.tile_set);
+  bool success = LoadWallTexture(wall_texture_path_and_name, data);
 
   if (!success) {
-    std::cerr << "Failed to load classic charater set\n";
+    std::cerr << "Failed to load wall texture\n";
     return false;
   }
 
-  success = alatar_classic::LoadSpriteData(sprite_set_path_and_name, data.processed_sprites);
-
-  if (!success) {
-    std::cerr << "Failed to load classic sprite set\n";
-    return false;
-  }
+  /*
 
   // Tile buffer
   BurningLogic::TextureSetupHelper(classic_tile_texture, &data.tile_glbuffers.tbo_tile_buffer,
