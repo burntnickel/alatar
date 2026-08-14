@@ -88,8 +88,7 @@ class ClassicClass : public alatar::GraphicsCommonClass {
   ClassicClass& operator=(ClassicClass&& other);
 
   // Destructor
-  // TODO: Figure out what clean up is needed and do it here
-  ~ClassicClass(void) override {};
+  ~ClassicClass(void) override;
 
   // Constructor for the factory (protected by the token)
   ClassicClass(Token, const ClassicData& data);

@@ -8,6 +8,7 @@
 #include <filesystem>
 #include <string>
 
+#include "graphics_common.h"
 #include "opengl_helper.h"
 #include "tiles_updated.h"
 
@@ -44,9 +45,57 @@ struct UpdatedData {
   SDL_Surface* wall_texture_surface = nullptr;
 };
 
+// Don't want to be able to construct, move, copy, or assgn this class
+// This is the virtual base class for the graphics for each mode
+class UpdatedClass : public alatar::GraphicsCommonClass {
+  // I don't like this but it does prevent me from accidentally constructing an object
+ private:
+  struct Token {};
+
+ public:
+  // Delete default constuctor as classes should only
+  UpdatedClass(void) = delete;
+
+  // Delete copy constructor as this class should not be copied, only moved
+  UpdatedClass(const UpdatedClass& copyFrom) = delete;
+
+  // Delete copy assignment operator as this class should not be copied, only moved
+  UpdatedClass& operator=(const UpdatedClass& copyFrom) = delete;
+
+  // Need the move constructor
+  UpdatedClass(UpdatedClass&& other);
+
+  // Need the more assigment operator
+  UpdatedClass& operator=(UpdatedClass&& other);
+
+  // Destructor
+  ~UpdatedClass(void) override;
+
+  // Constructor for the factory (protected by the token)
+  UpdatedClass(Token, const UpdatedData& data);
+
+ private:
+  UpdatedData data_;
+
+ public:
+  void LevelInit(const wizard_level::LevelClass& level) override;
+
+  void Update(Uint64 start_counter, double counter_to_ms_scale,
+              const wizard_level::LevelClass& level) override;
+
+  void Draw(const wizard_level::MonsterInfoArray& monster_info, const wizard_level::WizardInfo& wizard_info,
+            const BurningLogic::mat4& view_matrix) override;
+
+  // Factory function to make sure return objects are always properly constructed
+  // Ideally should use std:expected but that would require c++23
+  static std::optional<alatar::GraphicsCommonPtr> UpdatedClassFactory(std::filesystem::path resource_path,
+                                                                      std::filesystem::path shader_path,
+                                                                      Uint64 sdl_counter);
+};
+
 bool SetupUpdated(UpdatedData& data, std::filesystem::path resource_path, std::filesystem::path shader_path);
 
-void UpdatedLevelInit(void);
+//void UpdatedLevelInit(void);
 
 void UpdatedDraw(const UpdatedData& updated_data, const wizard_level::MonsterInfoArray& monster_info,
                  const wizard_level::WizardInfo& wizard_info, const BurningLogic::mat4& view_matrix);

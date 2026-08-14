@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "classic.h"
+#include "updated.h"
 
 namespace alatar {
 
@@ -12,6 +13,9 @@ std::optional<GraphicsCommonPtr> GraphicsCommonClass::GraphicsCommonClassFactory
   switch (graphics_mode) {
     case Classic:
       return alatar_classic::ClassicClass::ClassicClassFactory(resource_path, shader_path, sdl_counter);
+      break;
+    case Updated:
+      return alatar_updated::UpdatedClass::UpdatedClassFactory(resource_path, shader_path, sdl_counter);
       break;
     default:
       std::cerr << "Unimplemented graphics mode" << std::endl;

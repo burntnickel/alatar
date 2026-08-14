@@ -26,6 +26,21 @@ ClassicClass& ClassicClass::operator=(ClassicClass&& other) {
   return *this;
 }
 
+// Destructor
+ClassicClass::~ClassicClass(void) {
+  // Delete tile shader opengl constructs
+  glDeleteBuffers(1, &(data_.tile_shader.vbo));
+  glDeleteBuffers(1, &(data_.tile_shader.ibo));
+  glDeleteVertexArrays(1, &(data_.tile_shader.vao));
+  glDeleteProgram(data_.tile_shader.program);
+
+  // Delete sprite shader opengl constructs
+  glDeleteBuffers(1, &(data_.sprite_shader.vbo));
+  glDeleteBuffers(1, &(data_.sprite_shader.ibo));
+  glDeleteVertexArrays(1, &(data_.sprite_shader.vao));
+  glDeleteProgram(data_.sprite_shader.program);
+};
+
 // Private constructor for factory
 ClassicClass::ClassicClass(Token, const ClassicData& data) {
   data_ = data;
@@ -135,12 +150,11 @@ void ClassicClass::Update(Uint64 start_counter, double counter_to_ms_scale,
 
 void ClassicClass::Draw(const wizard_level::MonsterInfoArray& monster_info,
                         const wizard_level::WizardInfo& wizard_info, const BurningLogic::mat4& view_matrix) {
-  // TODO: Update for propoer sprite priority (draw in reverse order)
   // TODO: Add part where we draw before or after the tiles
   PaintClassicTiles(data_.tile_shader, view_matrix, SDL_FRect({-1.0, -1.0, 2.0, 2.0}), data_.tile_glbuffers);
 
   // Draw monster sprites
-  for (unsigned int ii = 0; ii < 6; ++ii) {
+  for (unsigned int ii = 5; ii > 0; --ii) {
     if (monster_info[ii].active) {
       DrawClassicSpriteC64(
           data_.sprite_shader, view_matrix, data_.sprite_glbuffers, monster_info[ii].sprite_id,

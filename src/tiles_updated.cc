@@ -5,8 +5,6 @@
 namespace alatar_updated {
 
 UpdatedTileVertexManager::UpdatedTileVertexManager(void) {
-  std::cout << "Constructing UpdatedTileVertexManager\n";
-
   // Local UV texture coordinates
   const float u0 = 0.0;
   const float u1 = 1.0;
