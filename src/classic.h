@@ -87,7 +87,10 @@ class ClassicClass : public alatar::GraphicsCommonClass {
   // Need the more assigment operator
   ClassicClass& operator=(ClassicClass&& other);
 
+  // Destructor
+  // TODO: Figure out what clean up is needed and do it here
   ~ClassicClass(void) override {};
+
   // Constructor for the factory (protected by the token)
   ClassicClass(Token, const ClassicData& data);
 
@@ -106,7 +109,8 @@ class ClassicClass : public alatar::GraphicsCommonClass {
   // Factory function to make sure return objects are always properly constructed
   // Ideally should use std:expected but that would require c++23
   static std::optional<alatar::GraphicsCommonPtr> ClassicClassFactory(std::filesystem::path resource_path,
-                                                                      std::filesystem::path shader_path);
+                                                                      std::filesystem::path shader_path,
+                                                                      Uint64 sdl_counter);
 };
 
 bool SetupClassic(ClassicData& data, std::filesystem::path resource_path, std::filesystem::path shader_path);

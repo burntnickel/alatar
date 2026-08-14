@@ -8,14 +8,16 @@
 #include <span>
 #include <string>
 #include <string_view>
+#include <utility>
 
-#include "classic.h"
+#include "classic.h"  //
 #include "getrespath.h"
+#include "graphics_common.h"
 #include "load_data.h"
 #include "opengl_helper.h"
 #include "sdl_helper.h"
-#include "sprites_classic.h"
-#include "tiles_classic.h"
+#include "sprites_classic.h"  //
+#include "tiles_classic.h"    //
 #include "updated.h"
 #include "value_cycle.h"
 #include "wiz_level.h"
@@ -125,8 +127,8 @@ static void ParseCommandLine(int argc, char* argv[], std::filesystem::path& file
 
 int main(int argc, char* argv[]) {
   bool success;
-  alatar_classic::ClassicData classic_data;
-  alatar_updated::UpdatedData updated_data;
+  // alatar_classic::ClassicData classic_data;
+  // alatar_updated::UpdatedData updated_data;
   std::array<unsigned char, wizard_level::kFileLength> level_data{};
   wizard_level::LevelClass level;
 
@@ -153,7 +155,22 @@ int main(int argc, char* argv[]) {
     return EXIT_FAILURE;
   }
 
-  if (graphics_mode == alatar::Classic) {
+  alatar::GraphicsCommonPtr graphics_routine_ptr;
+  Uint64 sdl_counter = SDL_GetPerformanceCounter();
+
+  auto graphics_routine_opt = alatar::GraphicsCommonClass::GraphicsCommonClassFactory(
+      kResourcePath, kShaderPath, graphics_mode, sdl_counter);
+
+  if (!graphics_routine_opt) {
+    std::cerr << "Failed to initalize graphics, exiting\n";
+    return EXIT_FAILURE;
+  }
+
+  graphics_routine_ptr = std::move(graphics_routine_opt.value());
+
+  graphics_routine_ptr->LevelInit(level);
+
+  /*if (graphics_mode == alatar::Classic) {
     success = alatar_classic::SetupClassic(classic_data, kResourcePath, kShaderPath);
 
     if (!success) {
@@ -172,7 +189,7 @@ int main(int argc, char* argv[]) {
   } else {
     std::cerr << "Unimplemented graphics mode" << std::endl;
     return EXIT_FAILURE;
-  }
+  }*/
 
   wizard_level::WizardInfo wizard_info = level.GetWizardInfo();
   wizard_level::MonsterInfoArray monster_info = level.GetMonsterInfo();
@@ -182,13 +199,13 @@ int main(int argc, char* argv[]) {
 
   double counter_to_ms_scale = 1000.0 / static_cast<double>(SDL_GetPerformanceFrequency());
 
-  if (graphics_mode == alatar::Classic) {
-    Uint64 sdl_counter = SDL_GetPerformanceCounter();
+  /* if (graphics_mode == alatar::Classic) {
+     Uint64 sdl_counter = SDL_GetPerformanceCounter();
 
-    classic_data.treasure_color_cycle_counter = sdl_counter;
-    classic_data.fire_color_cycle_counter = sdl_counter;
-    classic_data.fire_animation_counter = sdl_counter;
-  }
+     classic_data.treasure_color_cycle_counter = sdl_counter;
+     classic_data.fire_color_cycle_counter = sdl_counter;
+     classic_data.fire_animation_counter = sdl_counter;
+   }*/
 
   BurningLogic::mat4 view_matrix{};
   BurningLogic::Identity4(view_matrix);
@@ -232,19 +249,23 @@ int main(int argc, char* argv[]) {
     glClear(GL_COLOR_BUFFER_BIT);
 
     // Update
-    if (graphics_mode == alatar::Classic) {
+    graphics_routine_ptr->Update(start_counter, counter_to_ms_scale, level);
+
+    /*if (graphics_mode == alatar::Classic) {
       ClassicUpdate(classic_data, start_counter, counter_to_ms_scale, level);
-    }
+    }*/
 
     // Draw
-    if (graphics_mode == alatar::Classic) {
+    graphics_routine_ptr->Draw(monster_info, wizard_info, view_matrix);
+
+    /*if (graphics_mode == alatar::Classic) {
       ClassicDraw(classic_data, monster_info, wizard_info, view_matrix);
     } else if (graphics_mode == alatar::Updated) {
       UpdatedDraw(updated_data, monster_info, wizard_info, view_matrix);
     } else {
       std::cerr << "Unimplemented graphics mode" << std::endl;
       return EXIT_FAILURE;
-    }
+    }*/
 
     // Present
     SDL_GL_SwapWindow(g_window);

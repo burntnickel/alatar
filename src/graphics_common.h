@@ -14,7 +14,7 @@ namespace alatar {
 
 enum GraphicsMode { Classic, Updated, NoColoring };
 
-class GraphicsCommonClass; // Forward declaration to support the following type definition
+class GraphicsCommonClass;  // Forward declaration to support the following type definition
 using GraphicsCommonPtr = std::unique_ptr<GraphicsCommonClass>;
 
 // This class is pure virtual
@@ -41,7 +41,8 @@ class GraphicsCommonClass {
   // sub-class. Ideally should use std:expected but that would require c++23.
   static std::optional<GraphicsCommonPtr> GraphicsCommonClassFactory(std::filesystem::path resource_path,
                                                                      std::filesystem::path shader_path,
-                                                                     GraphicsMode graphics_mode);
+                                                                     GraphicsMode graphics_mode,
+                                                                     Uint64 sdl_counter);
 };
 
 }  // namespace alatar

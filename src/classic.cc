@@ -156,7 +156,7 @@ void ClassicClass::Draw(const wizard_level::MonsterInfoArray& monster_info,
 }
 
 std::optional<alatar::GraphicsCommonPtr> ClassicClass::ClassicClassFactory(
-    std::filesystem::path resource_path, std::filesystem::path shader_path) {
+    std::filesystem::path resource_path, std::filesystem::path shader_path, Uint64 sdl_counter) {
   ClassicData data;
 
   const std::string kClassicDirName{"classic"};
@@ -234,6 +234,11 @@ std::optional<alatar::GraphicsCommonPtr> ClassicClass::ClassicClassFactory(
 
   data.sprite_shader = BurningLogic::BuildShaderProgram(classic_sprite_vertex_shader_source,
                                                         classic_sprite_fragment_shader_source);
+
+  // Set up inital animation counters
+  data.treasure_color_cycle_counter = sdl_counter;
+  data.fire_color_cycle_counter = sdl_counter;
+  data.fire_animation_counter = sdl_counter;
 
   return std::make_unique<ClassicClass>(Token{}, data);
 }
