@@ -10,14 +10,11 @@
 #include <string_view>
 #include <utility>
 
-#include "classic.h"  //
 #include "getrespath.h"
 #include "graphics_common.h"
 #include "load_data.h"
 #include "opengl_helper.h"
 #include "sdl_helper.h"
-#include "sprites_classic.h"  //
-#include "tiles_classic.h"    //
 #include "updated.h"
 #include "value_cycle.h"
 #include "wiz_level.h"
@@ -127,8 +124,6 @@ static void ParseCommandLine(int argc, char* argv[], std::filesystem::path& file
 
 int main(int argc, char* argv[]) {
   bool success;
-  // alatar_classic::ClassicData classic_data;
-  // alatar_updated::UpdatedData updated_data;
   std::array<unsigned char, wizard_level::kFileLength> level_data{};
   wizard_level::LevelClass level;
 
@@ -170,27 +165,6 @@ int main(int argc, char* argv[]) {
 
   graphics_routine_ptr->LevelInit(level);
 
-  /*if (graphics_mode == alatar::Classic) {
-    success = alatar_classic::SetupClassic(classic_data, kResourcePath, kShaderPath);
-
-    if (!success) {
-      std::cerr << "Failed to complete SetupClassic, exiting\n";
-      return EXIT_FAILURE;
-    }
-
-    ClassicLevelInit(classic_data, level);
-  } else if (graphics_mode == alatar::Updated) {
-    success = alatar_updated::SetupUpdated(updated_data, kResourcePath, kShaderPath);
-
-    if (!success) {
-      std::cerr << "Failed to complete SetupUpdated, exiting\n";
-      return EXIT_FAILURE;
-    }
-  } else {
-    std::cerr << "Unimplemented graphics mode" << std::endl;
-    return EXIT_FAILURE;
-  }*/
-
   wizard_level::WizardInfo wizard_info = level.GetWizardInfo();
   wizard_level::MonsterInfoArray monster_info = level.GetMonsterInfo();
 
@@ -198,14 +172,6 @@ int main(int argc, char* argv[]) {
   SDL_Event sdl_event;
 
   double counter_to_ms_scale = 1000.0 / static_cast<double>(SDL_GetPerformanceFrequency());
-
-  /* if (graphics_mode == alatar::Classic) {
-     Uint64 sdl_counter = SDL_GetPerformanceCounter();
-
-     classic_data.treasure_color_cycle_counter = sdl_counter;
-     classic_data.fire_color_cycle_counter = sdl_counter;
-     classic_data.fire_animation_counter = sdl_counter;
-   }*/
 
   BurningLogic::mat4 view_matrix{};
   BurningLogic::Identity4(view_matrix);
@@ -251,21 +217,8 @@ int main(int argc, char* argv[]) {
     // Update
     graphics_routine_ptr->Update(start_counter, counter_to_ms_scale, level);
 
-    /*if (graphics_mode == alatar::Classic) {
-      ClassicUpdate(classic_data, start_counter, counter_to_ms_scale, level);
-    }*/
-
     // Draw
     graphics_routine_ptr->Draw(monster_info, wizard_info, view_matrix);
-
-    /*if (graphics_mode == alatar::Classic) {
-      ClassicDraw(classic_data, monster_info, wizard_info, view_matrix);
-    } else if (graphics_mode == alatar::Updated) {
-      UpdatedDraw(updated_data, monster_info, wizard_info, view_matrix);
-    } else {
-      std::cerr << "Unimplemented graphics mode" << std::endl;
-      return EXIT_FAILURE;
-    }*/
 
     // Present
     SDL_GL_SwapWindow(g_window);
