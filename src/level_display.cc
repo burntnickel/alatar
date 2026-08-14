@@ -96,10 +96,8 @@ static bool SetupCommon(std::span<unsigned char, wizard_level::kFileLength> leve
   return true;
 }
 
-enum GraphicsMode { Classic, Updated, NoColoring };
-
 static void ParseCommandLine(int argc, char* argv[], std::filesystem::path& filename,
-                             GraphicsMode& graphics_mode) {
+                             alatar::GraphicsMode& graphics_mode) {
   if ((argc < 2) || (argc > 3)) {
     std::cerr << "Usage: level_display [-classic | -updated] <filename>" << std::endl;
     exit(EXIT_FAILURE);
@@ -107,16 +105,16 @@ static void ParseCommandLine(int argc, char* argv[], std::filesystem::path& file
 
   if ((argc == 2) & (argv[1][0] != '-')) {
     filename = std::filesystem::path(argv[1]);
-    graphics_mode = Classic;
+    graphics_mode = alatar::Classic;
     return;
   }
 
   std::string arg1(argv[1]);
 
   if (arg1 == "-classic") {
-    graphics_mode = Classic;
+    graphics_mode = alatar::Classic;
   } else if (arg1 == "-updated") {
-    graphics_mode = Updated;
+    graphics_mode = alatar::Updated;
   } else {
     std::cerr << "Usage: level_display [-classic | -updated] <filename>" << std::endl;
     exit(EXIT_FAILURE);
@@ -137,7 +135,7 @@ int main(int argc, char* argv[]) {
   const std::filesystem::path kShaderPath = kResourcePath / kShadersDirName;
 
   std::filesystem::path filename;
-  GraphicsMode graphics_mode;
+  alatar::GraphicsMode graphics_mode;
 
   ParseCommandLine(argc, argv, filename, graphics_mode);
 
@@ -155,7 +153,7 @@ int main(int argc, char* argv[]) {
     return EXIT_FAILURE;
   }
 
-  if (graphics_mode == Classic) {
+  if (graphics_mode == alatar::Classic) {
     success = alatar_classic::SetupClassic(classic_data, kResourcePath, kShaderPath);
 
     if (!success) {
@@ -164,7 +162,7 @@ int main(int argc, char* argv[]) {
     }
 
     ClassicLevelInit(classic_data, level);
-  } else if (graphics_mode == Updated) {
+  } else if (graphics_mode == alatar::Updated) {
     success = alatar_updated::SetupUpdated(updated_data, kResourcePath, kShaderPath);
 
     if (!success) {
@@ -184,7 +182,7 @@ int main(int argc, char* argv[]) {
 
   double counter_to_ms_scale = 1000.0 / static_cast<double>(SDL_GetPerformanceFrequency());
 
-  if (graphics_mode == Classic) {
+  if (graphics_mode == alatar::Classic) {
     Uint64 sdl_counter = SDL_GetPerformanceCounter();
 
     classic_data.treasure_color_cycle_counter = sdl_counter;
@@ -234,14 +232,14 @@ int main(int argc, char* argv[]) {
     glClear(GL_COLOR_BUFFER_BIT);
 
     // Update
-    if (graphics_mode == Classic) {
+    if (graphics_mode == alatar::Classic) {
       ClassicUpdate(classic_data, start_counter, counter_to_ms_scale, level);
     }
 
     // Draw
-    if (graphics_mode == Classic) {
+    if (graphics_mode == alatar::Classic) {
       ClassicDraw(classic_data, monster_info, wizard_info, view_matrix);
-    } else if (graphics_mode == Updated) {
+    } else if (graphics_mode == alatar::Updated) {
       UpdatedDraw(updated_data, monster_info, wizard_info, view_matrix);
     } else {
       std::cerr << "Unimplemented graphics mode" << std::endl;
