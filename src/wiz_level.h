@@ -4,6 +4,7 @@
 #include <array>
 #include <cstdlib>
 #include <span>
+#include <string>
 
 namespace wizard_level {
 
@@ -176,11 +177,21 @@ struct WizardInfo {
 };
 
 struct MonsterInfo {
+  int id;
   bool active;
+  int x_initial;
+  int y_initial;
+  int color;
+  int sprite_id_initial;
+  bool priority = true;
+  // Stuff below this point is dynamic
   int x;
   int y;
-  int color;
   int sprite_id;
+  float x_delta;
+  float y_delta;
+  float x_float;
+  float y_float;
 };
 
 using MonsterInfoArray = std::array<MonsterInfo, 6>;

@@ -29,7 +29,7 @@ add_compile_options( -Wmissing-braces -Wconversion -Wuseless-cast )
 if (CMAKE_BUILD_TYPE MATCHES "^[Rr]elease")
     #add_compile_options( -O3 )
 else()
-    #add_compile_options( -g )
+    add_compile_options( -g )
 endif()
 
 FILE( GLOB MY_HEADERS ${CMAKE_SOURCE_DIR}/src/*.h )
@@ -64,6 +64,7 @@ set( LEVELVIEWER_SRCS ${LEVELVIEWER_SRCS} ${CMAKE_SOURCE_DIR}/src/getexepath.cc 
 set( LEVELVIEWER_SRCS ${LEVELVIEWER_SRCS} ${CMAKE_SOURCE_DIR}/src/getrespath.cc )
 set( LEVELVIEWER_SRCS ${LEVELVIEWER_SRCS} ${CMAKE_SOURCE_DIR}/src/graphics_common.cc )
 set( LEVELVIEWER_SRCS ${LEVELVIEWER_SRCS} ${CMAKE_SOURCE_DIR}/src/load_data.cc )
+set( LEVELVIEWER_SRCS ${LEVELVIEWER_SRCS} ${CMAKE_SOURCE_DIR}/src/monsters.cc )
 set( LEVELVIEWER_SRCS ${LEVELVIEWER_SRCS} ${CMAKE_SOURCE_DIR}/src/opengl_helper.cc )
 set( LEVELVIEWER_SRCS ${LEVELVIEWER_SRCS} ${CMAKE_SOURCE_DIR}/src/sdl_helper.cc )
 set( LEVELVIEWER_SRCS ${LEVELVIEWER_SRCS} ${CMAKE_SOURCE_DIR}/src/sprites_classic.cc )
@@ -76,7 +77,6 @@ add_executable( level_display ${LEVELVIEWER_SRCS} ${MY_HEADERS} )
 
 # OpenGL stuff
 target_link_libraries( level_display "-lGLEW -lGL" )
-#target_compile_definitions ( level_display PRIVATE BL_USE_OPENGL=1 )
 
 target_include_directories( level_display PUBLIC ${SDL2_INCLUDE_DIRS} ${SDL_IMAGE_INCLUDE_DIRS} )
 target_link_libraries( level_display ${SDL2_LIBRARIES} SDL2_image )

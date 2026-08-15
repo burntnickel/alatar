@@ -20,7 +20,7 @@ std::array<const std::string, 12> kSpellNames = {{"Fire Ball", "Magic Missile", 
 std::array<const std::string, 21> kMonsterNames = {
     {"none",      "Arrow",    "Bat",   "Ghost",        "Evil Wizard",  "Witch",      "Falling Rock",
      "Elevator",  "Lava",     "Pit",   "Trap Door",    "Sliding Gate", "Lava Troll", "Rolling Rock",
-     "Giant Rat", "Scorpion", "Slime", "Giant Spider", "Shadow Lord",  "Theif",      "Wizard's Cat"}};
+     "Giant Rat", "Scorpion", "Slime", "Giant Spider", "Shadow Lord",  "Thief",      "Wizard's Cat"}};
 
 static unsigned char ColorRangeCheck(unsigned char c) {
   if (c < kColorStrings.size()) {
@@ -135,7 +135,7 @@ LevelClass::LevelClass(std::span<unsigned char, kFileLength> data) {
   std::copy(data.begin(), data.end(), raw_data_.begin());
 
   // Clear regions that shoudn't have tiles (I found some levels have stray characxters there)
-  for (int rr = 0; rr < (kTileDataRows-1); ++rr) {
+  for (int rr = 0; rr < (kTileDataRows - 1); ++rr) {
     SetTileAt(rr, 0, 32);
     SetTileAt(rr, kTileDataCols - 1, 32);
   }
@@ -225,19 +225,43 @@ WizardInfo LevelClass::GetWizardInfo(void) const {
   return tmp;
 }
 
+void InitSlidingGate(MonsterInfo& info) {
+  info.priority = false;
+  info.x_delta = 0;
+  info.y_delta = -1;
+}
+
 MonsterInfoArray LevelClass::GetMonsterInfo(void) const {
   MonsterInfoArray tmp;
+  // TODO: check if any of the paramters are out of range
 
   for (unsigned int ii = 0; ii < 6; ++ii) {
-    tmp[ii].active = (raw_data_[kMonster0MonsterID + ii] != kNone);
-    tmp[ii].x = raw_data_[kMonster0XLow + ii];
-    tmp[ii].y = raw_data_[kMonster0Y + ii];
+    tmp[ii].id = raw_data_[kMonster0MonsterID + ii];
+    tmp[ii].active = (tmp[ii].id != kNone);
+    tmp[ii].x_initial = raw_data_[kMonster0XLow + ii];
+    tmp[ii].y_initial = raw_data_[kMonster0Y + ii];
     tmp[ii].color = raw_data_[kMonster0ColorCode + ii];
-    tmp[ii].sprite_id =
-        raw_data_[kMonster0SpriteID + ii] & 0x7f;  // Not sure why the high bit needs to be cleared
+    tmp[ii].sprite_id_initial = raw_data_[kMonster0SpriteID + ii] &
+                                0x7f;  // High bit needs clear as actual game sprite IDs are 127-255
 
     if (raw_data_[kSpriteXHighBits] & (1 << ii)) {
-      tmp[ii].x = tmp[ii].x + 256;
+      tmp[ii].x_initial = tmp[ii].x_initial + 256;
+    }
+
+    tmp[ii].x = tmp[ii].x_initial;
+    tmp[ii].y = tmp[ii].y_initial;
+    tmp[ii].x_float = tmp[ii].x_initial;
+    tmp[ii].y_float = tmp[ii].y_initial;
+    tmp[ii].sprite_id = tmp[ii].sprite_id_initial;
+
+    switch (tmp[ii].id) {
+      case kNone:
+        break;
+      case kSlidingGate:
+        InitSlidingGate(tmp[ii]);
+        break;
+      default:
+        break;
     }
   }
 

@@ -150,16 +150,29 @@ void ClassicClass::Update(Uint64 start_counter, double counter_to_ms_scale,
 
 void ClassicClass::Draw(const wizard_level::MonsterInfoArray& monster_info,
                         const wizard_level::WizardInfo& wizard_info, const BurningLogic::mat4& view_matrix) {
-  // TODO: Add part where we draw before or after the tiles
+  // Draw monster sprites (ones with lower priority)
+  for (unsigned int ii = 0; ii < 6; ++ii) {
+    unsigned int idx = 5 - ii;
+
+    if (monster_info[idx].active && !monster_info[idx].priority) {
+      DrawClassicSpriteC64(
+          data_.sprite_shader, view_matrix, data_.sprite_glbuffers, monster_info[idx].sprite_id,
+          monster_info[idx].x, monster_info[idx].y,
+          {{wizard_level::kColorLightBlue, monster_info[idx].color, wizard_level::kColorWhite}});
+    }
+  }
+
   PaintClassicTiles(data_.tile_shader, view_matrix, SDL_FRect({-1.0, -1.0, 2.0, 2.0}), data_.tile_glbuffers);
 
-  // Draw monster sprites
-  for (unsigned int ii = 5; ii > 0; --ii) {
-    if (monster_info[ii].active) {
+  // Draw monster sprites (ones with higher priority)
+  for (unsigned int ii = 0; ii < 6; ++ii) {
+    unsigned int idx = 5 - ii;
+
+    if (monster_info[idx].active && monster_info[idx].priority) {
       DrawClassicSpriteC64(
-          data_.sprite_shader, view_matrix, data_.sprite_glbuffers, monster_info[ii].sprite_id,
-          monster_info[ii].x, monster_info[ii].y,
-          {{wizard_level::kColorLightBlue, monster_info[ii].color, wizard_level::kColorWhite}});
+          data_.sprite_shader, view_matrix, data_.sprite_glbuffers, monster_info[idx].sprite_id,
+          monster_info[idx].x, monster_info[idx].y,
+          {{wizard_level::kColorLightBlue, monster_info[idx].color, wizard_level::kColorWhite}});
     }
   }
 

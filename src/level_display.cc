@@ -13,6 +13,7 @@
 #include "getrespath.h"
 #include "graphics_common.h"
 #include "load_data.h"
+#include "monsters.h"
 #include "opengl_helper.h"
 #include "sdl_helper.h"
 #include "updated.h"
@@ -216,6 +217,8 @@ int main(int argc, char* argv[]) {
 
     // Update
     graphics_routine_ptr->Update(start_counter, counter_to_ms_scale, level);
+
+    alatar::UpdateMonsters(monster_info);
 
     // Draw
     graphics_routine_ptr->Draw(monster_info, wizard_info, view_matrix);

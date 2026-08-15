@@ -93,13 +93,6 @@ class UpdatedClass : public alatar::GraphicsCommonClass {
                                                                       Uint64 sdl_counter);
 };
 
-bool SetupUpdated(UpdatedData& data, std::filesystem::path resource_path, std::filesystem::path shader_path);
-
-//void UpdatedLevelInit(void);
-
-void UpdatedDraw(const UpdatedData& updated_data, const wizard_level::MonsterInfoArray& monster_info,
-                 const wizard_level::WizardInfo& wizard_info, const BurningLogic::mat4& view_matrix);
-
 }  // namespace alatar_updated
 
 #endif
