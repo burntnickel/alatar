@@ -29,8 +29,8 @@ SDL_GLContext g_sdl_glcontext;
 
 // The factor of 0.75 is to match the Commodore 64 pixel aspect ratio (NTSC at least)
 constexpr float kPixelAspectRatio = 0.75;
-constexpr uint_least32_t kScreenWidth = 8 * wizard_level::kColTiles * 2.5 * kPixelAspectRatio;
-constexpr uint_least32_t kScreenHeight = 8 * wizard_level::kRowTiles * 2.5;
+constexpr uint_least32_t kScreenWidth = 8 * alatar::kColTiles * 2.5 * kPixelAspectRatio;
+constexpr uint_least32_t kScreenHeight = 8 * alatar::kRowTiles * 2.5;
 constexpr float kDesiredScreenAspect = static_cast<float>(kScreenWidth) / static_cast<float>(kScreenHeight);
 
 static bool Initialize(void) {
@@ -82,8 +82,8 @@ static bool Initialize(void) {
   return success;
 }
 
-static bool SetupCommon(std::span<unsigned char, wizard_level::kFileLength> level_data,
-                        wizard_level::LevelClass& level, const std::filesystem::path& level_filename) {
+static bool SetupCommon(std::span<unsigned char, alatar::kFileLength> level_data, alatar::LevelClass& level,
+                        const std::filesystem::path& level_filename) {
   bool success = alatar::LoadData(level_filename, level_data);
 
   if (!success) {
@@ -91,7 +91,7 @@ static bool SetupCommon(std::span<unsigned char, wizard_level::kFileLength> leve
     return false;
   }
 
-  level = wizard_level::LevelClass(level_data);
+  level = alatar::LevelClass(level_data);
 
   return true;
 }
@@ -125,8 +125,8 @@ static void ParseCommandLine(int argc, char* argv[], std::filesystem::path& file
 
 int main(int argc, char* argv[]) {
   bool success;
-  std::array<unsigned char, wizard_level::kFileLength> level_data{};
-  wizard_level::LevelClass level;
+  std::array<unsigned char, alatar::kFileLength> level_data{};
+  alatar::LevelClass level;
 
   const std::filesystem::path kResourcePath = BurningLogic::GetResPath();
   const std::string kShadersDirName{"shaders"};
@@ -166,8 +166,8 @@ int main(int argc, char* argv[]) {
 
   graphics_routine_ptr->LevelInit(level);
 
-  wizard_level::WizardInfo wizard_info = level.GetWizardInfo();
-  wizard_level::MonsterInfoArray monster_info = level.GetMonsterInfo();
+  alatar::WizardInfo wizard_info = level.GetWizardInfo();
+  alatar::MonsterInfoArray monster_info = level.GetMonsterInfo();
 
   bool gDone = false;
   SDL_Event sdl_event;

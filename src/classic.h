@@ -45,9 +45,9 @@ const auto classic_sprite_texture = GL_TEXTURE4;
 
 // Data use in main program for classic display mode
 struct ClassicData {
-  std::array<unsigned char, wizard_level::kTileBufferSize> tile_set{};
-  std::array<unsigned char, wizard_level::kRowTiles * wizard_level::kColTiles> tile_buffer{};
-  std::array<unsigned char, wizard_level::kRowTiles * wizard_level::kColTiles> color_buffer{};
+  std::array<unsigned char, alatar::kTileBufferSize> tile_set{};
+  std::array<unsigned char, alatar::kRowTiles * alatar::kColTiles> tile_buffer{};
+  std::array<unsigned char, alatar::kRowTiles * alatar::kColTiles> color_buffer{};
   std::array<unsigned char, kSpriteProcDataSize> processed_sprites{};
 
   alatar::ValueCycle<unsigned char> treasure_color_cycle{kTreasureCycleColors};
@@ -97,12 +97,12 @@ class ClassicClass : public alatar::GraphicsCommonClass {
   ClassicData data_;
 
  public:
-  void LevelInit(const wizard_level::LevelClass& level) override;
+  void LevelInit(const alatar::LevelClass& level) override;
 
   void Update(Uint64 start_counter, double counter_to_ms_scale,
-              const wizard_level::LevelClass& level) override;
+              const alatar::LevelClass& level) override;
 
-  void Draw(const wizard_level::MonsterInfoArray& monster_info, const wizard_level::WizardInfo& wizard_info,
+  void Draw(const alatar::MonsterInfoArray& monster_info, const alatar::WizardInfo& wizard_info,
             const BurningLogic::mat4& view_matrix) override;
 
   // Factory function to make sure return objects are always properly constructed

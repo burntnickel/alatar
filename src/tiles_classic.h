@@ -23,7 +23,7 @@ struct ClassicTileGLBuffers {
 };
 
 bool LoadCharSet(std::filesystem::path path_and_name,
-                 std::span<unsigned char, wizard_level::kTileBufferSize> char_set);
+                 std::span<unsigned char, alatar::kTileBufferSize> char_set);
 
 void PaintClassicTiles(BurningLogic::ShaderVars shader_vars, const BurningLogic::mat4& view_matrix,
                        SDL_FRect sdl_rect, ClassicTileGLBuffers gl_buffers);

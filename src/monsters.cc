@@ -6,7 +6,7 @@ namespace alatar {
 
 const float kSpeedFactor = 1.0f;
 
-void UpdateSlidingGate(wizard_level::MonsterInfo& info) {
+void UpdateSlidingGate(MonsterInfo& info) {
   const int maxYExcursion = 20;
   const float delta_factor = 0.34f; // TODO: move to an INI file?
 
@@ -25,13 +25,13 @@ void UpdateSlidingGate(wizard_level::MonsterInfo& info) {
   info.y = std::round(info.y_float);
 }
 
-void UpdateMonsters(wizard_level::MonsterInfoArray& monster_info) {
+void UpdateMonsters(MonsterInfoArray& monster_info) {
   for (unsigned int ii = 0; ii < 6; ++ii) {
     if (monster_info[ii].active) {
       switch (monster_info[ii].id) {
-        case wizard_level::kNone:
+        case kNone:
           break;
-        case wizard_level::kSlidingGate:
+        case kSlidingGate:
           UpdateSlidingGate(monster_info[ii]);
           break;
         default:

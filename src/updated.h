@@ -25,7 +25,7 @@ const std::string kUpdatedTileFragmentShaderName{"updated_tile_fragment.glsl"};
 const auto classic_color_texture = GL_TEXTURE1;
 const auto classic_tileset_texture = GL_TEXTURE2;*/
 const auto updated_clut_texture = GL_TEXTURE3;
-//const auto classic_sprite_texture = GL_TEXTURE4;
+// const auto classic_sprite_texture = GL_TEXTURE4;
 
 // Data use in main program for the updated display mode
 struct UpdatedData {
@@ -78,12 +78,11 @@ class UpdatedClass : public alatar::GraphicsCommonClass {
   UpdatedData data_;
 
  public:
-  void LevelInit(const wizard_level::LevelClass& level) override;
+  void LevelInit(const alatar::LevelClass& level) override;
 
-  void Update(Uint64 start_counter, double counter_to_ms_scale,
-              const wizard_level::LevelClass& level) override;
+  void Update(Uint64 start_counter, double counter_to_ms_scale, const alatar::LevelClass& level) override;
 
-  void Draw(const wizard_level::MonsterInfoArray& monster_info, const wizard_level::WizardInfo& wizard_info,
+  void Draw(const alatar::MonsterInfoArray& monster_info, const alatar::WizardInfo& wizard_info,
             const BurningLogic::mat4& view_matrix) override;
 
   // Factory function to make sure return objects are always properly constructed

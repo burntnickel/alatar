@@ -78,13 +78,13 @@ UpdatedClass::UpdatedClass(Token, const UpdatedData& data) {
   data_ = data;
 }
 
-void UpdatedClass::LevelInit([[maybe_unused]] const wizard_level::LevelClass& level) {}
+void UpdatedClass::LevelInit([[maybe_unused]] const alatar::LevelClass& level) {}
 
 void UpdatedClass::Update([[maybe_unused]] Uint64 start_counter, [[maybe_unused]] double counter_to_ms_scale,
-                          [[maybe_unused]] const wizard_level::LevelClass& level) {}
+                          [[maybe_unused]] const alatar::LevelClass& level) {}
 
-void UpdatedClass::Draw([[maybe_unused]] const wizard_level::MonsterInfoArray& monster_info,
-                        [[maybe_unused]] const wizard_level::WizardInfo& wizard_info,
+void UpdatedClass::Draw([[maybe_unused]] const alatar::MonsterInfoArray& monster_info,
+                        [[maybe_unused]] const alatar::WizardInfo& wizard_info,
                         const BurningLogic::mat4& view_matrix) {
   alatar_updated::PaintUpdatedTiles(data_.tile_shader, view_matrix, data_.vertex_manager,
                                     data_.tile_glbuffers);

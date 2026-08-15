@@ -5,8 +5,8 @@
 namespace alatar_classic {
 
 bool LoadCharSet(std::filesystem::path path_and_name,
-                 std::span<unsigned char, wizard_level::kTileBufferSize> char_set) {
-  std::array<unsigned char, wizard_level::kCharSetSize> buffer;
+                 std::span<unsigned char, alatar::kTileBufferSize> char_set) {
+  std::array<unsigned char, alatar::kCharSetSize> buffer;
 
   bool success = alatar::LoadData(path_and_name, buffer, alatar::kLoadAddressOffset);
 

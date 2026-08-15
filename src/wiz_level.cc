@@ -1,3 +1,5 @@
+#include "wiz_level.h"
+
 #include <algorithm>
 #include <array>
 #include <format>
@@ -5,9 +7,7 @@
 #include <stdexcept>
 #include <string>
 
-#include "wiz_level.h"
-
-namespace wizard_level {
+namespace alatar {
 
 std::array<const std::string, 16> kColorStrings = {{"black", "white", "red", "cyan", "purple", "green",
                                                     "blue", "yellow", "orange", "brown", "pink", "dark grey",
@@ -225,19 +225,19 @@ WizardInfo LevelClass::GetWizardInfo(void) const {
   return tmp;
 }
 
-void InitSlidingGate(MonsterInfo& info) {
+void InitSlidingGate(alatar::MonsterInfo& info) {
   info.priority = false;
   info.x_delta = 0;
   info.y_delta = -1;
 }
 
-MonsterInfoArray LevelClass::GetMonsterInfo(void) const {
-  MonsterInfoArray tmp;
+alatar::MonsterInfoArray LevelClass::GetMonsterInfo(void) const {
+  alatar::MonsterInfoArray tmp;
   // TODO: check if any of the paramters are out of range
 
   for (unsigned int ii = 0; ii < 6; ++ii) {
     tmp[ii].id = raw_data_[kMonster0MonsterID + ii];
-    tmp[ii].active = (tmp[ii].id != kNone);
+    tmp[ii].active = (tmp[ii].id != alatar::kNone);
     tmp[ii].x_initial = raw_data_[kMonster0XLow + ii];
     tmp[ii].y_initial = raw_data_[kMonster0Y + ii];
     tmp[ii].color = raw_data_[kMonster0ColorCode + ii];
@@ -250,14 +250,14 @@ MonsterInfoArray LevelClass::GetMonsterInfo(void) const {
 
     tmp[ii].x = tmp[ii].x_initial;
     tmp[ii].y = tmp[ii].y_initial;
-    tmp[ii].x_float = tmp[ii].x_initial;
-    tmp[ii].y_float = tmp[ii].y_initial;
+    tmp[ii].x_float = static_cast<float>(tmp[ii].x_initial);
+    tmp[ii].y_float = static_cast<float>(tmp[ii].y_initial);
     tmp[ii].sprite_id = tmp[ii].sprite_id_initial;
 
     switch (tmp[ii].id) {
-      case kNone:
+      case alatar::kNone:
         break;
-      case kSlidingGate:
+      case alatar::kSlidingGate:
         InitSlidingGate(tmp[ii]);
         break;
       default:
@@ -282,4 +282,4 @@ void LevelClass::SetTileAt(int row, int col, unsigned char c) {
   raw_data_[kTileDataStart + offset] = c;
 }
 
-}  // namespace wizard_level
+}  // namespace alatar

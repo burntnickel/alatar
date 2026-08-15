@@ -22,7 +22,7 @@ struct UpdatedTileGLBuffers {
   GLuint tbo_tex_clut_buffer;
 };
 
-constexpr std::size_t kNumTiles = wizard_level::kRowTiles * wizard_level::kColTiles;
+constexpr std::size_t kNumTiles = alatar::kRowTiles * alatar::kColTiles;
 
 // Vertex buffer is number of tiles * 4 (the four verticies of each tile) * the number of attributes
 // Index buffer is number of tiles * 2 (triangles per tile) * 3 (verticies per triangle)

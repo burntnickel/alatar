@@ -11,11 +11,11 @@ UpdatedTileVertexManager::UpdatedTileVertexManager(void) {
   const float v0 = 0.0;
   const float v1 = 1.0;
 
-  float dx = 1.0f / static_cast<float>(wizard_level::kColTiles);
-  float dy = 1.0f / static_cast<float>(wizard_level::kRowTiles);
+  float dx = 1.0f / static_cast<float>(alatar::kColTiles);
+  float dy = 1.0f / static_cast<float>(alatar::kRowTiles);
 
-  for (unsigned int r = 0; r < wizard_level::kRowTiles; ++r) {
-    for (unsigned int c = 0; c < wizard_level::kColTiles; ++c) {
+  for (unsigned int r = 0; r < alatar::kRowTiles; ++r) {
+    for (unsigned int c = 0; c < alatar::kColTiles; ++c) {
       // Global XY vertex coordinates
       float x0 = 2.0f * static_cast<float>(c) * dx - 1.0f;
       float x1 = x0 + 2.0f * dx;
@@ -74,8 +74,8 @@ void UpdatedTileVertexManager::SetUV(unsigned int row, unsigned int col, float u
 }
 
 void UpdatedTileVertexManager::PopulateIndexBufferAt(unsigned int row, unsigned int col) {
-  const std::size_t base_index_index = (col + wizard_level::kColTiles * row) * 6;
-  const std::size_t base_vertex = (col + wizard_level::kColTiles * row) * 4;
+  const std::size_t base_index_index = (col + alatar::kColTiles * row) * 6;
+  const std::size_t base_vertex = (col + alatar::kColTiles * row) * 4;
 
   // First triangle
   index_buffer_[base_index_index + 0] = static_cast<GLuint>(base_vertex + 0);
@@ -90,7 +90,7 @@ void UpdatedTileVertexManager::PopulateIndexBufferAt(unsigned int row, unsigned 
 
 std::size_t UpdatedTileVertexManager::RowColToVertexIndex(unsigned int row, unsigned int col) const {
   // Times 4 is to account for four verticies per tile
-  return (col + wizard_level::kColTiles * row) * num_attributes_ * 4;
+  return (col + alatar::kColTiles * row) * num_attributes_ * 4;
 }
 
 void PaintUpdatedTiles(BurningLogic::ShaderVars shader_vars, const BurningLogic::mat4& view_matrix,

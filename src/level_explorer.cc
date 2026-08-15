@@ -10,7 +10,7 @@
 
 #include "wiz_level.h"
 
-using namespace wizard_level;
+using namespace alatar;
 
 static void ScreenToAsciiHelper(std::map<unsigned char, std::string>& m, std::string_view chars,
                                 unsigned char start) {
@@ -191,12 +191,12 @@ static int ExploreLevel(char* name) {
     return EXIT_FAILURE;
   }
 
-  if (size != wizard_level::kFileLength) {
+  if (size != kFileLength) {
     std::cerr << "Error: File is of the incorrect size" << std::endl;
     return EXIT_FAILURE;
   }
 
-  std::array<char, wizard_level::kFileLength> buffer;
+  std::array<char, kFileLength> buffer;
 
   std::ifstream in(name, std::ios::binary);
 
@@ -205,9 +205,9 @@ static int ExploreLevel(char* name) {
     return EXIT_FAILURE;
   }
 
-  in.read(buffer.data(), wizard_level::kFileLength);
+  in.read(buffer.data(), kFileLength);
 
-  if (in.gcount() != wizard_level::kFileLength) {
+  if (in.gcount() != kFileLength) {
     std::cerr << "Error: Unexpected end of file" << std::endl;
     return EXIT_FAILURE;
   }

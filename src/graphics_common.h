@@ -7,6 +7,7 @@
 #include <memory>
 #include <optional>
 
+#include "monsters.h"
 #include "opengl_helper.h"
 #include "wiz_level.h"
 
@@ -29,13 +30,12 @@ class GraphicsCommonClass {
   virtual ~GraphicsCommonClass(void) {};
 
  public:
-  virtual void LevelInit(const wizard_level::LevelClass& level) = 0;
+  virtual void LevelInit(const LevelClass& level) = 0;
 
-  virtual void Update(Uint64 start_counter, double counter_to_ms_scale,
-                      const wizard_level::LevelClass& level) = 0;
+  virtual void Update(Uint64 start_counter, double counter_to_ms_scale, const LevelClass& level) = 0;
 
-  virtual void Draw(const wizard_level::MonsterInfoArray& monster_info,
-                    const wizard_level::WizardInfo& wizard_info, const BurningLogic::mat4& view_matrix) = 0;
+  virtual void Draw(const alatar::MonsterInfoArray& monster_info, const WizardInfo& wizard_info,
+                    const BurningLogic::mat4& view_matrix) = 0;
 
   // Factory function to make sure return oojects are always properly constructed and to return the specified
   // sub-class. Ideally should use std:expected but that would require c++23.

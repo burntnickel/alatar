@@ -6,7 +6,9 @@
 #include <span>
 #include <string>
 
-namespace wizard_level {
+#include "monsters.h"
+
+namespace alatar {
 
 constexpr int kFileLength = 1138;
 constexpr int kTileDataCols = 40;
@@ -146,55 +148,11 @@ enum XMask {
   kXMaskWizard = 64 + 128  // Not sure about this one
 };
 
-enum MonsterType {
-  kNone = 0,
-  kArrow = 1,
-  kBat = 2,
-  kGhost = 3,
-  kEvitWizard = 4,
-  kWitch = 5,
-  kFallingRock = 6,
-  kElevator = 7,
-  kLava = 8,
-  kPit = 9,
-  kTrapDoor = 10,
-  kSlidingGate = 11,
-  kLavaTroll = 12,
-  kRollingRock = 13,
-  kGiantRat = 14,
-  kScorpion = 15,
-  kSlime = 16,
-  kGiantSpider = 17,
-  kShadowLord = 18,
-  kTheif = 19,
-  kWizardsCat = 20
-};
-
 struct WizardInfo {
   int x;
   int y;
   int color;
 };
-
-struct MonsterInfo {
-  int id;
-  bool active;
-  int x_initial;
-  int y_initial;
-  int color;
-  int sprite_id_initial;
-  bool priority = true;
-  // Stuff below this point is dynamic
-  int x;
-  int y;
-  int sprite_id;
-  float x_delta;
-  float y_delta;
-  float x_float;
-  float y_float;
-};
-
-using MonsterInfoArray = std::array<MonsterInfo, 6>;
 
 class LevelClass {
  public:
@@ -208,7 +166,7 @@ class LevelClass {
   unsigned char GetPortalColor(void) const;
   unsigned char GetTileColor(unsigned char c) const;
   WizardInfo GetWizardInfo(void) const;
-  MonsterInfoArray GetMonsterInfo(void) const;
+  alatar::MonsterInfoArray GetMonsterInfo(void) const;
 
  private:
   void SetTileAt(int row, int col, unsigned char c);
@@ -226,6 +184,6 @@ std::string GetSpellName(unsigned char c);
 std::string GetMonsterName(unsigned char c);
 TileGroup GetTileGroup(unsigned char c);
 
-}  // namespace wizard_level
+}  // namespace alatar
 
 #endif
