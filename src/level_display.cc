@@ -167,7 +167,7 @@ int main(int argc, char* argv[]) {
   graphics_routine_ptr->LevelInit(level);
 
   alatar::WizardInfo wizard_info = level.GetWizardInfo();
-  alatar::MonsterInfoArray monster_info = level.GetMonsterInfo();
+  alatar::MonsterClassArray monster_info = level.GetMonsterInfo();
 
   bool gDone = false;
   SDL_Event sdl_event;

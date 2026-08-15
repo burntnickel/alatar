@@ -225,47 +225,58 @@ WizardInfo LevelClass::GetWizardInfo(void) const {
   return tmp;
 }
 
-void InitSlidingGate(alatar::MonsterInfo& info) {
+/*void InitSlidingGate(MonsterInfo& info) {
   info.priority = false;
   info.x_delta = 0;
   info.y_delta = -1;
-}
+}*/
 
-alatar::MonsterInfoArray LevelClass::GetMonsterInfo(void) const {
-  alatar::MonsterInfoArray tmp;
+MonsterClassArray LevelClass::GetMonsterInfo(void) const {
+  //MonsterInfoArray tmp;
+  MonsterClassArray tmp2;
   // TODO: check if any of the paramters are out of range
 
-  for (unsigned int ii = 0; ii < 6; ++ii) {
-    tmp[ii].id = raw_data_[kMonster0MonsterID + ii];
-    tmp[ii].active = (tmp[ii].id != alatar::kNone);
-    tmp[ii].x_initial = raw_data_[kMonster0XLow + ii];
-    tmp[ii].y_initial = raw_data_[kMonster0Y + ii];
-    tmp[ii].color = raw_data_[kMonster0ColorCode + ii];
-    tmp[ii].sprite_id_initial = raw_data_[kMonster0SpriteID + ii] &
-                                0x7f;  // High bit needs clear as actual game sprite IDs are 127-255
+  for (unsigned int ii = 0; ii < kMaxMonsters; ++ii) {
+    int monster_id = raw_data_[kMonster0MonsterID + ii];
+    int x_initial = raw_data_[kMonster0XLow + ii];
 
     if (raw_data_[kSpriteXHighBits] & (1 << ii)) {
-      tmp[ii].x_initial = tmp[ii].x_initial + 256;
+      x_initial = x_initial + 256;
     }
 
-    tmp[ii].x = tmp[ii].x_initial;
+    int y_initial  = raw_data_[kMonster0Y + ii];
+    int color = raw_data_[kMonster0ColorCode + ii];
+    int sprite_id_initial = raw_data_[kMonster0SpriteID + ii] &
+                                0x7f;  // High bit needs clear as actual game sprite IDs are 127-255
+
+    /*tmp[ii].id = monster_id;
+    tmp[ii].active = (monster_id != kNone);
+    tmp[ii].x_initial = x_initial;
+    tmp[ii].y_initial = y_initial;
+    tmp[ii].color = color;
+    tmp[ii].sprite_id_initial = sprite_id_initial;*/
+
+    //tmp2[ii] = std::make_unique<MonsterClass>(monster_id,x_initial,y_initial,color,sprite_id_initial);
+    tmp2[ii] = MonsterClass::MonsterClassFactory(monster_id,x_initial,y_initial,color,sprite_id_initial);
+
+    /*tmp[ii].x = tmp[ii].x_initial;
     tmp[ii].y = tmp[ii].y_initial;
     tmp[ii].x_float = static_cast<float>(tmp[ii].x_initial);
     tmp[ii].y_float = static_cast<float>(tmp[ii].y_initial);
-    tmp[ii].sprite_id = tmp[ii].sprite_id_initial;
+    tmp[ii].sprite_id = tmp[ii].sprite_id_initial;*/
 
-    switch (tmp[ii].id) {
-      case alatar::kNone:
+    /*switch (tmp[ii].id) {
+      case kNone:
         break;
-      case alatar::kSlidingGate:
+      case kSlidingGate:
         InitSlidingGate(tmp[ii]);
         break;
       default:
         break;
-    }
+    }*/
   }
 
-  return tmp;
+  return tmp2;
 }
 
 void LevelClass::SetTileAt(int row, int col, unsigned char c) {

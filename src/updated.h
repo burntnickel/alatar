@@ -53,7 +53,7 @@ class UpdatedClass : public alatar::GraphicsCommonClass {
   struct Token {};
 
  public:
-  // Delete default constuctor as classes should only
+  // Delete default constuctor
   UpdatedClass(void) = delete;
 
   // Delete copy constructor as this class should not be copied, only moved
@@ -82,7 +82,7 @@ class UpdatedClass : public alatar::GraphicsCommonClass {
 
   void Update(Uint64 start_counter, double counter_to_ms_scale, const alatar::LevelClass& level) override;
 
-  void Draw(const alatar::MonsterInfoArray& monster_info, const alatar::WizardInfo& wizard_info,
+  void Draw(const alatar::MonsterClassArray& monster_info, const alatar::WizardInfo& wizard_info,
             const BurningLogic::mat4& view_matrix) override;
 
   // Factory function to make sure return objects are always properly constructed

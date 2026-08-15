@@ -83,7 +83,7 @@ void UpdatedClass::LevelInit([[maybe_unused]] const alatar::LevelClass& level) {
 void UpdatedClass::Update([[maybe_unused]] Uint64 start_counter, [[maybe_unused]] double counter_to_ms_scale,
                           [[maybe_unused]] const alatar::LevelClass& level) {}
 
-void UpdatedClass::Draw([[maybe_unused]] const alatar::MonsterInfoArray& monster_info,
+void UpdatedClass::Draw([[maybe_unused]] const alatar::MonsterClassArray& monster_info,
                         [[maybe_unused]] const alatar::WizardInfo& wizard_info,
                         const BurningLogic::mat4& view_matrix) {
   alatar_updated::PaintUpdatedTiles(data_.tile_shader, view_matrix, data_.vertex_manager,

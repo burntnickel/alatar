@@ -166,7 +166,7 @@ class LevelClass {
   unsigned char GetPortalColor(void) const;
   unsigned char GetTileColor(unsigned char c) const;
   WizardInfo GetWizardInfo(void) const;
-  alatar::MonsterInfoArray GetMonsterInfo(void) const;
+  alatar::MonsterClassArray GetMonsterInfo(void) const;
 
  private:
   void SetTileAt(int row, int col, unsigned char c);

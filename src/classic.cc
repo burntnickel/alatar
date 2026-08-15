@@ -147,16 +147,16 @@ void ClassicClass::Update(Uint64 start_counter, double counter_to_ms_scale, cons
   BurningLogic::PrintGLError("main:glBufferSubData");
 }
 
-void ClassicClass::Draw(const alatar::MonsterInfoArray& monster_info, const alatar::WizardInfo& wizard_info,
+void ClassicClass::Draw(const alatar::MonsterClassArray& monster_info, const alatar::WizardInfo& wizard_info,
                         const BurningLogic::mat4& view_matrix) {
   // Draw monster sprites (ones with lower priority)
   for (unsigned int ii = 0; ii < 6; ++ii) {
     unsigned int idx = 5 - ii;
 
-    if (monster_info[idx].active && !monster_info[idx].priority) {
+    if (monster_info[idx]->IsActive() && !monster_info[idx]->GetPriority()) {
       DrawClassicSpriteC64(data_.sprite_shader, view_matrix, data_.sprite_glbuffers,
-                           monster_info[idx].sprite_id, monster_info[idx].x, monster_info[idx].y,
-                           {{alatar::kColorLightBlue, monster_info[idx].color, alatar::kColorWhite}});
+                           monster_info[idx]->sprite_id_, monster_info[idx]->x_, monster_info[idx]->y_,
+                           {{alatar::kColorLightBlue, monster_info[idx]->GetColor(), alatar::kColorWhite}});
     }
   }
 
@@ -166,10 +166,10 @@ void ClassicClass::Draw(const alatar::MonsterInfoArray& monster_info, const alat
   for (unsigned int ii = 0; ii < 6; ++ii) {
     unsigned int idx = 5 - ii;
 
-    if (monster_info[idx].active && monster_info[idx].priority) {
+    if (monster_info[idx]->IsActive() && monster_info[idx]->GetPriority()) {
       DrawClassicSpriteC64(data_.sprite_shader, view_matrix, data_.sprite_glbuffers,
-                           monster_info[idx].sprite_id, monster_info[idx].x, monster_info[idx].y,
-                           {{alatar::kColorLightBlue, monster_info[idx].color, alatar::kColorWhite}});
+                           monster_info[idx]->sprite_id_, monster_info[idx]->x_, monster_info[idx]->y_,
+                           {{alatar::kColorLightBlue, monster_info[idx]->GetColor(), alatar::kColorWhite}});
     }
   }
 

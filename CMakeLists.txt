@@ -29,7 +29,7 @@ add_compile_options( -Wmissing-braces -Wconversion -Wuseless-cast )
 if (CMAKE_BUILD_TYPE MATCHES "^[Rr]elease")
     #add_compile_options( -O3 )
 else()
-    add_compile_options( -g )
+    #add_compile_options( -g )
 endif()
 
 FILE( GLOB MY_HEADERS ${CMAKE_SOURCE_DIR}/src/*.h )
@@ -50,6 +50,7 @@ target_compile_features( cbmspr2pixmap PRIVATE cxx_std_20 )
 
 # Build level explorer
 set( LEVELEXPLORER_SRCS ${CMAKE_SOURCE_DIR}/src/level_explorer.cc )
+set( LEVELEXPLORER_SRCS ${LEVELEXPLORER_SRCS} ${CMAKE_SOURCE_DIR}/src/monsters.cc )
 set( LEVELEXPLORER_SRCS ${LEVELEXPLORER_SRCS} ${CMAKE_SOURCE_DIR}/src/wiz_level.cc )
 
 add_executable( level_explorer ${LEVELEXPLORER_SRCS} ${MY_HEADERS} )

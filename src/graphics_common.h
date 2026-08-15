@@ -34,10 +34,10 @@ class GraphicsCommonClass {
 
   virtual void Update(Uint64 start_counter, double counter_to_ms_scale, const LevelClass& level) = 0;
 
-  virtual void Draw(const alatar::MonsterInfoArray& monster_info, const WizardInfo& wizard_info,
+  virtual void Draw(const alatar::MonsterClassArray& monster_info, const WizardInfo& wizard_info,
                     const BurningLogic::mat4& view_matrix) = 0;
 
-  // Factory function to make sure return oojects are always properly constructed and to return the specified
+  // Factory function to make sure return objects are always properly constructed and to return the specified
   // sub-class. Ideally should use std:expected but that would require c++23.
   static std::optional<GraphicsCommonPtr> GraphicsCommonClassFactory(std::filesystem::path resource_path,
                                                                      std::filesystem::path shader_path,
