@@ -229,14 +229,14 @@ void PaintClassicSprite(BurningLogic::ShaderVars shader_vars, const BurningLogic
   glActiveTexture(GL_TEXTURE4);  // TODO: capture these inthe buffer struct
   BurningLogic::PrintGLError("PaintClassicSprites:glActiveTexture");
 
-  glBindTexture(GL_TEXTURE_BUFFER, gl_buffers.tbo_sprite_buffer);
+  glBindTexture(GL_TEXTURE_BUFFER, gl_buffers.sprite_buffer);
   BurningLogic::PrintGLError("PaintClassicSprites:glBindTexture");
 
   // ------
   glActiveTexture(GL_TEXTURE3);
   BurningLogic::PrintGLError("PaintClassicSprites:glActiveTexture");
 
-  glBindTexture(GL_TEXTURE_BUFFER, gl_buffers.tbo_clut_buffer);
+  glBindTexture(GL_TEXTURE_BUFFER, gl_buffers.clut_buffer);
   BurningLogic::PrintGLError("PaintClassicSprites:glBindTexture");
 
   // Set index data and render

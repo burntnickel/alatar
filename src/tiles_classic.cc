@@ -118,28 +118,28 @@ void PaintClassicTiles(BurningLogic::ShaderVars shader_vars, const BurningLogic:
   glActiveTexture(GL_TEXTURE0);
   BurningLogic::PrintGLError("PaintClassicTiles:glActiveTexture");
 
-  glBindTexture(GL_TEXTURE_BUFFER, gl_buffers.tbo_tile_buffer);
+  glBindTexture(GL_TEXTURE_BUFFER, gl_buffers.tile_buffer);
   BurningLogic::PrintGLError("PaintClassicTiles:glBindTexture");
 
   // ------
   glActiveTexture(GL_TEXTURE1);
   BurningLogic::PrintGLError("PaintClassicTiles:glActiveTexture");
 
-  glBindTexture(GL_TEXTURE_BUFFER, gl_buffers.tbo_color_buffer);
+  glBindTexture(GL_TEXTURE_BUFFER, gl_buffers.color_buffer);
   BurningLogic::PrintGLError("PaintClassicTiles:glBindTexture");
 
   // ------
   glActiveTexture(GL_TEXTURE2);
   BurningLogic::PrintGLError("PaintClassicTiles:glActiveTexture");
 
-  glBindTexture(GL_TEXTURE_BUFFER, gl_buffers.tbo_tileset_buffer);
+  glBindTexture(GL_TEXTURE_BUFFER, gl_buffers.tileset_buffer);
   BurningLogic::PrintGLError("PaintClassicTiles:glBindTexture");
 
   // ------
   glActiveTexture(GL_TEXTURE3);
   BurningLogic::PrintGLError("PaintClassicTiles:glActiveTexture");
 
-  glBindTexture(GL_TEXTURE_BUFFER, gl_buffers.tbo_clut_buffer);
+  glBindTexture(GL_TEXTURE_BUFFER, gl_buffers.clut_buffer);
   BurningLogic::PrintGLError("PaintClassicTiles:glBindTexture");
 
   // Set index data and render

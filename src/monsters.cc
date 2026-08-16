@@ -1,7 +1,7 @@
 #include "monsters.h"
 
 #include <cmath>
-#include <iostream> // for debug only
+#include <iostream>  // for debug only
 #include <utility>
 
 namespace alatar {
@@ -108,6 +108,7 @@ MonsterClassPtr MonsterClass::MonsterClassFactory(int id, int x, int y, int colo
 //--------------------------------------------------------------------
 SlidingGateClass::SlidingGateClass(int x, int y, int color, int sprite_id)
     : MonsterClass(kSlidingGate, x, y, color, sprite_id) {
+  priority_ = false;
   y_delta_ = -1.0f * kDeltaFactor;
 }
 

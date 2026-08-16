@@ -24,7 +24,8 @@ const std::string kUpdatedTileFragmentShaderName{"updated_tile_fragment.glsl"};
 /*const auto classic_tile_texture = GL_TEXTURE0;
 const auto classic_color_texture = GL_TEXTURE1;
 const auto classic_tileset_texture = GL_TEXTURE2;*/
-const auto updated_clut_texture = GL_TEXTURE3;
+const auto kUpdatedWallTextureUnit = GL_TEXTURE0;
+const auto kUpdatedClutTextureUnit = GL_TEXTURE3;
 // const auto classic_sprite_texture = GL_TEXTURE4;
 
 // Data use in main program for the updated display mode
@@ -38,7 +39,7 @@ struct UpdatedData {
   // alatar_classic::ClassicSpriteGLBuffers sprite_glbuffers;
 
   BurningLogic::ShaderVars tile_shader;
-  BurningLogic::ShaderVars sprite_shader;
+  //BurningLogic::ShaderVars sprite_shader;
 
   UpdatedTileVertexManager vertex_manager;
 

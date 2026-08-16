@@ -132,14 +132,14 @@ void ClassicClass::Update(Uint64 start_counter, double counter_to_ms_scale, cons
     }
   }
 
-  glBindBuffer(GL_TEXTURE_BUFFER, data_.tile_glbuffers.tbo_color_buffer);
+  glBindBuffer(GL_TEXTURE_BUFFER, data_.tile_glbuffers.color_buffer);
   BurningLogic::PrintGLError("main:glBindBuffer");
 
   glBufferSubData(GL_TEXTURE_BUFFER, 0, static_cast<GLsizeiptr>(data_.color_buffer.size()),
                   data_.color_buffer.data());
   BurningLogic::PrintGLError("main:glBufferSubData");
 
-  glBindBuffer(GL_TEXTURE_BUFFER, data_.tile_glbuffers.tbo_tile_buffer);
+  glBindBuffer(GL_TEXTURE_BUFFER, data_.tile_glbuffers.tile_buffer);
   BurningLogic::PrintGLError("main:glBindBuffer");
 
   glBufferSubData(GL_TEXTURE_BUFFER, 0, static_cast<GLsizeiptr>(data_.tile_buffer.size()),
@@ -204,32 +204,31 @@ std::optional<alatar::GraphicsCommonPtr> ClassicClass::ClassicClassFactory(
   }
 
   // Tile buffer
-  BurningLogic::TextureSetupHelper(classic_tile_texture, &data.tile_glbuffers.tbo_tile_buffer,
-                                   data.tile_buffer, GL_DYNAMIC_DRAW,
-                                   &data.tile_glbuffers.tbo_tex_tile_buffer, GL_R8UI);
+  BurningLogic::TextureSetupHelper(kClassicTileTextureUnit, &data.tile_glbuffers.tile_buffer,
+                                   data.tile_buffer, GL_DYNAMIC_DRAW, &data.tile_glbuffers.tile_texture,
+                                   GL_R8UI);
 
   // Color buffer
-  BurningLogic::TextureSetupHelper(classic_color_texture, &data.tile_glbuffers.tbo_color_buffer,
-                                   data.color_buffer, GL_DYNAMIC_DRAW,
-                                   &data.tile_glbuffers.tbo_tex_color_buffer, GL_R8UI);
+  BurningLogic::TextureSetupHelper(kClassicColorTextureUnit, &data.tile_glbuffers.color_buffer,
+                                   data.color_buffer, GL_DYNAMIC_DRAW, &data.tile_glbuffers.color_texture,
+                                   GL_R8UI);
 
   // Tile set
-  BurningLogic::TextureSetupHelper(classic_tileset_texture, &data.tile_glbuffers.tbo_tileset_buffer,
-                                   data.tile_set, GL_STATIC_DRAW, &data.tile_glbuffers.tbo_tex_tileset_buffer,
+  BurningLogic::TextureSetupHelper(kClassicTilesetTextureUnit, &data.tile_glbuffers.tileset_buffer,
+                                   data.tile_set, GL_STATIC_DRAW, &data.tile_glbuffers.tileset_texture,
                                    GL_R8UI);
 
   // CLUT
-  BurningLogic::TextureSetupHelper(classic_clut_texture, &data.tile_glbuffers.tbo_clut_buffer,
-                                   kDefaultC64Clut, GL_STATIC_DRAW, &data.tile_glbuffers.tbo_tex_clut_buffer,
-                                   GL_RGBA8UI);
+  BurningLogic::TextureSetupHelper(kClassicClutTextureUnit, &data.tile_glbuffers.clut_buffer, kDefaultC64Clut,
+                                   GL_STATIC_DRAW, &data.tile_glbuffers.clut_texture, GL_RGBA8UI);
 
   // Sprite set
-  BurningLogic::TextureSetupHelper(classic_sprite_texture, &data.sprite_glbuffers.tbo_sprite_buffer,
+  BurningLogic::TextureSetupHelper(kClassicSpriteTextureUnit, &data.sprite_glbuffers.sprite_buffer,
                                    data.processed_sprites, GL_STATIC_DRAW,
-                                   &data.sprite_glbuffers.tbo_tex_sprite_buffer, GL_R8UI);
+                                   &data.sprite_glbuffers.sprite_texture, GL_R8UI);
 
-  data.sprite_glbuffers.tbo_clut_buffer = data.tile_glbuffers.tbo_clut_buffer;
-  data.sprite_glbuffers.tbo_tex_clut_buffer = data.tile_glbuffers.tbo_tex_clut_buffer;
+  data.sprite_glbuffers.clut_buffer = data.tile_glbuffers.clut_buffer;
+  data.sprite_glbuffers.clut_texture = data.tile_glbuffers.clut_texture;
 
   // Tile shaders
   const std::filesystem::path kClassicTileVertexShaderFilename = shader_path / kClassicTileVertexShaderName;

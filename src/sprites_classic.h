@@ -11,12 +11,10 @@
 namespace alatar_classic {
 
 struct ClassicSpriteGLBuffers {
-  GLuint tbo_sprite_buffer;
-  GLuint tbo_tex_sprite_buffer;
-  //GLenum sprite_texture_unit;
-  GLuint tbo_clut_buffer;
-  GLuint tbo_tex_clut_buffer;
-  //GLenum clut_texture_unit;
+  GLuint sprite_buffer;
+  GLuint sprite_texture;
+  GLuint clut_buffer;
+  GLuint clut_texture;
 };
 
 enum { kSpriteNormal = 0, kSpriteFlipX = 1, kSpriteExpandX = 2, kSpriteExpandY = 4 };

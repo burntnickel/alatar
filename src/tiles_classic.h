@@ -12,14 +12,14 @@
 namespace alatar_classic {
 
 struct ClassicTileGLBuffers {
-  GLuint tbo_tile_buffer;
-  GLuint tbo_tex_tile_buffer;
-  GLuint tbo_color_buffer;
-  GLuint tbo_tex_color_buffer;
-  GLuint tbo_tileset_buffer;
-  GLuint tbo_tex_tileset_buffer;
-  GLuint tbo_clut_buffer;
-  GLuint tbo_tex_clut_buffer;
+  GLuint tile_buffer;
+  GLuint tile_texture;
+  GLuint color_buffer;
+  GLuint color_texture;
+  GLuint tileset_buffer;
+  GLuint tileset_texture;
+  GLuint clut_buffer;
+  GLuint clut_texture;
 };
 
 bool LoadCharSet(std::filesystem::path path_and_name,

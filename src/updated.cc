@@ -32,8 +32,6 @@ static bool LoadWallTexture(std::filesystem::path path_and_name, UpdatedData& da
     data.wall_texture_surface = converted_surface;
   }
 
-  // TODO: Need to add another function to do the clean up for make the UpdatedData a class with a destructor
-
   return success;
 }
 
@@ -107,6 +105,41 @@ std::optional<alatar::GraphicsCommonPtr> UpdatedClass::UpdatedClassFactory(
     return {};
   }
 
+  // Wall texture
+  BurningLogic::PrintGLError("UpdatedClassFactory:Before I Do Anything!");
+
+  GLuint wall_texture;
+  glGenTextures(1, &wall_texture);  // TODO: Going to need to add corresponding deletes I guess (also for
+                                    // "legacy" cases) Maybe?
+  // BurningLogic::PrintGLError("UpdatedClassFactory:glGenTextures");
+  std::cout << wall_texture << "\n";
+
+  glGenTextures(1, &wall_texture);
+  std::cout << wall_texture << "\n";
+  glBindTexture(GL_TEXTURE_2D, wall_texture);
+  BurningLogic::PrintGLError("UpdatedClassFactory:glBindTexture");
+
+  glActiveTexture(kUpdatedWallTextureUnit);
+  BurningLogic::PrintGLError("UpdatedClassFactory:glActiveTexture");
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+  BurningLogic::PrintGLError("UpdatedClassFactory:glTexParameteri GL_TEXTURE_WRAP_S");
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+  BurningLogic::PrintGLError("UpdatedClassFactory:glTexParameteri GL_TEXTURE_WRAP_T");
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  BurningLogic::PrintGLError("UpdatedClassFactory:glTexParameteri GL_TEXTURE_MIN_FILTER");
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  BurningLogic::PrintGLError("UpdatedClassFactory:glTexParameteri GL_TEXTURE_MAG_FILTER");
+
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, data.wall_texture_surface->w, data.wall_texture_surface->h, 0,
+               GL_RGBA, GL_UNSIGNED_BYTE, data.wall_texture_surface->pixels);
+  BurningLogic::PrintGLError("UpdatedClassFactory:glTexImage2D");
+
+  // glGenerateMipmap(GL_TEXTURE_2D);
+
   /*
 
   // Tile buffer
@@ -125,7 +158,7 @@ std::optional<alatar::GraphicsCommonPtr> UpdatedClass::UpdatedClassFactory(
                                    GL_R8UI);*/
 
   // CLUT
-  BurningLogic::TextureSetupHelper(updated_clut_texture, &data.tile_glbuffers.tbo_clut_buffer,
+  BurningLogic::TextureSetupHelper(kUpdatedClutTextureUnit, &data.tile_glbuffers.tbo_clut_buffer,
                                    kDefaultC64Clut, GL_STATIC_DRAW, &data.tile_glbuffers.tbo_tex_clut_buffer,
                                    GL_RGBA8UI);
 
