@@ -18,8 +18,8 @@ struct UpdatedTileGLBuffers {
   // GLuint tbo_tex_color_buffer;
   // GLuint tbo_tileset_buffer;
   // GLuint tbo_tex_tileset_buffer;
-  GLuint tbo_clut_buffer;
-  GLuint tbo_tex_clut_buffer;
+  GLuint clut_buffer;
+  GLuint clut_texture;
 };
 
 constexpr std::size_t kNumTiles = alatar::kRowTiles * alatar::kColTiles;

@@ -158,8 +158,8 @@ std::optional<alatar::GraphicsCommonPtr> UpdatedClass::UpdatedClassFactory(
                                    GL_R8UI);*/
 
   // CLUT
-  BurningLogic::TextureSetupHelper(kUpdatedClutTextureUnit, &data.tile_glbuffers.tbo_clut_buffer,
-                                   kDefaultC64Clut, GL_STATIC_DRAW, &data.tile_glbuffers.tbo_tex_clut_buffer,
+  BurningLogic::TextureSetupHelper(kUpdatedClutTextureUnit, &data.tile_glbuffers.clut_buffer,
+                                   kDefaultC64Clut, GL_STATIC_DRAW, &data.tile_glbuffers.clut_texture,
                                    GL_RGBA8UI);
 
   /* // Sprite set

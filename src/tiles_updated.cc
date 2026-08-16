@@ -196,7 +196,7 @@ void PaintUpdatedTiles(BurningLogic::ShaderVars shader_vars, const BurningLogic:
   glActiveTexture(GL_TEXTURE3);
   BurningLogic::PrintGLError("PaintUpdatedTiles:glActiveTexture");
 
-  glBindTexture(GL_TEXTURE_BUFFER, gl_buffers.tbo_clut_buffer);
+  glBindTexture(GL_TEXTURE_BUFFER, gl_buffers.clut_buffer);
   BurningLogic::PrintGLError("PaintUpdatedTiles:glBindTexture");
 
   // Set index data and render
