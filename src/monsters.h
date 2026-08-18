@@ -53,8 +53,8 @@ class MonsterClass {
   bool GetPriority(void) const;
 
  public:
-  // Defualt is no update
-  virtual void Update([[maybe_unused]] Uint64 counter) {};
+  // Defualt just updates the counter
+  virtual void Update(Uint64 counter) { old_counter_ = counter; };
 
  public:
   // Stuff below this point is dynamic
@@ -72,7 +72,7 @@ class MonsterClass {
   int color_;
   int sprite_id_initial_;
   bool priority_;
-  double counter_to_ms_scale_;
+  Uint64 old_counter_;
 
  public:
   static MonsterClassPtr MonsterClassFactory(int id, int x, int y, int color, int sprite_id);
@@ -91,7 +91,8 @@ class SlidingGateClass : public MonsterClass {
 
  private:
   static constexpr int kMaxYExcursion = 20;
-  static constexpr float kDeltaFactor = 0.34f;  // TODO: move to an INI file?
+  static constexpr float kPixelsPerMs = 0.34f / (1000.0f / 60.0f);
+  // static constexpr float kDeltaFactor = 0.34f;  // TODO: move to an INI file?
 };
 
 using MonsterClassArray = std::array<MonsterClassPtr, kMaxMonsters>;

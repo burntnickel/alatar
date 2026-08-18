@@ -82,11 +82,29 @@ MonsterClassPtr MonsterClass::MonsterClassFactory(int id, int x, int y, int colo
 SlidingGateClass::SlidingGateClass(int x, int y, int color, int sprite_id)
     : MonsterClass(kSlidingGate, x, y, color, sprite_id) {
   priority_ = false;
-  y_delta_ = -1.0f * kDeltaFactor;
+  // y_delta_ = -1.0f * kDeltaFactor;
+  y_delta_ = -1.0f;
 }
 
 void SlidingGateClass::Update(Uint64 counter) {
+  float elapsed_ms =
+      static_cast<float>(counter - old_counter_) * static_cast<float>(alatar::gCounterToMsScale);
+
+  y_float_ = y_float_ + y_delta_ * elapsed_ms * kPixelsPerMs;
+
   if (y_float_ >= static_cast<float>(y_initial_)) {
+    y_float_ = static_cast<float>(y_initial_);
+    y_delta_ = -1.0f;
+  }
+
+  if (y_float_ <= static_cast<float>(y_initial_ - kMaxYExcursion)) {
+    y_float_ = static_cast<float>(y_initial_ - kMaxYExcursion);
+    y_delta_ = 1.0f;
+  }
+
+  y_ = static_cast<int>(std::round(y_float_));
+
+  /*if (y_float_ >= static_cast<float>(y_initial_)) {
     y_float_ = static_cast<float>(y_initial_);
     y_delta_ = -kDeltaFactor * kSpeedFactor;
   }
@@ -98,7 +116,9 @@ void SlidingGateClass::Update(Uint64 counter) {
 
   y_float_ = y_float_ + y_delta_;
 
-  y_ = static_cast<int>(std::round(y_float_));
+  y_ = static_cast<int>(std::round(y_float_));*/
+
+  MonsterClass::Update(counter);
 }
 
 }  // namespace alatar

@@ -50,6 +50,7 @@ target_compile_features( cbmspr2pixmap PRIVATE cxx_std_20 )
 
 # Build level explorer
 set( LEVELEXPLORER_SRCS ${CMAKE_SOURCE_DIR}/src/level_explorer.cc )
+set( LEVELEXPLORER_SRCS ${LEVELEXPLORER_SRCS} ${CMAKE_SOURCE_DIR}/src/globals.cc )
 set( LEVELEXPLORER_SRCS ${LEVELEXPLORER_SRCS} ${CMAKE_SOURCE_DIR}/src/monsters.cc )
 set( LEVELEXPLORER_SRCS ${LEVELEXPLORER_SRCS} ${CMAKE_SOURCE_DIR}/src/wiz_level.cc )
 

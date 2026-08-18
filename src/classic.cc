@@ -5,6 +5,7 @@
 #include <utility>
 
 #include "c64_clut.h"
+#include "globals.h"
 
 namespace alatar_classic {
 
@@ -70,7 +71,7 @@ void ClassicClass::LevelInit(const alatar::LevelClass& level) {
 void ClassicClass::Update(Uint64 counter, const alatar::LevelClass& level) {
   // Update graphics (these probably don't upate at 60 Hz, need to get the correct number)
   // I think color changes faster then the fire animation
-  if ((static_cast<double>(counter - data_.treasure_color_cycle_counter) * counter_to_ms_scale_) >
+  if ((static_cast<double>(counter - data_.treasure_color_cycle_counter) * alatar::gCounterToMsScale) >
       kTreasureColorCycleFrameTimeMs) {
     ++data_.treasure_color_cycle;
     data_.treasure_color_cycle_counter = counter;
@@ -78,7 +79,7 @@ void ClassicClass::Update(Uint64 counter, const alatar::LevelClass& level) {
 
   unsigned char treasure_color_idx = data_.treasure_color_cycle.GetValue();
 
-  if ((static_cast<double>(counter - data_.fire_color_cycle_counter) * counter_to_ms_scale_) >
+  if ((static_cast<double>(counter - data_.fire_color_cycle_counter) * alatar::gCounterToMsScale) >
       kFireColorCycleFrameTimeMs) {
     ++data_.fire_color_cycle;
     data_.fire_color_cycle_counter = counter;
@@ -106,7 +107,7 @@ void ClassicClass::Update(Uint64 counter, const alatar::LevelClass& level) {
   }
 
   // Cycle fire tile charaters for animation
-  if ((static_cast<double>(counter - data_.fire_animation_counter) * counter_to_ms_scale_) >
+  if ((static_cast<double>(counter - data_.fire_animation_counter) * alatar::gCounterToMsScale) >
       kFireAnimationFrameTimeMs) {
     data_.fire_animation_counter = counter;
 
