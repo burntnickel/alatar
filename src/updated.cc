@@ -19,8 +19,9 @@ static bool LoadWallTexture(std::filesystem::path path_and_name, UpdatedData& da
   SDL_Surface* converted_surface;
 
   if (success) {
-    converted_surface = SDL_ConvertSurfaceFormat(raw_surface, SDL_PIXELFORMAT_RGBA8888, 0);
-
+    // converted_surface = SDL_ConvertSurfaceFormat(raw_surface, SDL_PIXELFORMAT_RGBA8888, 0);
+    //  TODO: Not sure why this is ABGR and for opengl I tell it RGBA...
+    converted_surface = SDL_ConvertSurfaceFormat(raw_surface, SDL_PIXELFORMAT_ABGR8888, 0);
     success = ErrorEvalPrintSDL(raw_surface == NULL, "Error calling SDL_ConvertSurfaceFormat:");
   }
 
@@ -78,8 +79,8 @@ UpdatedClass::UpdatedClass(Token, const UpdatedData& data) {
 
 void UpdatedClass::LevelInit([[maybe_unused]] const alatar::LevelClass& level) {}
 
-void UpdatedClass::Update([[maybe_unused]] Uint64 start_counter, [[maybe_unused]] double counter_to_ms_scale,
-                          [[maybe_unused]] const alatar::LevelClass& level) {}
+void UpdatedClass::Update([[maybe_unused]] Uint64 counter, [[maybe_unused]] const alatar::LevelClass& level) {
+}
 
 void UpdatedClass::Draw([[maybe_unused]] const alatar::MonsterClassArray& monster_info,
                         [[maybe_unused]] const alatar::WizardInfo& wizard_info,
@@ -106,17 +107,14 @@ std::optional<alatar::GraphicsCommonPtr> UpdatedClass::UpdatedClassFactory(
   }
 
   // Wall texture
-  BurningLogic::PrintGLError("UpdatedClassFactory:Before I Do Anything!");
+  glActiveTexture(kUpdatedWallTextureUnit);
+  BurningLogic::PrintGLError("UpdatedClassFactory:glActiveTexture");
 
-  GLuint wall_texture;
-  glGenTextures(1, &wall_texture);  // TODO: Going to need to add corresponding deletes I guess (also for
-                                    // "legacy" cases) Maybe?
-  // BurningLogic::PrintGLError("UpdatedClassFactory:glGenTextures");
-  std::cout << wall_texture << "\n";
+  glGenTextures(1, &data.tile_glbuffers.wall_texture);  // TODO: Going to need to add corresponding deletes I
+                                                        // guess (also for "legacy" cases) Maybe?
+  BurningLogic::PrintGLError("UpdatedClassFactory:glGenTextures");
 
-  glGenTextures(1, &wall_texture);
-  std::cout << wall_texture << "\n";
-  glBindTexture(GL_TEXTURE_2D, wall_texture);
+  glBindTexture(GL_TEXTURE_2D, data.tile_glbuffers.wall_texture);
   BurningLogic::PrintGLError("UpdatedClassFactory:glBindTexture");
 
   glActiveTexture(kUpdatedWallTextureUnit);
@@ -128,6 +126,7 @@ std::optional<alatar::GraphicsCommonPtr> UpdatedClass::UpdatedClassFactory(
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
   BurningLogic::PrintGLError("UpdatedClassFactory:glTexParameteri GL_TEXTURE_WRAP_T");
 
+  // Mipmap filter mode means I need to have mipmaps generated
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
   BurningLogic::PrintGLError("UpdatedClassFactory:glTexParameteri GL_TEXTURE_MIN_FILTER");
 
@@ -138,10 +137,9 @@ std::optional<alatar::GraphicsCommonPtr> UpdatedClass::UpdatedClassFactory(
                GL_RGBA, GL_UNSIGNED_BYTE, data.wall_texture_surface->pixels);
   BurningLogic::PrintGLError("UpdatedClassFactory:glTexImage2D");
 
-  // glGenerateMipmap(GL_TEXTURE_2D);
+  glGenerateMipmap(GL_TEXTURE_2D);  // Try with and without
 
   /*
-
   // Tile buffer
   BurningLogic::TextureSetupHelper(classic_tile_texture, &data.tile_glbuffers.tbo_tile_buffer,
                                    data.tile_buffer, GL_DYNAMIC_DRAW,
@@ -158,9 +156,8 @@ std::optional<alatar::GraphicsCommonPtr> UpdatedClass::UpdatedClassFactory(
                                    GL_R8UI);*/
 
   // CLUT
-  BurningLogic::TextureSetupHelper(kUpdatedClutTextureUnit, &data.tile_glbuffers.clut_buffer,
-                                   kDefaultC64Clut, GL_STATIC_DRAW, &data.tile_glbuffers.clut_texture,
-                                   GL_RGBA8UI);
+  BurningLogic::TextureSetupHelper(kUpdatedClutTextureUnit, &data.tile_glbuffers.clut_buffer, kDefaultC64Clut,
+                                   GL_STATIC_DRAW, &data.tile_glbuffers.clut_texture, GL_RGBA8UI);
 
   /* // Sprite set
    BurningLogic::TextureSetupHelper(classic_sprite_texture, &data.sprite_glbuffers.tbo_sprite_buffer,

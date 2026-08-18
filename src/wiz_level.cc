@@ -225,12 +225,6 @@ WizardInfo LevelClass::GetWizardInfo(void) const {
   return tmp;
 }
 
-/*void InitSlidingGate(MonsterInfo& info) {
-  info.priority = false;
-  info.x_delta = 0;
-  info.y_delta = -1;
-}*/
-
 MonsterClassArray LevelClass::GetMonsterInfo(void) const {
   //MonsterInfoArray tmp;
   MonsterClassArray tmp2;

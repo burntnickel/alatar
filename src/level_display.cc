@@ -11,6 +11,7 @@
 #include <utility>
 
 #include "getrespath.h"
+#include "globals.h"
 #include "graphics_common.h"
 #include "load_data.h"
 #include "monsters.h"
@@ -43,8 +44,9 @@ static bool Initialize(void) {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
     // Create window
-    g_window = SDL_CreateWindow("SDL Window", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, kScreenWidth,
-                                kScreenHeight, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+    g_window = SDL_CreateWindow(
+        "SDL Window", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, kScreenWidth, kScreenHeight,
+        SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
 
     success = ErrorEvalPrintSDL(g_window == NULL, "Window could not be created:");
   }
@@ -154,6 +156,9 @@ int main(int argc, char* argv[]) {
   alatar::GraphicsCommonPtr graphics_routine_ptr;
   Uint64 sdl_counter = SDL_GetPerformanceCounter();
 
+  // This should probably be part of initalization
+  alatar::gCounterToMsScale = 1000.0 / static_cast<double>(SDL_GetPerformanceFrequency());
+
   auto graphics_routine_opt = alatar::GraphicsCommonClass::GraphicsCommonClassFactory(
       kResourcePath, kShaderPath, graphics_mode, sdl_counter);
 
@@ -171,8 +176,6 @@ int main(int argc, char* argv[]) {
 
   bool gDone = false;
   SDL_Event sdl_event;
-
-  double counter_to_ms_scale = 1000.0 / static_cast<double>(SDL_GetPerformanceFrequency());
 
   BurningLogic::mat4 view_matrix{};
   BurningLogic::Identity4(view_matrix);
@@ -216,9 +219,9 @@ int main(int argc, char* argv[]) {
     glClear(GL_COLOR_BUFFER_BIT);
 
     // Update
-    graphics_routine_ptr->Update(start_counter, counter_to_ms_scale, level);
+    graphics_routine_ptr->Update(start_counter, level);
 
-    alatar::UpdateMonsters(monster_info);
+    alatar::UpdateMonsters(monster_info, start_counter);
 
     // Draw
     graphics_routine_ptr->Draw(monster_info, wizard_info, view_matrix);
@@ -227,7 +230,7 @@ int main(int argc, char* argv[]) {
     SDL_GL_SwapWindow(g_window);
 
     Uint64 end_counter = SDL_GetPerformanceCounter();
-    double elapsed_ms = static_cast<double>(end_counter - start_counter) * counter_to_ms_scale;
+    double elapsed_ms = static_cast<double>(end_counter - start_counter) * alatar::gCounterToMsScale;
     auto delay_time_ms = std::floor(kMsPerFrame - elapsed_ms);
 
     if (delay_time_ms > 0.0) {

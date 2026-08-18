@@ -2,6 +2,8 @@
 
 #include <iostream>  // for debugging
 
+#include "updated.h"
+
 namespace alatar_updated {
 
 UpdatedTileVertexManager::UpdatedTileVertexManager(void) {
@@ -145,6 +147,11 @@ void PaintUpdatedTiles(BurningLogic::ShaderVars shader_vars, const BurningLogic:
                         vertex_manager.num_attributes_ * sizeof(GLfloat), (void*)(2 * sizeof(GLfloat)));
   BurningLogic::PrintGLError("PaintUpdatedTiles:glVertexAttribPointer");
 
+  // Texture stuff (wall texture)
+  GLint wall_texture_location = BurningLogic::GetShaderUniformLocation(shader_vars.program, "u_wall_texture");
+  glUniform1i(wall_texture_location, 0);
+  BurningLogic::PrintGLError("PaintUpdatedTiles:glUniform1i(wall_texture_location)");
+
   /*// Texture stuff (tile buffer)
   GLint tilebuffer_location = BurningLogic::GetShaderUniformLocation(shader_vars.program, "u_tile_buffer");
   glUniform1i(tilebuffer_location, 0);
@@ -193,10 +200,15 @@ void PaintUpdatedTiles(BurningLogic::ShaderVars shader_vars, const BurningLogic:
    BurningLogic::PrintGLError("PaintUpdatedTiles:glBindTexture");*/
 
   // ------
-  glActiveTexture(GL_TEXTURE3);
+  glActiveTexture(kUpdatedClutTextureUnit);
   BurningLogic::PrintGLError("PaintUpdatedTiles:glActiveTexture");
 
-  glBindTexture(GL_TEXTURE_BUFFER, gl_buffers.clut_buffer);
+  /*std::cout << "clut_buffer: " << gl_buffers.clut_buffer << "\n";
+  std::cout << "clut_texture: " << gl_buffers.clut_texture << "\n";
+  std::cout << "wall_texture: " << gl_buffers.wall_texture << "\n";*/
+
+  // glBindTexture(GL_TEXTURE_BUFFER, gl_buffers.clut_buffer);
+  glBindTexture(GL_TEXTURE_BUFFER, gl_buffers.clut_texture);
   BurningLogic::PrintGLError("PaintUpdatedTiles:glBindTexture");
 
   // Set index data and render

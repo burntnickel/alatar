@@ -32,10 +32,13 @@ class GraphicsCommonClass {
  public:
   virtual void LevelInit(const LevelClass& level) = 0;
 
-  virtual void Update(Uint64 start_counter, double counter_to_ms_scale, const LevelClass& level) = 0;
+  virtual void Update(Uint64 counter, const LevelClass& level) = 0;
 
   virtual void Draw(const alatar::MonsterClassArray& monster_info, const WizardInfo& wizard_info,
                     const BurningLogic::mat4& view_matrix) = 0;
+
+ public:
+  double counter_to_ms_scale_;
 
   // Factory function to make sure return objects are always properly constructed and to return the specified
   // sub-class. Ideally should use std:expected but that would require c++23.

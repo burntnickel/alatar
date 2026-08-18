@@ -39,7 +39,7 @@ struct UpdatedData {
   // alatar_classic::ClassicSpriteGLBuffers sprite_glbuffers;
 
   BurningLogic::ShaderVars tile_shader;
-  //BurningLogic::ShaderVars sprite_shader;
+  // BurningLogic::ShaderVars sprite_shader;
 
   UpdatedTileVertexManager vertex_manager;
 
@@ -81,7 +81,7 @@ class UpdatedClass : public alatar::GraphicsCommonClass {
  public:
   void LevelInit(const alatar::LevelClass& level) override;
 
-  void Update(Uint64 start_counter, double counter_to_ms_scale, const alatar::LevelClass& level) override;
+  void Update(Uint64 counter, const alatar::LevelClass& level) override;
 
   void Draw(const alatar::MonsterClassArray& monster_info, const alatar::WizardInfo& wizard_info,
             const BurningLogic::mat4& view_matrix) override;

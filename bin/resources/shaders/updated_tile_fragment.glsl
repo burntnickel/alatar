@@ -4,6 +4,7 @@
 
 // Uniforms
 // ----------------------------------
+uniform sampler2D u_wall_texture;
 
 // Inputs
 // ----------------------------------
@@ -20,9 +21,12 @@ void main() {
     float u_global = (shader_coord.x + 1.0) / 2.0;
     float v_global = (-1.0 * shader_coord.y + 1.0) / 2.0;
 
-    frag_color = vec4(u_global, v_global, 0.0, 1.0);
+    //frag_color = vec4(u_global, v_global, 0.0, 1.0);
     //frag_color = vec4((shader_coord.x + 1.0) / 2.0, (shader_coord.y + 1.0) / 2.0, 0.0, 1.0);
     //frag_color = vec4(UV.x, UV.y, 0.0, 1.0);
+    vec4 tmp_color = texture(u_wall_texture, vec2(u_global, v_global));
+    frag_color = tmp_color;
+    //frag_color = tmp_color * 0.00001 + vec4(u_global, v_global, 0.0, 1.0);;
 }
 
 

@@ -4,42 +4,16 @@
 #include <iostream>  // for debug only
 #include <utility>
 
+#include "globals.h"
+
 namespace alatar {
 
 const float kSpeedFactor = 1.0f;
 
-/*void UpdateSlidingGate(MonsterInfo& info) {
-  const int maxYExcursion = 20;
-  const float delta_factor = 0.34f;  // TODO: move to an INI file?
-
-  if (info.y_float >= static_cast<float>(info.y_initial)) {
-    info.y_float = static_cast<float>(info.y_initial);
-    info.y_delta = -delta_factor * kSpeedFactor;
-  }
-
-  if (info.y_float <= static_cast<float>(info.y_initial - maxYExcursion)) {
-    info.y_float = static_cast<float>(info.y_initial - maxYExcursion);
-    info.y_delta = delta_factor * kSpeedFactor;
-  }
-
-  info.y_float = info.y_float + info.y_delta;
-
-  info.y = static_cast<int>(std::round(info.y_float));
-}*/
-
-void UpdateMonsters(MonsterClassArray& monster_info) {
+void UpdateMonsters(MonsterClassArray& monster_info, Uint64 counter) {
   for (unsigned int ii = 0; ii < 6; ++ii) {
     if (monster_info[ii]->IsActive()) {
-      monster_info[ii]->Update();
-      /*switch (monster_info[ii].id) {
-        case kNone:
-          break;
-        case kSlidingGate:
-          UpdateSlidingGate(monster_info[ii]);
-          break;
-        default:
-          break;
-      }*/
+      monster_info[ii]->Update(counter);
     }
   }
 }
@@ -49,7 +23,6 @@ void UpdateMonsters(MonsterClassArray& monster_info) {
 //--------------------------------------------------------------------
 MonsterClass::MonsterClass(int id, int x, int y, int color, int sprite_id) {
   // TODO: Add validation here
-  // TODO: Can I have a delegated constructor for the subclasses?
   active_ = (id != kNone);
   id_ = id;
   x_initial_ = x;
@@ -112,7 +85,7 @@ SlidingGateClass::SlidingGateClass(int x, int y, int color, int sprite_id)
   y_delta_ = -1.0f * kDeltaFactor;
 }
 
-void SlidingGateClass::Update(void) {
+void SlidingGateClass::Update(Uint64 counter) {
   if (y_float_ >= static_cast<float>(y_initial_)) {
     y_float_ = static_cast<float>(y_initial_);
     y_delta_ = -kDeltaFactor * kSpeedFactor;

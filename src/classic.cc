@@ -67,21 +67,21 @@ void ClassicClass::LevelInit(const alatar::LevelClass& level) {
   }
 }
 
-void ClassicClass::Update(Uint64 start_counter, double counter_to_ms_scale, const alatar::LevelClass& level) {
+void ClassicClass::Update(Uint64 counter, const alatar::LevelClass& level) {
   // Update graphics (these probably don't upate at 60 Hz, need to get the correct number)
   // I think color changes faster then the fire animation
-  if ((static_cast<double>(start_counter - data_.treasure_color_cycle_counter) * counter_to_ms_scale) >
+  if ((static_cast<double>(counter - data_.treasure_color_cycle_counter) * counter_to_ms_scale_) >
       kTreasureColorCycleFrameTimeMs) {
     ++data_.treasure_color_cycle;
-    data_.treasure_color_cycle_counter = start_counter;
+    data_.treasure_color_cycle_counter = counter;
   }
 
   unsigned char treasure_color_idx = data_.treasure_color_cycle.GetValue();
 
-  if ((static_cast<double>(start_counter - data_.fire_color_cycle_counter) * counter_to_ms_scale) >
+  if ((static_cast<double>(counter - data_.fire_color_cycle_counter) * counter_to_ms_scale_) >
       kFireColorCycleFrameTimeMs) {
     ++data_.fire_color_cycle;
-    data_.fire_color_cycle_counter = start_counter;
+    data_.fire_color_cycle_counter = counter;
   }
 
   unsigned char fire_color_idx = data_.fire_color_cycle.GetValue();
@@ -106,9 +106,9 @@ void ClassicClass::Update(Uint64 start_counter, double counter_to_ms_scale, cons
   }
 
   // Cycle fire tile charaters for animation
-  if ((static_cast<double>(start_counter - data_.fire_animation_counter) * counter_to_ms_scale) >
+  if ((static_cast<double>(counter - data_.fire_animation_counter) * counter_to_ms_scale_) >
       kFireAnimationFrameTimeMs) {
-    data_.fire_animation_counter = start_counter;
+    data_.fire_animation_counter = counter;
 
     for (int row = 0; row < alatar::kTileDataRows; ++row) {
       for (int col = 0; col < alatar::kTileDataCols; ++col) {
@@ -118,7 +118,7 @@ void ClassicClass::Update(Uint64 start_counter, double counter_to_ms_scale, cons
 
         unsigned char tile = level.GetTileAt(row, col);
         if (alatar::GetTileGroup(tile) == alatar::kFire) {
-          data_.fire_animation_counter = start_counter;
+          data_.fire_animation_counter = counter;
           auto tmp_tile = data_.tile_buffer[screen_index];
           tmp_tile = tmp_tile + 1;
 

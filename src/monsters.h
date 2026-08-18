@@ -1,6 +1,8 @@
 #ifndef H_ALATAR_MONSTERS
 #define H_ALATAR_MONSTERS
 
+#include <SDL.h>
+
 #include <array>
 #include <memory>
 
@@ -32,24 +34,6 @@ enum MonsterType {
   kWizardsCat = 20
 };
 
-/*struct MonsterInfo {
-  int id;
-  bool active;
-  int x_initial;
-  int y_initial;
-  int color;
-  int sprite_id_initial;
-  bool priority = true;
-  // Stuff below this point is dynamic
-  int x;
-  int y;
-  int sprite_id;
-  float x_delta;
-  float y_delta;
-  float x_float;
-  float y_float;
-};*/
-
 class MonsterClass;  // Forward declaration to support the following type definition
 using MonsterClassPtr = std::unique_ptr<MonsterClass>;
 
@@ -69,7 +53,8 @@ class MonsterClass {
   bool GetPriority(void) const;
 
  public:
-  virtual void Update(void) {};  // Defualt is no update, should probably have a time of the update here
+  // Defualt is no update
+  virtual void Update([[maybe_unused]] Uint64 counter) {};
 
  public:
   // Stuff below this point is dynamic
@@ -87,6 +72,7 @@ class MonsterClass {
   int color_;
   int sprite_id_initial_;
   bool priority_;
+  double counter_to_ms_scale_;
 
  public:
   static MonsterClassPtr MonsterClassFactory(int id, int x, int y, int color, int sprite_id);
@@ -98,7 +84,7 @@ class SlidingGateClass : public MonsterClass {
   SlidingGateClass(int x, int y, int color, int sprite_id);
 
  public:
-  void Update(void) override;
+  void Update(Uint64 counter) override;
 
  public:
   float y_delta_;
@@ -108,10 +94,9 @@ class SlidingGateClass : public MonsterClass {
   static constexpr float kDeltaFactor = 0.34f;  // TODO: move to an INI file?
 };
 
-//using MonsterInfoArray = std::array<MonsterInfo, kMaxMonsters>;
 using MonsterClassArray = std::array<MonsterClassPtr, kMaxMonsters>;
 
-void UpdateMonsters(MonsterClassArray& monster_info);
+void UpdateMonsters(MonsterClassArray& monster_info, Uint64 counter);
 
 }  // namespace alatar
 
