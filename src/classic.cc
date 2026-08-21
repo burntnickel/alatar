@@ -157,7 +157,8 @@ void ClassicClass::Draw(const alatar::MonsterClassArray& monster_info, const ala
     if (monster_info[idx]->IsActive() && !monster_info[idx]->GetPriority()) {
       DrawClassicSpriteC64(data_.sprite_shader, view_matrix, data_.sprite_glbuffers,
                            monster_info[idx]->sprite_id_, monster_info[idx]->x_, monster_info[idx]->y_,
-                           {{alatar::kColorLightBlue, monster_info[idx]->GetColor(), alatar::kColorWhite}});
+                           {{alatar::kColorLightBlue, monster_info[idx]->GetColor(), alatar::kColorWhite}},
+                           monster_info[idx]->GetSpriteMods());
     }
   }
 
@@ -170,13 +171,15 @@ void ClassicClass::Draw(const alatar::MonsterClassArray& monster_info, const ala
     if (monster_info[idx]->IsActive() && monster_info[idx]->GetPriority()) {
       DrawClassicSpriteC64(data_.sprite_shader, view_matrix, data_.sprite_glbuffers,
                            monster_info[idx]->sprite_id_, monster_info[idx]->x_, monster_info[idx]->y_,
-                           {{alatar::kColorLightBlue, monster_info[idx]->GetColor(), alatar::kColorWhite}});
+                           {{alatar::kColorLightBlue, monster_info[idx]->GetColor(), alatar::kColorWhite}},
+                           monster_info[idx]->GetSpriteMods());
     }
   }
 
   // Draw wizard sprite
   DrawClassicSpriteC64(data_.sprite_shader, view_matrix, data_.sprite_glbuffers, 0, wizard_info.x,
-                       wizard_info.y, {{alatar::kColorLightBlue, wizard_info.color, alatar::kColorWhite}});
+                       wizard_info.y, {{alatar::kColorLightBlue, wizard_info.color, alatar::kColorWhite}},
+                       kSpriteMultiColor);
 }
 
 std::optional<alatar::GraphicsCommonPtr> ClassicClass::ClassicClassFactory(

@@ -6,6 +6,8 @@
 #include <array>
 #include <memory>
 
+#include "sprites_classic.h"
+
 namespace alatar {
 
 const int kMaxMonsters = 6;
@@ -34,23 +36,34 @@ enum MonsterType {
   kWizardsCat = 20
 };
 
+struct MonsterData {
+  unsigned int id;
+  unsigned int x;
+  unsigned int y;
+  unsigned int color;
+  unsigned int sprite_id;
+  unsigned int animation_length;
+};
+
 class MonsterClass;  // Forward declaration to support the following type definition
 using MonsterClassPtr = std::unique_ptr<MonsterClass>;
 
 class MonsterClass {
  public:
   MonsterClass(void) = default;
-  MonsterClass(int id, int x, int y, int color, int sprite_id);
+  MonsterClass(MonsterData monster_data);
   virtual ~MonsterClass(void) {};
 
  public:
   bool IsActive(void) const;
-  int GetId(void) const;
-  int GetXInitial(void) const;
-  int GetYInitial(void) const;
-  int GetColor(void) const;
-  int GetSpriteIDInitial(void) const;
+  unsigned int GetId(void) const;
+  unsigned int GetXInitial(void) const;
+  unsigned int GetYInitial(void) const;
+  unsigned int GetColor(void) const;
+  unsigned int GetSpriteIDInitial(void) const;
+  unsigned int GetAnimationLength(void) const;
   bool GetPriority(void) const;
+  int GetSpriteMods(void) const;
 
  public:
   // Defualt just updates the counter
@@ -58,30 +71,34 @@ class MonsterClass {
 
  public:
   // Stuff below this point is dynamic
-  int x_;
-  int y_;
+  unsigned int x_;
+  unsigned int y_;
   float x_float_;
   float y_float_;
-  int sprite_id_;
+  unsigned int sprite_id_;
 
  protected:
   bool active_ = false;
-  int id_;
-  int x_initial_;
-  int y_initial_;
-  int color_;
-  int sprite_id_initial_;
+  unsigned int id_;
+  unsigned int x_initial_;
+  unsigned int y_initial_;
+  unsigned int color_;
+  unsigned int sprite_id_initial_;
+  unsigned int animation_length_;
   bool priority_;
+  int sprite_mods_ = alatar_classic::kSpriteMultiColor;
   Uint64 old_counter_;
+  unsigned int animation_state_ = 0;
+  float animation_counter_ = 0.0f;
 
  public:
-  static MonsterClassPtr MonsterClassFactory(int id, int x, int y, int color, int sprite_id);
+  static MonsterClassPtr MonsterClassFactory(MonsterData monster_data);
 };
 
 class SlidingGateClass : public MonsterClass {
  public:
   SlidingGateClass(void) = delete;
-  SlidingGateClass(int x, int y, int color, int sprite_id);
+  SlidingGateClass(MonsterData monster_data);
 
  public:
   void Update(Uint64 counter) override;
@@ -89,10 +106,11 @@ class SlidingGateClass : public MonsterClass {
  public:
   float y_delta_;
 
+  // Should some of these be moved to an INI file?
  private:
   static constexpr int kMaxYExcursion = 20;
   static constexpr float kPixelsPerMs = 0.34f / (1000.0f / 60.0f);
-  // static constexpr float kDeltaFactor = 0.34f;  // TODO: move to an INI file?
+  static constexpr float kFramesPerMs = 4.0f / 1000.0f;
 };
 
 using MonsterClassArray = std::array<MonsterClassPtr, kMaxMonsters>;

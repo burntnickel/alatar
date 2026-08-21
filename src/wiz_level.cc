@@ -226,51 +226,28 @@ WizardInfo LevelClass::GetWizardInfo(void) const {
 }
 
 MonsterClassArray LevelClass::GetMonsterInfo(void) const {
-  //MonsterInfoArray tmp;
-  MonsterClassArray tmp2;
+  MonsterData monster_data;
+  MonsterClassArray tmp_monster_array;
   // TODO: check if any of the paramters are out of range
 
   for (unsigned int ii = 0; ii < kMaxMonsters; ++ii) {
-    int monster_id = raw_data_[kMonster0MonsterID + ii];
-    int x_initial = raw_data_[kMonster0XLow + ii];
+    monster_data.id = raw_data_[kMonster0MonsterID + ii];
+    monster_data.x = raw_data_[kMonster0XLow + ii];
 
     if (raw_data_[kSpriteXHighBits] & (1 << ii)) {
-      x_initial = x_initial + 256;
+      monster_data.x = monster_data.x + 256;
     }
 
-    int y_initial  = raw_data_[kMonster0Y + ii];
-    int color = raw_data_[kMonster0ColorCode + ii];
-    int sprite_id_initial = raw_data_[kMonster0SpriteID + ii] &
-                                0x7f;  // High bit needs clear as actual game sprite IDs are 127-255
+    monster_data.y = raw_data_[kMonster0Y + ii];
+    monster_data.color = raw_data_[kMonster0ColorCode + ii];
+    monster_data.sprite_id = raw_data_[kMonster0SpriteID + ii] &
+                             0x7f;  // High bit needs clear as actual game sprite IDs are 128-255
+    monster_data.animation_length = raw_data_[kMonster0AnimationLength + ii];
 
-    /*tmp[ii].id = monster_id;
-    tmp[ii].active = (monster_id != kNone);
-    tmp[ii].x_initial = x_initial;
-    tmp[ii].y_initial = y_initial;
-    tmp[ii].color = color;
-    tmp[ii].sprite_id_initial = sprite_id_initial;*/
-
-    //tmp2[ii] = std::make_unique<MonsterClass>(monster_id,x_initial,y_initial,color,sprite_id_initial);
-    tmp2[ii] = MonsterClass::MonsterClassFactory(monster_id,x_initial,y_initial,color,sprite_id_initial);
-
-    /*tmp[ii].x = tmp[ii].x_initial;
-    tmp[ii].y = tmp[ii].y_initial;
-    tmp[ii].x_float = static_cast<float>(tmp[ii].x_initial);
-    tmp[ii].y_float = static_cast<float>(tmp[ii].y_initial);
-    tmp[ii].sprite_id = tmp[ii].sprite_id_initial;*/
-
-    /*switch (tmp[ii].id) {
-      case kNone:
-        break;
-      case kSlidingGate:
-        InitSlidingGate(tmp[ii]);
-        break;
-      default:
-        break;
-    }*/
+    tmp_monster_array[ii] = MonsterClass::MonsterClassFactory(monster_data);
   }
 
-  return tmp2;
+  return tmp_monster_array;
 }
 
 void LevelClass::SetTileAt(int row, int col, unsigned char c) {

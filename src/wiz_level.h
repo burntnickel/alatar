@@ -149,9 +149,9 @@ enum XMask {
 };
 
 struct WizardInfo {
-  int x;
-  int y;
-  int color;
+  unsigned int x;
+  unsigned int y;
+  unsigned int color;
 };
 
 class LevelClass {
