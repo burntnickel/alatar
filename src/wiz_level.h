@@ -49,6 +49,15 @@ enum {
   kMonster5ColorCode = 23
 };
 
+enum {
+  kElevator0DxDy = 24,
+  kElevator1DxDy = 25,
+  kElevator2DxDy = 26,
+  kElevator3DxDy = 27,
+  kElevator4DxDy = 28,
+  kElevator5DxDy = 29
+};
+
 enum { kSpellNumber = 30, kSpellCount = 31, kWizardXLow = 32, kWizardY = 33 };
 
 enum { kBonusSpeed = 82, kSpellColorCode = 83, kSpriteXHighBits = 84 };
@@ -65,7 +74,8 @@ enum {
   kSlide2EndTile = 93,
   kSlide0Time = 94,
   kSlide1Time = 95,
-  kSlide2Time = 96
+  kSlide2Time = 96,
+  kElevatorDuration = 97
 };
 
 constexpr unsigned int kSlideTileBase = 0xc400;

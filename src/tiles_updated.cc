@@ -1,7 +1,5 @@
 #include "tiles_updated.h"
 
-#include <iostream>  // for debugging
-
 #include "updated.h"
 
 namespace alatar_updated {

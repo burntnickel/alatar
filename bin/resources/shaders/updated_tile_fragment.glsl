@@ -25,8 +25,9 @@ void main() {
     //frag_color = vec4((shader_coord.x + 1.0) / 2.0, (shader_coord.y + 1.0) / 2.0, 0.0, 1.0);
     //frag_color = vec4(UV.x, UV.y, 0.0, 1.0);
     vec4 tmp_color = texture(u_wall_texture, vec2(u_global, v_global));
-    frag_color = tmp_color;
-    //frag_color = tmp_color * 0.00001 + vec4(u_global, v_global, 0.0, 1.0);;
+    float gray = 0.2126 * tmp_color.r + 0.7152 *tmp_color.g + 0.0722 * tmp_color.b;
+
+    frag_color = vec4(gray, gray, gray, 1.0);
 }
 
 

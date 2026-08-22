@@ -1,7 +1,6 @@
 #include "monsters.h"
 
 #include <cmath>
-#include <iostream>  // for debug
 #include <utility>
 
 #include "globals.h"

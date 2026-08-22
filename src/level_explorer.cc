@@ -8,6 +8,7 @@
 #include <string>
 #include <string_view>
 
+#include "util.h"
 #include "wiz_level.h"
 
 using namespace alatar;
@@ -38,7 +39,7 @@ static void InitScreenToAscii(std::map<unsigned char, std::string>& m) {
   m[28] = "\u00A3";  // unicode pound symbol
   m[29] = ']';
   m[30] = "\u2191";  // unicode up arrow
-  m[31] = "\u2190";   // unicode left arrow
+  m[31] = "\u2190";  // unicode left arrow
 }
 
 static std::string ScreenCodeToASCII(unsigned char c) {
@@ -106,6 +107,19 @@ static void DisplayLevelInfo(std::span<const char, kFileLength> data) {
       int tSlide = c >> 4;
       int tNormal = c & 0x0f;
       std::cout << "Slide " << n << " Time slide/normal (" << tSlide << "/" << tNormal << ")\n";
+      continue;
+    }
+
+    if ((ii >= kElevator0DxDy) && (ii <= kElevator5DxDy)) {
+      int n = static_cast<int>(ii - kElevator0DxDy);
+      int dx = SignExtendNibble(c >> 4);
+      int dy = SignExtendNibble(c & 0x0f);
+      std::cout << "Elevator " << n << " dx/dy (" << dx << "/" << dy << ")\n";
+      continue;
+    }
+
+    if (ii == kElevatorDuration) {
+      std::cout << "Elevator duration (" << static_cast<unsigned int>(c) << ")\n";
       continue;
     }
 

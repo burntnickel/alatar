@@ -1,4 +1,3 @@
-#include <iostream> // for debug only
 #include <set>
 
 #include "load_data.h"
