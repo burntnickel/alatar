@@ -7,6 +7,8 @@
 #include <stdexcept>
 #include <string>
 
+#include "util.h"
+
 namespace alatar {
 
 std::array<const std::string, 16> kColorStrings = {{"black", "white", "red", "cyan", "purple", "green",
@@ -243,6 +245,12 @@ MonsterClassArray LevelClass::GetMonsterInfo(void) const {
     monster_data.sprite_id = raw_data_[kMonster0SpriteID + ii] &
                              0x7f;  // High bit needs clear as actual game sprite IDs are 128-255
     monster_data.animation_length = raw_data_[kMonster0AnimationLength + ii];
+
+    // Elevator specific fields
+    auto c = raw_data_[kElevator0DxDy + ii];
+    monster_data.elevator_dx = SignExtendNibble(c >> 4);
+    monster_data.elevator_dy = SignExtendNibble(c & 0x0f);
+    monster_data.elevator_duration = raw_data_[kElevatorDuration];
 
     tmp_monster_array[ii] = MonsterClass::MonsterClassFactory(monster_data);
   }

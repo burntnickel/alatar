@@ -1,6 +1,8 @@
 #ifndef H_ALATAR_MONSTERS
 #define H_ALATAR_MONSTERS
 
+// TODO: Pull some of this into a new header so I don't need to rebuild a bunch of files everytime it changes
+
 #include <SDL.h>
 
 #include <array>
@@ -43,15 +45,21 @@ struct MonsterData {
   unsigned int color;
   unsigned int sprite_id;
   unsigned int animation_length;
+  int elevator_dx;
+  int elevator_dy;
+  unsigned int elevator_duration;
 };
 
+//----------------------------------------------
+// MonsterClass
+//----------------------------------------------
 class MonsterClass;  // Forward declaration to support the following type definition
 using MonsterClassPtr = std::unique_ptr<MonsterClass>;
 
 class MonsterClass {
  public:
   MonsterClass(void) = default;
-  MonsterClass(MonsterData monster_data);
+  explicit MonsterClass(MonsterData monster_data);
   virtual ~MonsterClass(void) {};
 
  public:
@@ -67,7 +75,7 @@ class MonsterClass {
 
  public:
   // Defualt just updates the counter
-  virtual void Update(Uint64 counter) { old_counter_ = counter; };
+  virtual void Update(Uint64 counter);
 
  public:
   // Stuff below this point is dynamic
@@ -88,17 +96,46 @@ class MonsterClass {
   bool priority_;
   int sprite_mods_ = alatar_classic::kSpriteMultiColor;
   Uint64 old_counter_;
+  bool old_counter_valid_ = false;
   unsigned int animation_state_ = 0;
   float animation_counter_ = 0.0f;
+  float elapsed_ms_ = 0.0;
 
  public:
   static MonsterClassPtr MonsterClassFactory(MonsterData monster_data);
 };
 
+//----------------------------------------------
+// ElevatorClass
+//----------------------------------------------
+class ElevatorClass : public MonsterClass {
+ public:
+  ElevatorClass(void) = delete;
+  explicit ElevatorClass(MonsterData monster_data);
+
+ public:
+  void Update(Uint64 counter) override;
+
+ public:
+  float duration_;
+  float ticks_ = 0.0f;
+  bool tick_up_ = true;
+  float x_delta_;
+  float y_delta_;
+
+  // Should some of these be moved to an INI file?
+ private:
+  static constexpr float kTicksPerMs = 0.021f;
+  static constexpr float kFramesPerMs = 20.0f / 1000.0f;
+};
+
+//----------------------------------------------
+// SlidingGateClass
+//----------------------------------------------
 class SlidingGateClass : public MonsterClass {
  public:
   SlidingGateClass(void) = delete;
-  SlidingGateClass(MonsterData monster_data);
+  explicit SlidingGateClass(MonsterData monster_data);
 
  public:
   void Update(Uint64 counter) override;
@@ -109,10 +146,11 @@ class SlidingGateClass : public MonsterClass {
   // Should some of these be moved to an INI file?
  private:
   static constexpr int kMaxYExcursion = 20;
-  static constexpr float kPixelsPerMs = 0.34f / (1000.0f / 60.0f);
+  static constexpr float kPixelsPerMs = 0.36f / (1000.0f / 60.0f);
   static constexpr float kFramesPerMs = 4.0f / 1000.0f;
 };
 
+// Misc. stuff
 using MonsterClassArray = std::array<MonsterClassPtr, kMaxMonsters>;
 
 void UpdateMonsters(MonsterClassArray& monster_info, Uint64 counter);
