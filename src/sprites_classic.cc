@@ -37,7 +37,7 @@ bool LoadSpriteData(std::filesystem::path path_and_name,
   };
 
   // Clear sprite data
-    for (std::size_t ii = 0; ii < proc_sprite_data.size(); ++ii) {
+  for (std::size_t ii = 0; ii < proc_sprite_data.size(); ++ii) {
     proc_sprite_data[ii] = 0;
   }
 
@@ -148,7 +148,6 @@ void PaintClassicSprite(BurningLogic::ShaderVars shader_vars, const BurningLogic
                                             sdl_rect.y, 1.0, 0.0, sdl_rect.x, sdl_rect.y + sdl_rect.h, 0.0,
                                             1.0, sdl_rect.x + sdl_rect.w, sdl_rect.y + sdl_rect.h, 1.0, 1.0}};
   std::array<GLuint, 4> index_buffer = {{0, 1, 2, 3}};
-
   std::array<GLint, 4> color_index_array = {{0, 0, 0, 0}};
 
   for (std::size_t ii = 1; ii < 4; ++ii) {
@@ -270,7 +269,7 @@ void PaintClassicSprite(BurningLogic::ShaderVars shader_vars, const BurningLogic
 }
 
 void DrawClassicSprite(BurningLogic::ShaderVars shader_vars, const BurningLogic::mat4& view_matrix,
-                       ClassicSpriteGLBuffers gl_buffers, unsigned int id, unsigned int x, unsigned int y,
+                       ClassicSpriteGLBuffers gl_buffers, unsigned int id, int x, int y,
                        std::array<unsigned int, 3> colors, int modifier) {
   constexpr int screen_width_pixels = 320;  // TODO: move stuff like this into a common header
   constexpr int screen_height_pixels = 200;
@@ -293,7 +292,8 @@ void DrawClassicSprite(BurningLogic::ShaderVars shader_vars, const BurningLogic:
 void DrawClassicSpriteC64(BurningLogic::ShaderVars shader_vars, const BurningLogic::mat4& view_matrix,
                           ClassicSpriteGLBuffers gl_buffers, unsigned int id, unsigned int x, unsigned int y,
                           std::array<unsigned int, 3> colors, int modifier) {
-  DrawClassicSprite(shader_vars, view_matrix, gl_buffers, id, x - 24, y - 50, colors, modifier);
+  DrawClassicSprite(shader_vars, view_matrix, gl_buffers, id, static_cast<int>(x) - 24,
+                    static_cast<int>(y) - 50, colors, modifier);
 }
 
 }  // namespace alatar_classic
