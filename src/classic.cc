@@ -164,6 +164,11 @@ void ClassicClass::Draw(const alatar::MonsterClassArray& monster_info, const ala
 
   PaintClassicTiles(data_.tile_shader, view_matrix, SDL_FRect({-1.0, -1.0, 2.0, 2.0}), data_.tile_glbuffers);
 
+  // Draw wizard sprite
+  DrawClassicSpriteC64(data_.sprite_shader, view_matrix, data_.sprite_glbuffers, 0, wizard_info.x,
+                       wizard_info.y, {{alatar::kColorLightBlue, wizard_info.color, alatar::kColorWhite}},
+                       kSpriteMultiColor);
+
   // Draw monster sprites (ones with higher priority)
   for (unsigned int ii = 0; ii < 6; ++ii) {
     unsigned int idx = 5 - ii;
@@ -175,11 +180,6 @@ void ClassicClass::Draw(const alatar::MonsterClassArray& monster_info, const ala
                            monster_info[idx]->GetSpriteMods());
     }
   }
-
-  // Draw wizard sprite
-  DrawClassicSpriteC64(data_.sprite_shader, view_matrix, data_.sprite_glbuffers, 0, wizard_info.x,
-                       wizard_info.y, {{alatar::kColorLightBlue, wizard_info.color, alatar::kColorWhite}},
-                       kSpriteMultiColor);
 }
 
 std::optional<alatar::GraphicsCommonPtr> ClassicClass::ClassicClassFactory(
