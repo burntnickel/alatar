@@ -90,6 +90,9 @@ MonsterClassPtr MonsterClass::MonsterClassFactory(MonsterData monster_data) {
     case kElevator:
       return std::make_unique<ElevatorClass>(monster_data);
       break;
+    case kLava:
+      return std::make_unique<LavaClass>(monster_data);
+      break;
     case kSlidingGate:
       return std::make_unique<SlidingGateClass>(monster_data);
       break;
@@ -133,6 +136,35 @@ void ElevatorClass::Update(Uint64 counter) {
 
   x_ = static_cast<unsigned int>(std::round(x_float_));
   y_ = static_cast<unsigned int>(std::round(y_float_));
+
+  // Adjust animation sprite ID
+  animation_counter_ = animation_counter_ + kFramesPerMs * elapsed_ms_;
+  animation_state_ = static_cast<unsigned int>(animation_counter_);
+
+  if (animation_state_ >= animation_length_) {
+    animation_counter_ = animation_counter_ - static_cast<float>(animation_length_);
+    animation_state_ = 0;
+
+    // If we're really running behind the animation counter will be greater than 1 at this point so we need to
+    // check and correct
+    if (animation_counter_ >= 1.0f) {
+      animation_counter_ = 0.0f;
+    }
+  }
+
+  sprite_id_ = sprite_id_initial_ + animation_state_;
+}
+
+//--------------------------------------------------------------------
+// Lava implementation
+//--------------------------------------------------------------------
+LavaClass::LavaClass(MonsterData monster_data) : MonsterClass(monster_data) {
+  priority_ = false;
+  sprite_mods_ = alatar_classic::kSpriteMultiColor | alatar_classic::kSpriteExpandX;
+}
+
+void LavaClass::Update(Uint64 counter) {
+  MonsterClass::Update(counter);
 
   // Adjust animation sprite ID
   animation_counter_ = animation_counter_ + kFramesPerMs * elapsed_ms_;

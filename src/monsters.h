@@ -1,8 +1,6 @@
 #ifndef H_ALATAR_MONSTERS
 #define H_ALATAR_MONSTERS
 
-// TODO: Pull some of this into a new header so I don't need to rebuild a bunch of files everytime it changes
-
 #include <SDL.h>
 
 #include <array>
@@ -127,6 +125,22 @@ class ElevatorClass : public MonsterClass {
  private:
   static constexpr float kTicksPerMs = 0.021f;
   static constexpr float kFramesPerMs = 20.0f / 1000.0f;
+};
+
+//----------------------------------------------
+// LavaClass
+//----------------------------------------------
+class LavaClass : public MonsterClass {
+ public:
+  LavaClass(void) = delete;
+  explicit LavaClass(MonsterData monster_data);
+
+ public:
+  void Update(Uint64 counter) override;
+
+  // Should some of these be moved to an INI file?
+ private:
+  static constexpr float kFramesPerMs = 5.0f / 1000.0f;
 };
 
 //----------------------------------------------
