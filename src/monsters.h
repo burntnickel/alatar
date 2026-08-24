@@ -53,6 +53,7 @@ struct MonsterData {
 //----------------------------------------------
 class MonsterClass;  // Forward declaration to support the following type definition
 using MonsterClassPtr = std::unique_ptr<MonsterClass>;
+using MonsterClassArray = std::array<MonsterClassPtr, kMaxMonsters>;
 
 class MonsterClass {
  public:
@@ -74,6 +75,8 @@ class MonsterClass {
  public:
   // Defualt just updates the counter
   virtual void Update(Uint64 counter);
+
+  //friend void UpdateMonsters(MonsterClassArray& monster_info, Uint64 counter);
 
  public:
   // Stuff below this point is dynamic
@@ -98,6 +101,8 @@ class MonsterClass {
   unsigned int animation_state_ = 0;
   float animation_counter_ = 0.0f;
   float elapsed_ms_ = 0.0;
+  float frames_per_ms_ = 0.0; 
+  
 
  public:
   static MonsterClassPtr MonsterClassFactory(MonsterData monster_data);
@@ -124,7 +129,6 @@ class ElevatorClass : public MonsterClass {
   // Should some of these be moved to an INI file?
  private:
   static constexpr float kTicksPerMs = 0.021f;
-  static constexpr float kFramesPerMs = 20.0f / 1000.0f;
 };
 
 //----------------------------------------------
@@ -137,10 +141,6 @@ class LavaClass : public MonsterClass {
 
  public:
   void Update(Uint64 counter) override;
-
-  // Should some of these be moved to an INI file?
- private:
-  static constexpr float kFramesPerMs = 5.0f / 1000.0f;
 };
 
 //----------------------------------------------
@@ -161,12 +161,9 @@ class SlidingGateClass : public MonsterClass {
  private:
   static constexpr int kMaxYExcursion = 20;
   static constexpr float kPixelsPerMs = 0.36f / (1000.0f / 60.0f);
-  static constexpr float kFramesPerMs = 4.0f / 1000.0f;
 };
 
 // Misc. stuff
-using MonsterClassArray = std::array<MonsterClassPtr, kMaxMonsters>;
-
 void UpdateMonsters(MonsterClassArray& monster_info, Uint64 counter);
 
 }  // namespace alatar

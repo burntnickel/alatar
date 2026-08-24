@@ -82,7 +82,25 @@ void MonsterClass::Update(Uint64 counter) {
     elapsed_ms_ = 0.0f;
     old_counter_valid_ = true;
   }
+
   old_counter_ = counter;
+
+  // Adjust animation sprite ID
+  animation_counter_ = animation_counter_ + frames_per_ms_ * elapsed_ms_;
+  animation_state_ = static_cast<unsigned int>(animation_counter_);
+
+  if (animation_state_ >= animation_length_) {
+    animation_counter_ = animation_counter_ - static_cast<float>(animation_length_);
+    animation_state_ = 0;
+
+    // If we're really running behind the animation counter will be greater than 1 at this point so we need to
+    // check and correct
+    if (animation_counter_ >= 1.0f) {
+      animation_counter_ = 0.0f;
+    }
+  }
+
+  sprite_id_ = sprite_id_initial_ + animation_state_;
 }
 
 MonsterClassPtr MonsterClass::MonsterClassFactory(MonsterData monster_data) {
@@ -110,6 +128,7 @@ ElevatorClass::ElevatorClass(MonsterData monster_data) : MonsterClass(monster_da
   x_delta_ = static_cast<float>(monster_data.elevator_dx);
   y_delta_ = static_cast<float>(monster_data.elevator_dy);
   duration_ = static_cast<float>(monster_data.elevator_duration);
+  frames_per_ms_ = 20.0f / 1000.0f;
 }
 
 void ElevatorClass::Update(Uint64 counter) {
@@ -136,23 +155,6 @@ void ElevatorClass::Update(Uint64 counter) {
 
   x_ = static_cast<unsigned int>(std::round(x_float_));
   y_ = static_cast<unsigned int>(std::round(y_float_));
-
-  // Adjust animation sprite ID
-  animation_counter_ = animation_counter_ + kFramesPerMs * elapsed_ms_;
-  animation_state_ = static_cast<unsigned int>(animation_counter_);
-
-  if (animation_state_ >= animation_length_) {
-    animation_counter_ = animation_counter_ - static_cast<float>(animation_length_);
-    animation_state_ = 0;
-
-    // If we're really running behind the animation counter will be greater than 1 at this point so we need to
-    // check and correct
-    if (animation_counter_ >= 1.0f) {
-      animation_counter_ = 0.0f;
-    }
-  }
-
-  sprite_id_ = sprite_id_initial_ + animation_state_;
 }
 
 //--------------------------------------------------------------------
@@ -161,27 +163,11 @@ void ElevatorClass::Update(Uint64 counter) {
 LavaClass::LavaClass(MonsterData monster_data) : MonsterClass(monster_data) {
   priority_ = false;
   sprite_mods_ = alatar_classic::kSpriteMultiColor | alatar_classic::kSpriteExpandX;
+  frames_per_ms_ = 5.0f / 1000.0f;
 }
 
 void LavaClass::Update(Uint64 counter) {
   MonsterClass::Update(counter);
-
-  // Adjust animation sprite ID
-  animation_counter_ = animation_counter_ + kFramesPerMs * elapsed_ms_;
-  animation_state_ = static_cast<unsigned int>(animation_counter_);
-
-  if (animation_state_ >= animation_length_) {
-    animation_counter_ = animation_counter_ - static_cast<float>(animation_length_);
-    animation_state_ = 0;
-
-    // If we're really running behind the animation counter will be greater than 1 at this point so we need to
-    // check and correct
-    if (animation_counter_ >= 1.0f) {
-      animation_counter_ = 0.0f;
-    }
-  }
-
-  sprite_id_ = sprite_id_initial_ + animation_state_;
 }
 
 //--------------------------------------------------------------------
@@ -191,6 +177,7 @@ SlidingGateClass::SlidingGateClass(MonsterData monster_data) : MonsterClass(mons
   priority_ = false;
   y_delta_ = -1.0f;
   sprite_mods_ = alatar_classic::kSpriteMultiColor;
+  frames_per_ms_ = 4.0f / 1000.0f;
 }
 
 void SlidingGateClass::Update(Uint64 counter) {
@@ -210,23 +197,6 @@ void SlidingGateClass::Update(Uint64 counter) {
   }
 
   y_ = static_cast<unsigned int>(std::round(y_float_));
-
-  // Adjust animation sprite ID
-  animation_counter_ = animation_counter_ + kFramesPerMs * elapsed_ms_;
-  animation_state_ = static_cast<unsigned int>(animation_counter_);
-
-  if (animation_state_ >= animation_length_) {
-    animation_counter_ = animation_counter_ - static_cast<float>(animation_length_);
-    animation_state_ = 0;
-
-    // If we're really running behind the animation counter will be greater than 1 at this point so we need to
-    // check and correct
-    if (animation_counter_ >= 1.0f) {
-      animation_counter_ = 0.0f;
-    }
-  }
-
-  sprite_id_ = sprite_id_initial_ + animation_state_;
 }
 
 }  // namespace alatar
