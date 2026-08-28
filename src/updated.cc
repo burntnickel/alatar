@@ -10,18 +10,15 @@
 
 namespace alatar_updated {
 
-static bool LoadWallTexture(std::filesystem::path path_and_name, UpdatedData& data) {
+static bool LoadToSurfaceRGBA(std::filesystem::path path_and_name, SDL_Surface*& target_surface) {
   SDL_Surface* raw_surface = IMG_Load(path_and_name.c_str());
-
   bool success = ErrorEvalPrintSDL(raw_surface == NULL, "Error calling IMG_Load:");
 
   // Convert to the required RGBA format here
   SDL_Surface* converted_surface;
 
   if (success) {
-    // converted_surface = SDL_ConvertSurfaceFormat(raw_surface, SDL_PIXELFORMAT_RGBA8888, 0);
-    //  TODO: Not sure why this is ABGR and for opengl I tell it RGBA...
-    converted_surface = SDL_ConvertSurfaceFormat(raw_surface, SDL_PIXELFORMAT_ABGR8888, 0);
+    converted_surface = SDL_ConvertSurfaceFormat(raw_surface, SDL_PIXELFORMAT_RGBA32, 0);
     success = ErrorEvalPrintSDL(raw_surface == NULL, "Error calling SDL_ConvertSurfaceFormat:");
   }
 
@@ -30,11 +27,79 @@ static bool LoadWallTexture(std::filesystem::path path_and_name, UpdatedData& da
   }
 
   if (success) {
-    data.wall_texture_surface = converted_surface;
+    target_surface = converted_surface;
   }
 
   return success;
 }
+
+static bool LoadToSurface1Chan(std::filesystem::path path_and_name, SDL_Surface*& target_surface) {
+  SDL_Surface* raw_surface = IMG_Load(path_and_name.c_str());
+  bool success = ErrorEvalPrintSDL(raw_surface == NULL, "Error calling IMG_Load:");
+
+  if (success) {
+    // Convert to single 8 bit channel here
+    SDL_Surface* tmp_surface = SDL_CreateRGBSurface(0, 1, 1, 8, 0, 0, 0, 0);
+    // SDL_PixelFormat* index_8_format = tmp_surface->format;
+
+    std::array<SDL_Color, 256> colors;
+
+    for (unsigned int i = 0; i < 256; ++i) {
+      colors[i].r = static_cast<Uint8>(i);
+      colors[i].g = static_cast<Uint8>(i);
+      colors[i].b = static_cast<Uint8>(i);
+      colors[i].a = 255;
+    }
+
+    SDL_SetPaletteColors(tmp_surface->format->palette, colors.data(), 0, 256);
+
+    target_surface = SDL_ConvertSurface(raw_surface, tmp_surface->format, 0);
+
+    SDL_FreeSurface(tmp_surface);
+    SDL_FreeSurface(raw_surface);
+  }
+
+  return success;
+}
+
+/*static bool LoadToSurface(std::filesystem::path path_and_name, SDL_Surface*& target_surface,
+                          Uint32 pixel_format) {
+  SDL_Surface* raw_surface = IMG_Load(path_and_name.c_str());
+
+  bool success = ErrorEvalPrintSDL(raw_surface == NULL, "Error calling IMG_Load:");
+
+  // Convert to the required RGBA format here
+  SDL_Surface* converted_surface;
+
+  if (success) {
+    converted_surface = SDL_ConvertSurfaceFormat(raw_surface, pixel_format, 0);
+    success = ErrorEvalPrintSDL(raw_surface == NULL, "Error calling SDL_ConvertSurfaceFormat:");
+  }
+
+  if (raw_surface != NULL) {
+    SDL_FreeSurface(raw_surface);
+  }
+
+  if (success) {
+    if (pixel_format == SDL_PIXELFORMAT_INDEX8) {
+      // Add palette to grayscale images
+      std::array<SDL_Color, 256> colors;
+
+      for (unsigned int i = 0; i < 256; ++i) {
+        colors[i].r = static_cast<Uint8>(i);
+        colors[i].g = static_cast<Uint8>(i);
+        colors[i].b = static_cast<Uint8>(i);
+        colors[i].a = 255;
+      }
+
+      SDL_SetPaletteColors(converted_surface->format->palette, colors.data(), 0, 256);
+    }
+
+    target_surface = converted_surface;
+  }
+
+  return success;
+}*/
 
 //--------------------------------------------------------------------
 // UpdatedClass implementation
@@ -70,6 +135,7 @@ UpdatedClass::~UpdatedClass(void) {
 
   // Clean up SDL stuff used for textures
   SDL_FreeSurface(data_.wall_texture_surface);
+  SDL_FreeSurface(data_.tiles_and_masks_surface);
 };
 
 // Private constructor for factory
@@ -96,17 +162,27 @@ std::optional<alatar::GraphicsCommonPtr> UpdatedClass::UpdatedClassFactory(
 
   const std::string kUpdatedDirName{"updated"};
   const std::string kWallTextureName{"wall_texture.png"};
+  const std::string kTilesAndMasksName{"tiles_and_masks.png"};
 
   auto wall_texture_path_and_name = resource_path / kUpdatedDirName / kWallTextureName;
-
-  bool success = LoadWallTexture(wall_texture_path_and_name, data);
+  bool success = LoadToSurfaceRGBA(wall_texture_path_and_name, data.wall_texture_surface);
 
   if (!success) {
     std::cerr << "Failed to load wall texture\n";
     return {};
   }
 
+  auto tiles_and_masks_path_and_name = resource_path / kUpdatedDirName / kTilesAndMasksName;
+  success = LoadToSurface1Chan(tiles_and_masks_path_and_name, data.tiles_and_masks_surface);
+
+  if (!success) {
+    std::cerr << "Failed to load tile and masks texture\n";
+    return {};
+  }
+
+  // ------------------------------------------------------------------------------------------------
   // Wall texture
+  // ------------------------------------------------------------------------------------------------
   glActiveTexture(kUpdatedWallTextureUnit);
   BurningLogic::PrintGLError("UpdatedClassFactory:glActiveTexture");
 
@@ -116,9 +192,6 @@ std::optional<alatar::GraphicsCommonPtr> UpdatedClass::UpdatedClassFactory(
 
   glBindTexture(GL_TEXTURE_2D, data.tile_glbuffers.wall_texture);
   BurningLogic::PrintGLError("UpdatedClassFactory:glBindTexture");
-
-  glActiveTexture(kUpdatedWallTextureUnit);
-  BurningLogic::PrintGLError("UpdatedClassFactory:glActiveTexture");
 
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
   BurningLogic::PrintGLError("UpdatedClassFactory:glTexParameteri GL_TEXTURE_WRAP_S");
@@ -137,7 +210,88 @@ std::optional<alatar::GraphicsCommonPtr> UpdatedClass::UpdatedClassFactory(
                GL_RGBA, GL_UNSIGNED_BYTE, data.wall_texture_surface->pixels);
   BurningLogic::PrintGLError("UpdatedClassFactory:glTexImage2D");
 
-  glGenerateMipmap(GL_TEXTURE_2D);  // Try with and without
+  glGenerateMipmap(GL_TEXTURE_2D);
+  BurningLogic::PrintGLError("UpdatedClassFactory:glGenerateMipmap");
+
+  // ------------------------------------------------------------------------------------------------
+  // Tiles and Masks texture
+  // ------------------------------------------------------------------------------------------------
+  glActiveTexture(kUpdatedTileMaskTextureUnit);
+  BurningLogic::PrintGLError("UpdatedClassFactory:glActiveTexture");
+
+  // TODO: Going to need to add corresponding deletes
+  // I guess (also for "legacy" cases) Maybe?
+  glGenTextures(1, &data.tile_glbuffers.tile_mask_texture);
+  BurningLogic::PrintGLError("UpdatedClassFactory:glGenTextures");
+
+  glBindTexture(GL_TEXTURE_2D, data.tile_glbuffers.tile_mask_texture);
+  BurningLogic::PrintGLError("UpdatedClassFactory:glBindTexture");
+
+  glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+  BurningLogic::PrintGLError("UpdatedClassFactory:glTexParameteri GL_TEXTURE_WRAP_S");
+
+  glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+  BurningLogic::PrintGLError("UpdatedClassFactory:glTexParameteri GL_TEXTURE_WRAP_T");
+
+  // Mipmap filter mode means I need to have mipmaps generated
+  glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  BurningLogic::PrintGLError("UpdatedClassFactory:glTexParameteri GL_TEXTURE_MIN_FILTER");
+
+  glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  BurningLogic::PrintGLError("UpdatedClassFactory:glTexParameteri GL_TEXTURE_MAG_FILTER");
+
+  {
+    GLsizei width = data.tiles_and_masks_surface->w;
+    GLsizei height = width;
+    GLsizei depth = data.tiles_and_masks_surface->h / height;
+    GLsizei levels = static_cast<GLsizei>(1.0 + std::floor(std::log2(std::max(width, height))));
+    std::cout << width << "  " << height << "  " << depth << "  " << levels << "\n";
+
+    /*int ii = 0;
+
+    for (int d = 0; d < depth; ++d) {
+      std::cout << d << " -----------------------------\n";
+      for (int h = 0; h < height; ++h) {
+        for (int w = 0; w < width; ++w) {
+          if (static_cast<unsigned char*>(data.tiles_and_masks_surface->pixels)[ii] > 127) {
+            std::cout << "*";
+          } else {
+            std::cout << " ";
+          }
+          ++ii;
+        }
+        std::cout << "\n";
+      }
+    }*/
+
+    for (int ii = 0; ii < width * height/2; ++ii) {
+      static_cast<unsigned char*>(data.tiles_and_masks_surface->pixels)[ii] = 255;
+    }
+
+    /*for (int ii = 0; ii < width * height * depth; ++ii) {
+      std::cout << static_cast<int>(static_cast<unsigned char*>(data.tiles_and_masks_surface->pixels)[ii])
+                << "\n";
+                //static_cast<unsigned char*>(data.tiles_and_masks_surface->pixels)[ii] = ii & 0xff;
+    }*/
+
+    // glTexStorage3D(GL_TEXTURE_2D_ARRAY, levels, GL_R8, width, height, depth);
+    // BurningLogic::PrintGLError("UpdatedClassFactory:glTexStorage3D");
+
+    /*glTexImage3D(GL_TEXTURE_2D_ARRAY, levels, GL_RED, width, height, depth, 0, GL_RED, GL_UNSIGNED_BYTE,
+                 data.tiles_and_masks_surface->pixels);*/
+    /* glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_R8, width, height, 1, 0, GL_RED, GL_UNSIGNED_BYTE,
+                  data.tiles_and_masks_surface->pixels);*/
+    glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_R8, width, height, depth, 0, GL_RED, GL_UNSIGNED_BYTE,
+                 data.tiles_and_masks_surface->pixels);
+    BurningLogic::PrintGLError("UpdatedClassFactory:glTexImage3D");
+  }
+
+  /*glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, data.wall_texture_surface->w, data.wall_texture_surface->h, 0,
+               GL_RGBA, GL_UNSIGNED_BYTE, data.wall_texture_surface->pixels);
+  BurningLogic::PrintGLError("UpdatedClassFactory:glTexImage2D");*/
+
+  glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
+  BurningLogic::PrintGLError("UpdatedClassFactory:glGenerateMipmap");
 
   /*
   // Tile buffer

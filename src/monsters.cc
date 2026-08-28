@@ -114,6 +114,9 @@ MonsterClassPtr MonsterClass::MonsterClassFactory(MonsterData monster_data) {
     case kSlidingGate:
       return std::make_unique<SlidingGateClass>(monster_data);
       break;
+    case kLavaTroll:
+      return std::make_unique<LavaTrollClass>(monster_data);
+      break;
     default:
       return std::make_unique<MonsterClass>(monster_data);
   }
@@ -197,6 +200,20 @@ void SlidingGateClass::Update(Uint64 counter) {
   }
 
   y_ = static_cast<unsigned int>(std::round(y_float_));
+}
+
+//--------------------------------------------------------------------
+// LavaTroll implementation
+//--------------------------------------------------------------------
+LavaTrollClass::LavaTrollClass(MonsterData monster_data) : MonsterClass(monster_data) {
+  priority_ = false;
+  // y_delta_ = -1.0f;
+  sprite_mods_ = alatar_classic::kSpriteMultiColor;
+  // frames_per_ms_ = 4.0f / 1000.0f;
+}
+
+void LavaTrollClass::Update(Uint64 counter) {
+  MonsterClass::Update(counter);
 }
 
 }  // namespace alatar

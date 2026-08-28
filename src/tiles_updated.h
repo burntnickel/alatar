@@ -21,6 +21,7 @@ struct UpdatedTileGLBuffers {
   GLuint clut_buffer;
   GLuint clut_texture;
   GLuint wall_texture;
+  GLuint tile_mask_texture;
 };
 
 constexpr std::size_t kNumTiles = alatar::kRowTiles * alatar::kColTiles;

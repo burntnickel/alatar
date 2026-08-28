@@ -66,6 +66,16 @@ static void DisplayLevelInfo(std::span<const char, kFileLength> data) {
 
     std::cout << std::format("{:#06x}", ii) << "    " << std::format("{:#04x}", c) << "    ; ";
 
+    if (ii == 0) {
+      std::cout << "Low byte of load address (should be 0x00)\n";
+      continue;
+    }
+
+    if (ii == 1) {
+      std::cout << "High byte of load address (should be 0xc3)\n";
+      continue;
+    }
+
     if ((ii >= kMonster0XLow) && (ii <= kMonster5XLow)) {
       int n = static_cast<int>(ii - kMonster0XLow);
       std::cout << "Monster " << n << " X-position (low 8 bits)\n";

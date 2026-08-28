@@ -23,5 +23,6 @@ void main() {
     //gl_Position.w = 1.0;
     //shader_coord = gl_Position;
     shader_coord = position4;
-    UV = in_uv;
+    UV = vec2(in_uv.x + 1.0, -1.0 * in_uv.y + 1.0);
+    //UV = in_uv;
 }

@@ -150,6 +150,12 @@ void PaintUpdatedTiles(BurningLogic::ShaderVars shader_vars, const BurningLogic:
   glUniform1i(wall_texture_location, 0);
   BurningLogic::PrintGLError("PaintUpdatedTiles:glUniform1i(wall_texture_location)");
 
+  // Texture stuff (tile and mask texture)
+  GLint tile_mask_texture_location =
+      BurningLogic::GetShaderUniformLocation(shader_vars.program, "u_tile_mask_texture");
+  glUniform1i(tile_mask_texture_location, 1);
+  BurningLogic::PrintGLError("PaintUpdatedTiles:glUniform1i(tile_mask_texture_location)");
+
   /*// Texture stuff (tile buffer)
   GLint tilebuffer_location = BurningLogic::GetShaderUniformLocation(shader_vars.program, "u_tile_buffer");
   glUniform1i(tilebuffer_location, 0);

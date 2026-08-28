@@ -25,6 +25,7 @@ const std::string kUpdatedTileFragmentShaderName{"updated_tile_fragment.glsl"};
 const auto classic_color_texture = GL_TEXTURE1;
 const auto classic_tileset_texture = GL_TEXTURE2;*/
 const auto kUpdatedWallTextureUnit = GL_TEXTURE0;
+const auto kUpdatedTileMaskTextureUnit = GL_TEXTURE1;
 const auto kUpdatedClutTextureUnit = GL_TEXTURE3;
 // const auto classic_sprite_texture = GL_TEXTURE4;
 
@@ -44,6 +45,7 @@ struct UpdatedData {
   UpdatedTileVertexManager vertex_manager;
 
   SDL_Surface* wall_texture_surface = nullptr;
+  SDL_Surface* tiles_and_masks_surface = nullptr;
 };
 
 // Don't want to be able to construct, move, copy, or assgn this class

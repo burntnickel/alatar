@@ -76,8 +76,6 @@ class MonsterClass {
   // Defualt just updates the counter
   virtual void Update(Uint64 counter);
 
-  //friend void UpdateMonsters(MonsterClassArray& monster_info, Uint64 counter);
-
  public:
   // Stuff below this point is dynamic
   unsigned int x_;
@@ -102,7 +100,6 @@ class MonsterClass {
   float animation_counter_ = 0.0f;
   float elapsed_ms_ = 0.0;
   float frames_per_ms_ = 0.0; 
-  
 
  public:
   static MonsterClassPtr MonsterClassFactory(MonsterData monster_data);
@@ -161,6 +158,26 @@ class SlidingGateClass : public MonsterClass {
  private:
   static constexpr int kMaxYExcursion = 20;
   static constexpr float kPixelsPerMs = 0.36f / (1000.0f / 60.0f);
+};
+
+//----------------------------------------------
+// LavaTrollClass
+//----------------------------------------------
+class LavaTrollClass : public MonsterClass {
+ public:
+  LavaTrollClass(void) = delete;
+  explicit LavaTrollClass(MonsterData monster_data);
+
+ public:
+  void Update(Uint64 counter) override;
+
+ public:
+  //float y_delta_;
+
+  // Should some of these be moved to an INI file?
+ private:
+  //static constexpr int kMaxYExcursion = 20;
+  //static constexpr float kPixelsPerMs = 0.36f / (1000.0f / 60.0f);
 };
 
 // Misc. stuff

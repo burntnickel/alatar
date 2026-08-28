@@ -206,7 +206,7 @@ unsigned char LevelClass::GetTileColor(unsigned char c) const {
     case kDeath:
       return kColorCyan;
     case kFire:
-      return 2;  // red
+      return kColorRed;
     default:
       std::cerr << "Unknown tile: " << std::format("{:#04x}", c) << "\n";
       return 0;
