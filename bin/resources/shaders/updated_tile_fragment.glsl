@@ -4,9 +4,10 @@
 
 // Uniforms
 // ----------------------------------
-uniform sampler2D u_wall_texture;
-uniform sampler2DArray u_tile_mask_texture;
+uniform usamplerBuffer u_color_buffer;
 uniform usamplerBuffer u_clut_buffer;
+uniform sampler2DArray u_tile_mask_texture;
+uniform sampler2D u_wall_texture;
 
 // Inputs
 // ----------------------------------
@@ -18,6 +19,8 @@ in vec4 shader_coord;
 out vec4 frag_color;
 
 // Named constants
+const int kTilesInRow = 40;
+const int kTilesInColumn = 25;
 
 void main() {
     // Move these to the vertex shader?
@@ -34,8 +37,20 @@ void main() {
 
     float gray = 0.2126 * tmp_color.r + 0.7152 *tmp_color.g + 0.0722 * tmp_color.b;
 
+    float xx = u_global;
+    float yy = v_global;
+
+    // Determine tile coordinates and index into the tile buffer
+    int tile_x = int(xx * kTilesInRow);
+    int tile_y = int(yy * kTilesInColumn);
+    int tile_buffer_index = tile_x + tile_y * kTilesInRow;
+
+    // Get color index from the color buffer
+    vec4 color_index4 = texelFetch(u_color_buffer, tile_buffer_index);
+    int color_index = int(color_index4.r);
+
     //vec4 local_color = texelFetch(u_clut_buffer, color_index);
-    vec4 local_color = texelFetch(u_clut_buffer, 3);
+    vec4 local_color = texelFetch(u_clut_buffer, color_index);
     frag_color = local_color / 255.0;
 
     frag_color = vec4(gray, gray, gray, 1.0) * mask.rrrr * frag_color;

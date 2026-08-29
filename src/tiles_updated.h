@@ -14,8 +14,8 @@ namespace alatar_updated {
 struct UpdatedTileGLBuffers {
   // GLuint tbo_tile_buffer;
   // GLuint tbo_tex_tile_buffer;
-  // GLuint tbo_color_buffer;
-  // GLuint tbo_tex_color_buffer;
+  GLuint color_buffer;
+  GLuint color_texture;
   // GLuint tbo_tileset_buffer;
   // GLuint tbo_tex_tileset_buffer;
   GLuint clut_buffer;

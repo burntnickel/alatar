@@ -159,14 +159,14 @@ void PaintUpdatedTiles(BurningLogic::ShaderVars shader_vars, const BurningLogic:
   /*// Texture stuff (tile buffer)
   GLint tilebuffer_location = BurningLogic::GetShaderUniformLocation(shader_vars.program, "u_tile_buffer");
   glUniform1i(tilebuffer_location, 0);
-  BurningLogic::PrintGLError("PaintClassicTiles:glUniform1i");
+  BurningLogic::PrintGLError("PaintClassicTiles:glUniform1i");*/
 
   // Texture stuff (color buffer)
   GLint colorbuffer_location = BurningLogic::GetShaderUniformLocation(shader_vars.program, "u_color_buffer");
-  glUniform1i(colorbuffer_location, 1);
+  glUniform1i(colorbuffer_location, kUpdatedColorTextureUnitNumber);
   BurningLogic::PrintGLError("PaintClassicTiles:glUniform1i");
 
-  // Texture stuff (tile set buffer)
+  /*// Texture stuff (tile set buffer)
   GLint tileset_location = BurningLogic::GetShaderUniformLocation(shader_vars.program, "u_tileset_buffer");
   glUniform1i(tileset_location, 2);
   BurningLogic::PrintGLError("PaintClassicTiles:glUniform1i");*/
