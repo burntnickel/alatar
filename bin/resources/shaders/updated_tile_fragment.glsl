@@ -6,6 +6,7 @@
 // ----------------------------------
 uniform sampler2D u_wall_texture;
 uniform sampler2DArray u_tile_mask_texture;
+uniform usamplerBuffer u_clut_buffer;
 
 // Inputs
 // ----------------------------------
@@ -33,7 +34,11 @@ void main() {
 
     float gray = 0.2126 * tmp_color.r + 0.7152 *tmp_color.g + 0.0722 * tmp_color.b;
 
-    frag_color = vec4(gray, gray, gray, 1.0) * mask.rrrr;
+    //vec4 local_color = texelFetch(u_clut_buffer, color_index);
+    vec4 local_color = texelFetch(u_clut_buffer, 3);
+    frag_color = local_color / 255.0;
+
+    frag_color = vec4(gray, gray, gray, 1.0) * mask.rrrr * frag_color;
     //frag_color = tmp_color;
 }
 

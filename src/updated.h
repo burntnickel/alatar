@@ -5,6 +5,7 @@
 
 #include <SDL.h>
 
+#include <array>
 #include <filesystem>
 #include <string>
 
@@ -20,17 +21,28 @@ const std::string kUpdatedTileFragmentShaderName{"updated_tile_fragment.glsl"};
 // const std::string kClassicSpriteVertexShaderName{"classic_vertex.glsl"};
 // const std::string kClassicSpriteFragmentShaderName{"classic_sprite_fragment.glsl"};
 
-// Texture mappings used by the classic shaders
-/*const auto classic_tile_texture = GL_TEXTURE0;
-const auto classic_color_texture = GL_TEXTURE1;
-const auto classic_tileset_texture = GL_TEXTURE2;*/
-const auto kUpdatedWallTextureUnit = GL_TEXTURE0;
-const auto kUpdatedTileMaskTextureUnit = GL_TEXTURE1;
-const auto kUpdatedClutTextureUnit = GL_TEXTURE3;
-// const auto classic_sprite_texture = GL_TEXTURE4;
+// Texture mappings used by the updated shaders
+constexpr int kUpdatedWallTextureUnitNumber = 0;
+constexpr int kUpdatedTileMaskTextureUnitNumber = 1;
+constexpr int kUpdatedTileDataTextureUnitNumber = 2;
+constexpr int kUpdatedClutTextureUnitNumber = 3;
+constexpr int kUpdatedColorTextureUnitNumber = 4;
+
+// Map texture unit numbers to the corresponding enums
+constexpr auto kUpdatedWallTextureUnit = GL_TEXTURE0 + kUpdatedWallTextureUnitNumber;
+constexpr auto kUpdatedTileMaskTextureUnit = GL_TEXTURE0 + kUpdatedTileMaskTextureUnitNumber;
+constexpr auto kUpdatedTileDataTextureUnit = GL_TEXTURE0 + kUpdatedTileDataTextureUnitNumber;
+constexpr auto kUpdatedClutTextureUnit = GL_TEXTURE0 + kUpdatedClutTextureUnitNumber;
+constexpr auto kUpdatedColorTextureUnit = GL_TEXTURE0 + kUpdatedColorTextureUnitNumber;
+
+constexpr unsigned int kLevelTileCount = alatar::kRowTiles * alatar::kColTiles;
+constexpr unsigned int kWallMaskOffset = 0 * kLevelTileCount;
 
 // Data use in main program for the updated display mode
 struct UpdatedData {
+  std::array<unsigned char, kLevelTileCount> tile_buffer;
+  std::array<unsigned char, kLevelTileCount> color_buffer;
+
   // std::array<unsigned char, wizard_level::kTileBufferSize> tile_set{};
   // std::array<unsigned char, wizard_level::kRowTiles * wizard_level::kColTiles> tile_buffer{};
   // std::array<unsigned char, wizard_level::kRowTiles * wizard_level::kColTiles> color_buffer{};

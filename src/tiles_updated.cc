@@ -147,13 +147,13 @@ void PaintUpdatedTiles(BurningLogic::ShaderVars shader_vars, const BurningLogic:
 
   // Texture stuff (wall texture)
   GLint wall_texture_location = BurningLogic::GetShaderUniformLocation(shader_vars.program, "u_wall_texture");
-  glUniform1i(wall_texture_location, 0);
+  glUniform1i(wall_texture_location, kUpdatedWallTextureUnitNumber);
   BurningLogic::PrintGLError("PaintUpdatedTiles:glUniform1i(wall_texture_location)");
 
   // Texture stuff (tile and mask texture)
   GLint tile_mask_texture_location =
       BurningLogic::GetShaderUniformLocation(shader_vars.program, "u_tile_mask_texture");
-  glUniform1i(tile_mask_texture_location, 1);
+  glUniform1i(tile_mask_texture_location, kUpdatedTileMaskTextureUnitNumber);
   BurningLogic::PrintGLError("PaintUpdatedTiles:glUniform1i(tile_mask_texture_location)");
 
   /*// Texture stuff (tile buffer)
@@ -172,9 +172,9 @@ void PaintUpdatedTiles(BurningLogic::ShaderVars shader_vars, const BurningLogic:
   BurningLogic::PrintGLError("PaintClassicTiles:glUniform1i");*/
 
   // Texture stuff (clut)
-  /*GLint clut_location = BurningLogic::GetShaderUniformLocation(shader_vars.program, "u_clut_buffer");
-  glUniform1i(clut_location, 3);
-  BurningLogic::PrintGLError("PaintUpdatedTiles:glUniform1i");*/
+  GLint clut_location = BurningLogic::GetShaderUniformLocation(shader_vars.program, "u_clut_buffer");
+  glUniform1i(clut_location, kUpdatedClutTextureUnitNumber);
+  BurningLogic::PrintGLError("PaintUpdatedTiles:glUniform1i");
 
   // View Matrix
   GLint view_mat_location = BurningLogic::GetShaderUniformLocation(shader_vars.program, "u_view_matrix");

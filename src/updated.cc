@@ -62,45 +62,6 @@ static bool LoadToSurface1Chan(std::filesystem::path path_and_name, SDL_Surface*
   return success;
 }
 
-/*static bool LoadToSurface(std::filesystem::path path_and_name, SDL_Surface*& target_surface,
-                          Uint32 pixel_format) {
-  SDL_Surface* raw_surface = IMG_Load(path_and_name.c_str());
-
-  bool success = ErrorEvalPrintSDL(raw_surface == NULL, "Error calling IMG_Load:");
-
-  // Convert to the required RGBA format here
-  SDL_Surface* converted_surface;
-
-  if (success) {
-    converted_surface = SDL_ConvertSurfaceFormat(raw_surface, pixel_format, 0);
-    success = ErrorEvalPrintSDL(raw_surface == NULL, "Error calling SDL_ConvertSurfaceFormat:");
-  }
-
-  if (raw_surface != NULL) {
-    SDL_FreeSurface(raw_surface);
-  }
-
-  if (success) {
-    if (pixel_format == SDL_PIXELFORMAT_INDEX8) {
-      // Add palette to grayscale images
-      std::array<SDL_Color, 256> colors;
-
-      for (unsigned int i = 0; i < 256; ++i) {
-        colors[i].r = static_cast<Uint8>(i);
-        colors[i].g = static_cast<Uint8>(i);
-        colors[i].b = static_cast<Uint8>(i);
-        colors[i].a = 255;
-      }
-
-      SDL_SetPaletteColors(converted_surface->format->palette, colors.data(), 0, 256);
-    }
-
-    target_surface = converted_surface;
-  }
-
-  return success;
-}*/
-
 //--------------------------------------------------------------------
 // UpdatedClass implementation
 //--------------------------------------------------------------------
@@ -143,9 +104,52 @@ UpdatedClass::UpdatedClass(Token, const UpdatedData& data) {
   data_ = data;
 }
 
-void UpdatedClass::LevelInit([[maybe_unused]] const alatar::LevelClass& level) {}
+void UpdatedClass::LevelInit([[maybe_unused]] const alatar::LevelClass& level) {
+  // Initalize the buffers used to pass level data to the shader
+  for (auto& array_entry : data_.tile_buffer) {
+    array_entry = 0;
+  }
+
+  for (auto& array_entry : data_.color_buffer) {
+    array_entry = 0;
+  }
+}
 
 void UpdatedClass::Update([[maybe_unused]] Uint64 counter, [[maybe_unused]] const alatar::LevelClass& level) {
+  // Update wall masks
+  for (int row = 0; row < alatar::kTileDataRows; ++row) {
+    for (int col = 0; col < alatar::kTileDataCols; ++col) {
+      unsigned int screen_row = static_cast<unsigned int>(row) + 1;
+      unsigned int screen_col = static_cast<unsigned int>(col);
+      unsigned int screen_index = alatar::kColTiles * screen_row + screen_col;
+
+      // Tile and mask updates
+      data_.tile_buffer[kWallMaskOffset + screen_index] = screen_index & 0x0f;
+
+      // Color buffer updates
+      unsigned char tile = level.GetTileAt(row, col);
+      data_.color_buffer[screen_index] = level.GetTileColor(tile);
+    }
+  }
+
+  /*// Set updated fire and treasure colors
+  for (int row = 0; row < alatar::kTileDataRows; ++row) {
+    for (int col = 0; col < alatar::kTileDataCols; ++col) {
+      unsigned int screen_row = static_cast<unsigned int>(row) + 1;
+      unsigned int screen_col = static_cast<unsigned int>(col);
+      unsigned int screen_index = alatar::kColTiles * screen_row + screen_col;
+
+      unsigned char tile = level.GetTileAt(row, col);
+
+      if (alatar::GetTileGroup(tile) == alatar::kTreasure) {
+        data_.color_buffer[screen_index] = treasure_color_idx;
+      }
+
+      if (alatar::GetTileGroup(tile) == alatar::kFire) {
+        data_.color_buffer[screen_index] = fire_color_idx;
+      }
+    }
+  }*/
 }
 
 void UpdatedClass::Draw([[maybe_unused]] const alatar::MonsterClassArray& monster_info,
@@ -244,7 +248,6 @@ std::optional<alatar::GraphicsCommonPtr> UpdatedClass::UpdatedClassFactory(
     GLsizei width = data.tiles_and_masks_surface->w;
     GLsizei height = width;
     GLsizei depth = data.tiles_and_masks_surface->h / height;
-    //GLsizei levels = static_cast<GLsizei>(1.0 + std::floor(std::log2(std::max(width, height))));
 
     glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_R8, width, height, depth, 0, GL_RED, GL_UNSIGNED_BYTE,
                  data.tiles_and_masks_surface->pixels);

@@ -37,11 +37,11 @@ const std::string kClassicSpriteVertexShaderName{"classic_vertex.glsl"};
 const std::string kClassicSpriteFragmentShaderName{"classic_sprite_fragment.glsl"};
 
 // Texture mappings used by the classic shaders
-const auto kClassicTileTextureUnit = GL_TEXTURE0;
-const auto kClassicColorTextureUnit = GL_TEXTURE1;
-const auto kClassicTilesetTextureUnit = GL_TEXTURE2;
-const auto kClassicClutTextureUnit = GL_TEXTURE3;
-const auto kClassicSpriteTextureUnit = GL_TEXTURE4;
+constexpr auto kClassicTileTextureUnit = GL_TEXTURE0;
+constexpr auto kClassicColorTextureUnit = GL_TEXTURE1;
+constexpr auto kClassicTilesetTextureUnit = GL_TEXTURE2;
+constexpr auto kClassicClutTextureUnit = GL_TEXTURE3;
+constexpr auto kClassicSpriteTextureUnit = GL_TEXTURE4;
 
 // Data use in main program for classic display mode
 struct ClassicData {
