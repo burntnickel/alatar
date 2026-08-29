@@ -244,51 +244,12 @@ std::optional<alatar::GraphicsCommonPtr> UpdatedClass::UpdatedClassFactory(
     GLsizei width = data.tiles_and_masks_surface->w;
     GLsizei height = width;
     GLsizei depth = data.tiles_and_masks_surface->h / height;
-    GLsizei levels = static_cast<GLsizei>(1.0 + std::floor(std::log2(std::max(width, height))));
-    std::cout << width << "  " << height << "  " << depth << "  " << levels << "\n";
+    //GLsizei levels = static_cast<GLsizei>(1.0 + std::floor(std::log2(std::max(width, height))));
 
-    /*int ii = 0;
-
-    for (int d = 0; d < depth; ++d) {
-      std::cout << d << " -----------------------------\n";
-      for (int h = 0; h < height; ++h) {
-        for (int w = 0; w < width; ++w) {
-          if (static_cast<unsigned char*>(data.tiles_and_masks_surface->pixels)[ii] > 127) {
-            std::cout << "*";
-          } else {
-            std::cout << " ";
-          }
-          ++ii;
-        }
-        std::cout << "\n";
-      }
-    }*/
-
-    for (int ii = 0; ii < width * height/2; ++ii) {
-      static_cast<unsigned char*>(data.tiles_and_masks_surface->pixels)[ii] = 255;
-    }
-
-    /*for (int ii = 0; ii < width * height * depth; ++ii) {
-      std::cout << static_cast<int>(static_cast<unsigned char*>(data.tiles_and_masks_surface->pixels)[ii])
-                << "\n";
-                //static_cast<unsigned char*>(data.tiles_and_masks_surface->pixels)[ii] = ii & 0xff;
-    }*/
-
-    // glTexStorage3D(GL_TEXTURE_2D_ARRAY, levels, GL_R8, width, height, depth);
-    // BurningLogic::PrintGLError("UpdatedClassFactory:glTexStorage3D");
-
-    /*glTexImage3D(GL_TEXTURE_2D_ARRAY, levels, GL_RED, width, height, depth, 0, GL_RED, GL_UNSIGNED_BYTE,
-                 data.tiles_and_masks_surface->pixels);*/
-    /* glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_R8, width, height, 1, 0, GL_RED, GL_UNSIGNED_BYTE,
-                  data.tiles_and_masks_surface->pixels);*/
     glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_R8, width, height, depth, 0, GL_RED, GL_UNSIGNED_BYTE,
                  data.tiles_and_masks_surface->pixels);
     BurningLogic::PrintGLError("UpdatedClassFactory:glTexImage3D");
   }
-
-  /*glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, data.wall_texture_surface->w, data.wall_texture_surface->h, 0,
-               GL_RGBA, GL_UNSIGNED_BYTE, data.wall_texture_surface->pixels);
-  BurningLogic::PrintGLError("UpdatedClassFactory:glTexImage2D");*/
 
   glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
   BurningLogic::PrintGLError("UpdatedClassFactory:glGenerateMipmap");
