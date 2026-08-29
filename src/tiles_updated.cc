@@ -100,6 +100,8 @@ void PaintUpdatedTiles(BurningLogic::ShaderVars shader_vars, const BurningLogic:
                                              1.0, sdl_rect.x + sdl_rect.w, sdl_rect.y +
    sdl_rect.h, 1.0, 1.0}}; std::array<GLuint, 8> index_buffer = {{0, 1, 2, 3}};*/
 
+// TODO: Setting up the locations of some of the "static" uniform can probably be lifted out of the draw loop
+
   // Bind program
   glUseProgram(shader_vars.program);
   BurningLogic::PrintGLError("PaintUpdatedTiles:glUseProgram");
@@ -156,10 +158,10 @@ void PaintUpdatedTiles(BurningLogic::ShaderVars shader_vars, const BurningLogic:
   glUniform1i(tile_mask_texture_location, kUpdatedTileMaskTextureUnitNumber);
   BurningLogic::PrintGLError("PaintUpdatedTiles:glUniform1i(tile_mask_texture_location)");
 
-  /*// Texture stuff (tile buffer)
+  // Texture stuff (tile buffer)
   GLint tilebuffer_location = BurningLogic::GetShaderUniformLocation(shader_vars.program, "u_tile_buffer");
-  glUniform1i(tilebuffer_location, 0);
-  BurningLogic::PrintGLError("PaintClassicTiles:glUniform1i");*/
+  glUniform1i(tilebuffer_location, kUpdatedTileDataTextureUnitNumber);
+  BurningLogic::PrintGLError("PaintClassicTiles:glUniform1i");
 
   // Texture stuff (color buffer)
   GLint colorbuffer_location = BurningLogic::GetShaderUniformLocation(shader_vars.program, "u_color_buffer");

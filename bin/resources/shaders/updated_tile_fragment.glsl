@@ -6,6 +6,7 @@
 // ----------------------------------
 uniform usamplerBuffer u_color_buffer;
 uniform usamplerBuffer u_clut_buffer;
+uniform usamplerBuffer u_tile_buffer;
 uniform sampler2DArray u_tile_mask_texture;
 uniform sampler2D u_wall_texture;
 
@@ -30,31 +31,28 @@ void main() {
     float u_local = UV.x;
     float v_local = UV.y;
 
-    //frag_color = vec4(u_global, v_global, 0.0, 1.0);
-    //frag_color = vec4(UV.x, UV.y, 0.0, 1.0);
+    // Determine tile coordinates and index into the tile buffer
+    int tile_x = int(u_global * kTilesInRow);
+    int tile_y = int(v_global * kTilesInColumn);
+    int tile_buffer_index = tile_x + tile_y * kTilesInRow;
+
+    // Get wall mask index from the color buffer
+    vec4 mask_index4 = texelFetch(u_tile_buffer, tile_buffer_index);
+    int mask_index = int(mask_index4.r);
+
     vec4 tmp_color = texture(u_wall_texture, vec2(u_global, v_global));
-    vec4 mask = texture(u_tile_mask_texture, vec3(u_local, v_local, 20));
+    vec4 mask = texture(u_tile_mask_texture, vec3(u_local, v_local, mask_index));
 
     float gray = 0.2126 * tmp_color.r + 0.7152 *tmp_color.g + 0.0722 * tmp_color.b;
-
-    float xx = u_global;
-    float yy = v_global;
-
-    // Determine tile coordinates and index into the tile buffer
-    int tile_x = int(xx * kTilesInRow);
-    int tile_y = int(yy * kTilesInColumn);
-    int tile_buffer_index = tile_x + tile_y * kTilesInRow;
 
     // Get color index from the color buffer
     vec4 color_index4 = texelFetch(u_color_buffer, tile_buffer_index);
     int color_index = int(color_index4.r);
 
-    //vec4 local_color = texelFetch(u_clut_buffer, color_index);
     vec4 local_color = texelFetch(u_clut_buffer, color_index);
     frag_color = local_color / 255.0;
 
     frag_color = vec4(gray, gray, gray, 1.0) * mask.rrrr * frag_color;
-    //frag_color = tmp_color;
 }
 
 

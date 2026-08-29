@@ -16,8 +16,8 @@ struct UpdatedTileGLBuffers {
   // GLuint tbo_tex_tile_buffer;
   GLuint color_buffer;
   GLuint color_texture;
-  // GLuint tbo_tileset_buffer;
-  // GLuint tbo_tex_tileset_buffer;
+  GLuint tile_buffer;
+  GLuint tile_texture;
   GLuint clut_buffer;
   GLuint clut_texture;
   GLuint wall_texture;

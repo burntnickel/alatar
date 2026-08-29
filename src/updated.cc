@@ -139,6 +139,13 @@ void UpdatedClass::Update([[maybe_unused]] Uint64 counter, [[maybe_unused]] cons
                   data_.color_buffer.data());
   BurningLogic::PrintGLError("main:glBufferSubData");
 
+  glBindBuffer(GL_TEXTURE_BUFFER, data_.tile_glbuffers.tile_buffer);
+  BurningLogic::PrintGLError("main:glBindBuffer");
+
+  glBufferSubData(GL_TEXTURE_BUFFER, 0, static_cast<GLsizeiptr>(data_.tile_buffer.size()),
+                  data_.tile_buffer.data());
+  BurningLogic::PrintGLError("main:glBufferSubData");
+
   /*// Set updated fire and treasure colors
   for (int row = 0; row < alatar::kTileDataRows; ++row) {
     for (int col = 0; col < alatar::kTileDataCols; ++col) {
@@ -272,13 +279,13 @@ std::optional<alatar::GraphicsCommonPtr> UpdatedClass::UpdatedClassFactory(
 
   // Color buffer
   BurningLogic::TextureSetupHelper(kUpdatedColorTextureUnit, &data.tile_glbuffers.color_buffer,
-                                   data.color_buffer, GL_DYNAMIC_DRAW,
-                                   &data.tile_glbuffers.color_texture, GL_R8UI);
+                                   data.color_buffer, GL_DYNAMIC_DRAW, &data.tile_glbuffers.color_texture,
+                                   GL_R8UI);
 
-  /*// Tile set
-  BurningLogic::TextureSetupHelper(classic_tileset_texture, &data.tile_glbuffers.tbo_tileset_buffer,
-                                   data.tile_set, GL_STATIC_DRAW, &data.tile_glbuffers.tbo_tex_tileset_buffer,
-                                   GL_R8UI);*/
+  // Tile data
+  BurningLogic::TextureSetupHelper(kUpdatedTileDataTextureUnit, &data.tile_glbuffers.tile_buffer,
+                                   data.tile_buffer, GL_DYNAMIC_DRAW, &data.tile_glbuffers.tile_texture,
+                                   GL_R8UI);
 
   // CLUT
   BurningLogic::TextureSetupHelper(kUpdatedClutTextureUnit, &data.tile_glbuffers.clut_buffer, kDefaultC64Clut,
