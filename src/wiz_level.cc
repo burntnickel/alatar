@@ -258,6 +258,37 @@ MonsterClassArray LevelClass::GetMonsterInfo(void) const {
   return tmp_monster_array;
 }
 
+MaskTiles LevelClass::GetMaskTiles(int row, int col) const {
+  MaskTiles tmp;
+
+  if ((row < 0) || (row > (kTileDataRows - 1))) {
+    throw std::out_of_range("Tile column out of range");
+  }
+
+  if ((col < 0) || (col > (kTileDataCols - 1))) {
+    throw std::out_of_range("Tile row out of range");
+  }
+
+  std::size_t idx = 0;
+
+  for (int ir = 0; ir < 2; ++ir) {
+    if ((row + ir) < (kTileDataRows - 1)) {
+      for (int ic = 0; ic < 3; ++ic) {
+        unsigned int offset = static_cast<unsigned int>((row + ir) * kTileDataCols + col + ic - 1);
+        tmp[idx] = raw_data_[kTileDataStart + offset];
+        idx = idx + 1;
+      }
+    } else {
+      for (int ic = 0; ic < 3; ++ic) {
+        tmp[idx] = 92;  // If below the bottom row set to floor
+        idx = idx + 1;
+      }
+    }
+  }
+
+  return tmp;
+}
+
 void LevelClass::SetTileAt(int row, int col, unsigned char c) {
   if ((row < 0) || (row > (kTileDataRows - 1))) {
     throw std::out_of_range("Tile column out of range");

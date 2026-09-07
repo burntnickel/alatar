@@ -99,7 +99,7 @@ class MonsterClass {
   unsigned int animation_state_ = 0;
   float animation_counter_ = 0.0f;
   float elapsed_ms_ = 0.0;
-  float frames_per_ms_ = 0.0; 
+  float frames_per_ms_ = 0.0;
 
  public:
   static MonsterClassPtr MonsterClassFactory(MonsterData monster_data);
@@ -126,6 +126,7 @@ class ElevatorClass : public MonsterClass {
   // Should some of these be moved to an INI file?
  private:
   static constexpr float kTicksPerMs = 0.021f;
+  static constexpr float kFramePerMs = 20.0f / 1000.0f;
 };
 
 //----------------------------------------------
@@ -138,6 +139,10 @@ class LavaClass : public MonsterClass {
 
  public:
   void Update(Uint64 counter) override;
+
+  // Should some of these be moved to an INI file?
+ private:
+  static constexpr float kFramePerMs = 5.0f / 1000.0f;
 };
 
 //----------------------------------------------
@@ -158,6 +163,7 @@ class SlidingGateClass : public MonsterClass {
  private:
   static constexpr int kMaxYExcursion = 20;
   static constexpr float kPixelsPerMs = 0.36f / (1000.0f / 60.0f);
+  static constexpr float kFramePerMs = 4.0f / 1000.0f;
 };
 
 //----------------------------------------------
@@ -172,12 +178,13 @@ class LavaTrollClass : public MonsterClass {
   void Update(Uint64 counter) override;
 
  public:
-  //float y_delta_;
+  float y_delta_;
 
   // Should some of these be moved to an INI file?
  private:
-  //static constexpr int kMaxYExcursion = 20;
-  //static constexpr float kPixelsPerMs = 0.36f / (1000.0f / 60.0f);
+  static constexpr int kMaxYExcursion = 10;
+  static constexpr float kFramePerMs = 1.0f / 1000.0f;
+  static constexpr float kPixelsPerMs = 0.075f / (1000.0f / 60.0f);
 };
 
 // Misc. stuff

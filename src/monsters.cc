@@ -131,7 +131,7 @@ ElevatorClass::ElevatorClass(MonsterData monster_data) : MonsterClass(monster_da
   x_delta_ = static_cast<float>(monster_data.elevator_dx);
   y_delta_ = static_cast<float>(monster_data.elevator_dy);
   duration_ = static_cast<float>(monster_data.elevator_duration);
-  frames_per_ms_ = 20.0f / 1000.0f;
+  frames_per_ms_ = kFramePerMs;
 }
 
 void ElevatorClass::Update(Uint64 counter) {
@@ -166,7 +166,7 @@ void ElevatorClass::Update(Uint64 counter) {
 LavaClass::LavaClass(MonsterData monster_data) : MonsterClass(monster_data) {
   priority_ = false;
   sprite_mods_ = alatar_classic::kSpriteMultiColor | alatar_classic::kSpriteExpandX;
-  frames_per_ms_ = 5.0f / 1000.0f;
+  frames_per_ms_ = kFramePerMs;
 }
 
 void LavaClass::Update(Uint64 counter) {
@@ -180,7 +180,7 @@ SlidingGateClass::SlidingGateClass(MonsterData monster_data) : MonsterClass(mons
   priority_ = false;
   y_delta_ = -1.0f;
   sprite_mods_ = alatar_classic::kSpriteMultiColor;
-  frames_per_ms_ = 4.0f / 1000.0f;
+  frames_per_ms_ = kFramePerMs;
 }
 
 void SlidingGateClass::Update(Uint64 counter) {
@@ -207,13 +207,28 @@ void SlidingGateClass::Update(Uint64 counter) {
 //--------------------------------------------------------------------
 LavaTrollClass::LavaTrollClass(MonsterData monster_data) : MonsterClass(monster_data) {
   priority_ = false;
-  // y_delta_ = -1.0f;
+  y_delta_ = -1.0f;
   sprite_mods_ = alatar_classic::kSpriteMultiColor;
-  // frames_per_ms_ = 4.0f / 1000.0f;
+  frames_per_ms_ = kFramePerMs;
 }
 
 void LavaTrollClass::Update(Uint64 counter) {
   MonsterClass::Update(counter);
+
+  // Adjust y location
+  y_float_ = y_float_ + y_delta_ * elapsed_ms_ * kPixelsPerMs * kSpeedFactor;
+
+  if (y_float_ >= static_cast<float>(y_initial_)) {
+    y_float_ = static_cast<float>(y_initial_);
+    y_delta_ = -1.0f;
+  }
+
+  if (y_float_ <= static_cast<float>(y_initial_ - kMaxYExcursion)) {
+    y_float_ = static_cast<float>(y_initial_ - kMaxYExcursion);
+    y_delta_ = 1.0f;
+  }
+
+  y_ = static_cast<unsigned int>(std::round(y_float_));
 }
 
 }  // namespace alatar

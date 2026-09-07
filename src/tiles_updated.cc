@@ -1,5 +1,7 @@
 #include "tiles_updated.h"
 
+#include <set>
+
 #include "updated.h"
 
 namespace alatar_updated {
@@ -100,7 +102,8 @@ void PaintUpdatedTiles(BurningLogic::ShaderVars shader_vars, const BurningLogic:
                                              1.0, sdl_rect.x + sdl_rect.w, sdl_rect.y +
    sdl_rect.h, 1.0, 1.0}}; std::array<GLuint, 8> index_buffer = {{0, 1, 2, 3}};*/
 
-// TODO: Setting up the locations of some of the "static" uniform can probably be lifted out of the draw loop
+  // TODO: Setting up the locations of some of the "static" uniform can probably be lifted out of the draw
+  // loop
 
   // Bind program
   glUseProgram(shader_vars.program);
@@ -208,11 +211,6 @@ void PaintUpdatedTiles(BurningLogic::ShaderVars shader_vars, const BurningLogic:
   // ------
   glActiveTexture(kUpdatedClutTextureUnit);
   BurningLogic::PrintGLError("PaintUpdatedTiles:glActiveTexture");
-
-  /*std::cout << "clut_buffer: " << gl_buffers.clut_buffer << "\n";
-  std::cout << "clut_texture: " << gl_buffers.clut_texture << "\n";
-  std::cout << "wall_texture: " << gl_buffers.wall_texture << "\n";*/
-
   // glBindTexture(GL_TEXTURE_BUFFER, gl_buffers.clut_buffer);
   glBindTexture(GL_TEXTURE_BUFFER, gl_buffers.clut_texture);
   BurningLogic::PrintGLError("PaintUpdatedTiles:glBindTexture");
@@ -231,6 +229,44 @@ void PaintUpdatedTiles(BurningLogic::ShaderVars shader_vars, const BurningLogic:
 
   // Unbind program
   glUseProgram(0);
+}
+
+const std::set<unsigned char> kWallMaskSet0{91, 92, 93, 94, 95, 96, 97, 98, 122, 123, 100, 101, 102, 103};
+const std::set<unsigned char> kWallMaskSet1{91, 92, 93, 122, 95, 96, 100};
+const std::set<unsigned char> kWallMaskSet2{91, 92, 93, 94, 95, 96, 97, 98, 122, 123, 99, 100, 101, 102, 103};
+const std::set<unsigned char> kWallMaskSet3{91, 92, 94, 123, 97, 98, 100};
+const std::set<unsigned char> kWallMaskSet4 = kWallMaskSet0;
+
+constexpr int kWallMaskConst0 = 1;
+constexpr int kWallMaskConst1 = 2;
+constexpr int kWallMaskConst2 = 4;
+constexpr int kWallMaskConst3 = 8;
+constexpr int kWallMaskConst4 = 16;
+
+unsigned int GetWallTileMaskIndex(alatar::MaskTiles mask_tiles) {
+  unsigned int tmp = 0;
+
+  if (kWallMaskSet0.contains(mask_tiles[2])) {
+    tmp = tmp | kWallMaskConst0;
+  }
+
+  if (kWallMaskSet1.contains(mask_tiles[5])) {
+    tmp = tmp | kWallMaskConst1;
+  }
+
+  if (kWallMaskSet2.contains(mask_tiles[4])) {
+    tmp = tmp | kWallMaskConst2;
+  }
+
+  if (kWallMaskSet3.contains(mask_tiles[3])) {
+    tmp = tmp | kWallMaskConst3;
+  }
+
+  if (kWallMaskSet4.contains(mask_tiles[0])) {
+    tmp = tmp | kWallMaskConst4;
+  }
+
+  return tmp;
 }
 
 }  // namespace alatar_updated

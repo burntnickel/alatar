@@ -123,11 +123,62 @@ void UpdatedClass::Update([[maybe_unused]] Uint64 counter, [[maybe_unused]] cons
       unsigned int screen_col = static_cast<unsigned int>(col);
       unsigned int screen_index = alatar::kColTiles * screen_row + screen_col;
 
+      unsigned char tile = level.GetTileAt(row, col);
+      alatar::MaskTiles mask_tiles = level.GetMaskTiles(row, col);
+      auto mask_index = GetWallTileMaskIndex(mask_tiles);
+
       // Tile and mask updates
-      data_.tile_buffer[kWallMaskOffset + screen_index] = screen_index & 0x0f;
+      unsigned char mask;
+
+      switch (tile) {
+        case 91:  // Wall
+                  // mask = 1;
+          mask = kWallMaskSmoothTable[mask_index];
+          break;
+        case 92:  // Floor
+                  // mask = 1;
+          mask = kWallMaskSmoothTable[mask_index];
+          break;
+        case 93:  // Steep stair left
+                  // mask = 8;
+          mask = kSteepStairLeftSmoothTable[mask_index];
+          break;
+        case 94:  // Steep stair right
+                  // mask = 10;
+          mask = kSteepStairRightSmoothTable[mask_index];
+          ;
+          break;
+        case 95:  // Shallow stair left (left part)
+                  // mask = 12;
+          mask = kShallowStairLeft1SmoothTable[mask_index];
+          break;
+        case 96:  // Shallow stair left (right part)
+                  // mask = 14;
+          mask = kShallowStairLeft2SmoothTable[mask_index];
+          break;
+        case 97:  // Shallow stairs right (left part)
+                  // mask = 16;
+          mask = kShallowStairRight2SmoothTable[mask_index];
+          break;
+        case 98:  // Shallow stairs right (right part)
+                  // mask = 18;
+          mask = kShallowStairRight1SmoothTable[mask_index];
+          break;
+        case 122:  // Slide left
+                   // mask = 20;
+          mask = kSlideLeftSmoothTable[mask_index];
+          break;
+        case 123:  // SLide right
+          // mask = 22;
+          mask = kSlideRightSmoothTable[mask_index];
+          break;
+        default:
+          mask = 0;
+      }
+
+      data_.tile_buffer[kWallMaskOffset + screen_index] = mask;
 
       // Color buffer updates
-      unsigned char tile = level.GetTileAt(row, col);
       data_.color_buffer[screen_index] = level.GetTileColor(tile);
     }
   }
@@ -245,10 +296,10 @@ std::optional<alatar::GraphicsCommonPtr> UpdatedClass::UpdatedClassFactory(
   glBindTexture(GL_TEXTURE_2D, data.tile_glbuffers.tile_mask_texture);
   BurningLogic::PrintGLError("UpdatedClassFactory:glBindTexture");
 
-  glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   BurningLogic::PrintGLError("UpdatedClassFactory:glTexParameteri GL_TEXTURE_WRAP_S");
 
-  glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   BurningLogic::PrintGLError("UpdatedClassFactory:glTexParameteri GL_TEXTURE_WRAP_T");
 
   // Mipmap filter mode means I need to have mipmaps generated

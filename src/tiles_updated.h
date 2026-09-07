@@ -55,6 +55,36 @@ class UpdatedTileVertexManager {
 void PaintUpdatedTiles(BurningLogic::ShaderVars shader_vars, const BurningLogic::mat4& view_matrix,
                        const UpdatedTileVertexManager& vertex_manager, UpdatedTileGLBuffers gl_buffers);
 
+unsigned int GetWallTileMaskIndex(alatar::MaskTiles mask_tiles);
+
+// Lookup tables for "smoothing" wall tiles
+// Shallow maping could be improved by expanding the context one more to the left and right
+const std::array<unsigned char, 32> kWallMaskSmoothTable{
+    {6, 7, 5, 7, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 4, 3, 1, 3, 1, 1, 1, 1, 4, 3, 1, 3, 1, 1, 1, 1}};
+const std::array<unsigned char, 32> kSteepStairLeftSmoothTable{
+    {9, 9, 9, 9, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8}};
+const std::array<unsigned char, 32> kSteepStairRightSmoothTable{{11, 10, 10, 10, 10, 10, 10, 10, 11, 10, 10,
+                                                                 10, 10, 10, 10, 10, 11, 10, 10, 10, 10, 10,
+                                                                 10, 10, 11, 10, 10, 10, 10, 10, 10, 10}};
+const std::array<unsigned char, 32> kShallowStairLeft1SmoothTable{{13, 13, 13, 13, 12, 12, 12, 12, 12, 12, 12,
+                                                                   12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
+                                                                   12, 12, 12, 12, 12, 12, 12, 12, 12, 12}};
+const std::array<unsigned char, 32> kShallowStairLeft2SmoothTable{{15, 15, 15, 15, 14, 14, 14, 14, 14, 14, 14,
+                                                                   14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14,
+                                                                   14, 14, 14, 14, 14, 14, 14, 14, 14, 14}};
+const std::array<unsigned char, 32> kShallowStairRight2SmoothTable{
+    {17, 16, 16, 16, 16, 16, 16, 16, 17, 16, 16, 16, 16, 16, 16, 16,
+     17, 16, 16, 16, 16, 16, 16, 16, 17, 16, 16, 16, 16, 16, 16, 16}};
+const std::array<unsigned char, 32> kShallowStairRight1SmoothTable{
+    {19, 18, 18, 18, 18, 18, 18, 18, 19, 18, 18, 18, 18, 18, 18, 18,
+     19, 18, 18, 18, 18, 18, 18, 18, 19, 18, 18, 18, 18, 18, 18, 18}};
+const std::array<unsigned char, 32> kSlideLeftSmoothTable{{21, 21, 21, 21, 20, 20, 20, 20, 20, 20, 20,
+                                                           20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20,
+                                                           20, 20, 20, 20, 20, 20, 20, 20, 20, 20}};
+const std::array<unsigned char, 32> kSlideRightSmoothTable{{23, 22, 22, 22, 22, 22, 22, 22, 23, 22, 22,
+                                                            22, 22, 22, 22, 22, 23, 22, 22, 22, 22, 22,
+                                                            22, 22, 23, 22, 22, 22, 22, 22, 22, 22}};
+
 }  // namespace alatar_updated
 
 #endif

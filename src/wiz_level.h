@@ -164,6 +164,8 @@ struct WizardInfo {
   unsigned int color;
 };
 
+using MaskTiles = std::array<unsigned char, 6>;
+
 class LevelClass {
  public:
   explicit LevelClass(void) = default;
@@ -177,6 +179,7 @@ class LevelClass {
   unsigned char GetTileColor(unsigned char c) const;
   WizardInfo GetWizardInfo(void) const;
   alatar::MonsterClassArray GetMonsterInfo(void) const;
+  MaskTiles GetMaskTiles(int row, int col) const;
  private:
   void SetTileAt(int row, int col, unsigned char c);
 

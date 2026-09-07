@@ -52,7 +52,9 @@ void main() {
     vec4 local_color = texelFetch(u_clut_buffer, color_index);
     frag_color = local_color / 255.0;
 
-    frag_color = vec4(gray, gray, gray, 1.0) * mask.rrrr * frag_color;
+    //frag_color = vec4(gray, gray, gray, 1.0) * mask.rrrr * frag_color;
+    frag_color.rgb = pow(vec3(gray, gray, gray) * mask.rrr * frag_color.rgb, vec3(1.0 / 2.2));
+    frag_color.a = 1.0;
 }
 
 
