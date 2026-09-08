@@ -6,6 +6,7 @@
 #include <array>
 #include <cstddef>
 
+#include "maskstiles.h"
 #include "opengl_helper.h"
 #include "wiz_level.h"
 
@@ -49,41 +50,134 @@ class UpdatedTileVertexManager {
   std::size_t RowColToVertexIndex(unsigned int row, unsigned int col) const;
 };
 
-/*bool LoadCharSet(std::filesystem::path path_and_name,
-                 std::span<unsigned char, wizard_level::kTileBufferSize> char_set);*/
+void PaintUpdatedTilesWalls(BurningLogic::ShaderVars shader_vars, const BurningLogic::mat4& view_matrix,
+                            const UpdatedTileVertexManager& vertex_manager, UpdatedTileGLBuffers gl_buffers);
 
-void PaintUpdatedTiles(BurningLogic::ShaderVars shader_vars, const BurningLogic::mat4& view_matrix,
-                       const UpdatedTileVertexManager& vertex_manager, UpdatedTileGLBuffers gl_buffers);
+void PaintUpdatedTilesMisc(BurningLogic::ShaderVars shader_vars, const BurningLogic::mat4& view_matrix,
+                           const UpdatedTileVertexManager& vertex_manager, UpdatedTileGLBuffers gl_buffers);
 
 unsigned int GetWallTileMaskIndex(alatar::MaskTiles mask_tiles);
 
 // Lookup tables for "smoothing" wall tiles
 // Shallow maping could be improved by expanding the context one more to the left and right
 const std::array<unsigned char, 32> kWallMaskSmoothTable{
-    {6, 7, 5, 7, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 4, 3, 1, 3, 1, 1, 1, 1, 4, 3, 1, 3, 1, 1, 1, 1}};
+    {kMaskTileWall101,  kMaskTileWall110,  kMaskTileWall100,  kMaskTileWall110,  kMaskTileWallBase,
+     kMaskTileWallBase, kMaskTileWallBase, kMaskTileWallBase, kMaskTileWall001,  kMaskTileWallBase,
+     kMaskTileWallBase, kMaskTileWallBase, kMaskTileWallBase, kMaskTileWallBase, kMaskTileWallBase,
+     kMaskTileWallBase, kMaskTileWall011,  kMaskTileWall010,  kMaskTileWallBase, kMaskTileWall010,
+     kMaskTileWallBase, kMaskTileWallBase, kMaskTileWallBase, kMaskTileWallBase, kMaskTileWall011,
+     kMaskTileWall010,  kMaskTileWallBase, kMaskTileWall010,  kMaskTileWallBase, kMaskTileWallBase,
+     kMaskTileWallBase, kMaskTileWallBase}};
 const std::array<unsigned char, 32> kSteepStairLeftSmoothTable{
-    {9, 9, 9, 9, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8}};
-const std::array<unsigned char, 32> kSteepStairRightSmoothTable{{11, 10, 10, 10, 10, 10, 10, 10, 11, 10, 10,
-                                                                 10, 10, 10, 10, 10, 11, 10, 10, 10, 10, 10,
-                                                                 10, 10, 11, 10, 10, 10, 10, 10, 10, 10}};
-const std::array<unsigned char, 32> kShallowStairLeft1SmoothTable{{13, 13, 13, 13, 12, 12, 12, 12, 12, 12, 12,
-                                                                   12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
-                                                                   12, 12, 12, 12, 12, 12, 12, 12, 12, 12}};
-const std::array<unsigned char, 32> kShallowStairLeft2SmoothTable{{15, 15, 15, 15, 14, 14, 14, 14, 14, 14, 14,
-                                                                   14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14,
-                                                                   14, 14, 14, 14, 14, 14, 14, 14, 14, 14}};
+    {kMaskTileSteepStairsLeft1,    kMaskTileSteepStairsLeft1,    kMaskTileSteepStairsLeft1,
+     kMaskTileSteepStairsLeft1,    kMaskTileSteepStairsLeftBase, kMaskTileSteepStairsLeftBase,
+     kMaskTileSteepStairsLeftBase, kMaskTileSteepStairsLeftBase, kMaskTileSteepStairsLeftBase,
+     kMaskTileSteepStairsLeftBase, kMaskTileSteepStairsLeftBase, kMaskTileSteepStairsLeftBase,
+     kMaskTileSteepStairsLeftBase, kMaskTileSteepStairsLeftBase, kMaskTileSteepStairsLeftBase,
+     kMaskTileSteepStairsLeftBase, kMaskTileSteepStairsLeftBase, kMaskTileSteepStairsLeftBase,
+     kMaskTileSteepStairsLeftBase, kMaskTileSteepStairsLeftBase, kMaskTileSteepStairsLeftBase,
+     kMaskTileSteepStairsLeftBase, kMaskTileSteepStairsLeftBase, kMaskTileSteepStairsLeftBase,
+     kMaskTileSteepStairsLeftBase, kMaskTileSteepStairsLeftBase, kMaskTileSteepStairsLeftBase,
+     kMaskTileSteepStairsLeftBase, kMaskTileSteepStairsLeftBase, kMaskTileSteepStairsLeftBase,
+     kMaskTileSteepStairsLeftBase, kMaskTileSteepStairsLeftBase}};
+const std::array<unsigned char, 32> kSteepStairRightSmoothTable{
+    {kMaskTileSteepStairsRight1,    kMaskTileSteepStairsRightBase, kMaskTileSteepStairsRightBase,
+     kMaskTileSteepStairsRightBase, kMaskTileSteepStairsRightBase, kMaskTileSteepStairsRightBase,
+     kMaskTileSteepStairsRightBase, kMaskTileSteepStairsRightBase, kMaskTileSteepStairsRight1,
+     kMaskTileSteepStairsRightBase, kMaskTileSteepStairsRightBase, kMaskTileSteepStairsRightBase,
+     kMaskTileSteepStairsRightBase, kMaskTileSteepStairsRightBase, kMaskTileSteepStairsRightBase,
+     kMaskTileSteepStairsRightBase, kMaskTileSteepStairsRight1,    kMaskTileSteepStairsRightBase,
+     kMaskTileSteepStairsRightBase, kMaskTileSteepStairsRightBase, kMaskTileSteepStairsRightBase,
+     kMaskTileSteepStairsRightBase, kMaskTileSteepStairsRightBase, kMaskTileSteepStairsRightBase,
+     kMaskTileSteepStairsRight1,    kMaskTileSteepStairsRightBase, kMaskTileSteepStairsRightBase,
+     kMaskTileSteepStairsRightBase, kMaskTileSteepStairsRightBase, kMaskTileSteepStairsRightBase,
+     kMaskTileSteepStairsRightBase, kMaskTileSteepStairsRightBase}};
+const std::array<unsigned char, 32> kShallowStairLeft1SmoothTable{
+    {kMaskTileShallowStairsLeftLeftPart1,    kMaskTileShallowStairsLeftLeftPart1,
+     kMaskTileShallowStairsLeftLeftPart1,    kMaskTileShallowStairsLeftLeftPart1,
+     kMaskTileShallowStairsLeftLeftPartBase, kMaskTileShallowStairsLeftLeftPartBase,
+     kMaskTileShallowStairsLeftLeftPartBase, kMaskTileShallowStairsLeftLeftPartBase,
+     kMaskTileShallowStairsLeftLeftPartBase, kMaskTileShallowStairsLeftLeftPartBase,
+     kMaskTileShallowStairsLeftLeftPartBase, kMaskTileShallowStairsLeftLeftPartBase,
+     kMaskTileShallowStairsLeftLeftPartBase, kMaskTileShallowStairsLeftLeftPartBase,
+     kMaskTileShallowStairsLeftLeftPartBase, kMaskTileShallowStairsLeftLeftPartBase,
+     kMaskTileShallowStairsLeftLeftPartBase, kMaskTileShallowStairsLeftLeftPartBase,
+     kMaskTileShallowStairsLeftLeftPartBase, kMaskTileShallowStairsLeftLeftPartBase,
+     kMaskTileShallowStairsLeftLeftPartBase, kMaskTileShallowStairsLeftLeftPartBase,
+     kMaskTileShallowStairsLeftLeftPartBase, kMaskTileShallowStairsLeftLeftPartBase,
+     kMaskTileShallowStairsLeftLeftPartBase, kMaskTileShallowStairsLeftLeftPartBase,
+     kMaskTileShallowStairsLeftLeftPartBase, kMaskTileShallowStairsLeftLeftPartBase,
+     kMaskTileShallowStairsLeftLeftPartBase, kMaskTileShallowStairsLeftLeftPartBase,
+     kMaskTileShallowStairsLeftLeftPartBase, kMaskTileShallowStairsLeftLeftPartBase}};
+const std::array<unsigned char, 32> kShallowStairLeft2SmoothTable{
+    {kMaskTileShallowStairsLeftRightPart1,    kMaskTileShallowStairsLeftRightPart1,
+     kMaskTileShallowStairsLeftRightPart1,    kMaskTileShallowStairsLeftRightPart1,
+     kMaskTileShallowStairsLeftRightPartBase, kMaskTileShallowStairsLeftRightPartBase,
+     kMaskTileShallowStairsLeftRightPartBase, kMaskTileShallowStairsLeftRightPartBase,
+     kMaskTileShallowStairsLeftRightPartBase, kMaskTileShallowStairsLeftRightPartBase,
+     kMaskTileShallowStairsLeftRightPartBase, kMaskTileShallowStairsLeftRightPartBase,
+     kMaskTileShallowStairsLeftRightPartBase, kMaskTileShallowStairsLeftRightPartBase,
+     kMaskTileShallowStairsLeftRightPartBase, kMaskTileShallowStairsLeftRightPartBase,
+     kMaskTileShallowStairsLeftRightPartBase, kMaskTileShallowStairsLeftRightPartBase,
+     kMaskTileShallowStairsLeftRightPartBase, kMaskTileShallowStairsLeftRightPartBase,
+     kMaskTileShallowStairsLeftRightPartBase, kMaskTileShallowStairsLeftRightPartBase,
+     kMaskTileShallowStairsLeftRightPartBase, kMaskTileShallowStairsLeftRightPartBase,
+     kMaskTileShallowStairsLeftRightPartBase, kMaskTileShallowStairsLeftRightPartBase,
+     kMaskTileShallowStairsLeftRightPartBase, kMaskTileShallowStairsLeftRightPartBase,
+     kMaskTileShallowStairsLeftRightPartBase, kMaskTileShallowStairsLeftRightPartBase,
+     kMaskTileShallowStairsLeftRightPartBase, kMaskTileShallowStairsLeftRightPartBase}};
 const std::array<unsigned char, 32> kShallowStairRight2SmoothTable{
-    {17, 16, 16, 16, 16, 16, 16, 16, 17, 16, 16, 16, 16, 16, 16, 16,
-     17, 16, 16, 16, 16, 16, 16, 16, 17, 16, 16, 16, 16, 16, 16, 16}};
+    {kMaskTileShallowStairsRightLeftPart1,    kMaskTileShallowStairsRightLeftPartBase,
+     kMaskTileShallowStairsRightLeftPartBase, kMaskTileShallowStairsRightLeftPartBase,
+     kMaskTileShallowStairsRightLeftPartBase, kMaskTileShallowStairsRightLeftPartBase,
+     kMaskTileShallowStairsRightLeftPartBase, kMaskTileShallowStairsRightLeftPartBase,
+     kMaskTileShallowStairsRightLeftPart1,    kMaskTileShallowStairsRightLeftPartBase,
+     kMaskTileShallowStairsRightLeftPartBase, kMaskTileShallowStairsRightLeftPartBase,
+     kMaskTileShallowStairsRightLeftPartBase, kMaskTileShallowStairsRightLeftPartBase,
+     kMaskTileShallowStairsRightLeftPartBase, kMaskTileShallowStairsRightLeftPartBase,
+     kMaskTileShallowStairsRightLeftPart1,    kMaskTileShallowStairsRightLeftPartBase,
+     kMaskTileShallowStairsRightLeftPartBase, kMaskTileShallowStairsRightLeftPartBase,
+     kMaskTileShallowStairsRightLeftPartBase, kMaskTileShallowStairsRightLeftPartBase,
+     kMaskTileShallowStairsRightLeftPartBase, kMaskTileShallowStairsRightLeftPartBase,
+     kMaskTileShallowStairsRightLeftPart1,    kMaskTileShallowStairsRightLeftPartBase,
+     kMaskTileShallowStairsRightLeftPartBase, kMaskTileShallowStairsRightLeftPartBase,
+     kMaskTileShallowStairsRightLeftPartBase, kMaskTileShallowStairsRightLeftPartBase,
+     kMaskTileShallowStairsRightLeftPartBase, kMaskTileShallowStairsRightLeftPartBase}};
 const std::array<unsigned char, 32> kShallowStairRight1SmoothTable{
-    {19, 18, 18, 18, 18, 18, 18, 18, 19, 18, 18, 18, 18, 18, 18, 18,
-     19, 18, 18, 18, 18, 18, 18, 18, 19, 18, 18, 18, 18, 18, 18, 18}};
-const std::array<unsigned char, 32> kSlideLeftSmoothTable{{21, 21, 21, 21, 20, 20, 20, 20, 20, 20, 20,
-                                                           20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20,
-                                                           20, 20, 20, 20, 20, 20, 20, 20, 20, 20}};
-const std::array<unsigned char, 32> kSlideRightSmoothTable{{23, 22, 22, 22, 22, 22, 22, 22, 23, 22, 22,
-                                                            22, 22, 22, 22, 22, 23, 22, 22, 22, 22, 22,
-                                                            22, 22, 23, 22, 22, 22, 22, 22, 22, 22}};
+    {kMaskTileShallowStairsRightRightPart1,    kMaskTileShallowStairsRightRightPartBase,
+     kMaskTileShallowStairsRightRightPartBase, kMaskTileShallowStairsRightRightPartBase,
+     kMaskTileShallowStairsRightRightPartBase, kMaskTileShallowStairsRightRightPartBase,
+     kMaskTileShallowStairsRightRightPartBase, kMaskTileShallowStairsRightRightPartBase,
+     kMaskTileShallowStairsRightRightPart1,    kMaskTileShallowStairsRightRightPartBase,
+     kMaskTileShallowStairsRightRightPartBase, kMaskTileShallowStairsRightRightPartBase,
+     kMaskTileShallowStairsRightRightPartBase, kMaskTileShallowStairsRightRightPartBase,
+     kMaskTileShallowStairsRightRightPartBase, kMaskTileShallowStairsRightRightPartBase,
+     kMaskTileShallowStairsRightRightPart1,    kMaskTileShallowStairsRightRightPartBase,
+     kMaskTileShallowStairsRightRightPartBase, kMaskTileShallowStairsRightRightPartBase,
+     kMaskTileShallowStairsRightRightPartBase, kMaskTileShallowStairsRightRightPartBase,
+     kMaskTileShallowStairsRightRightPartBase, kMaskTileShallowStairsRightRightPartBase,
+     kMaskTileShallowStairsRightRightPart1,    kMaskTileShallowStairsRightRightPartBase,
+     kMaskTileShallowStairsRightRightPartBase, kMaskTileShallowStairsRightRightPartBase,
+     kMaskTileShallowStairsRightRightPartBase, kMaskTileShallowStairsRightRightPartBase,
+     kMaskTileShallowStairsRightRightPartBase, kMaskTileShallowStairsRightRightPartBase}};
+const std::array<unsigned char, 32> kSlideLeftSmoothTable{
+    {kMaskTileSlideLeft1,    kMaskTileSlideLeft1,    kMaskTileSlideLeft1,    kMaskTileSlideLeft1,
+     kMaskTileSlideLeftBase, kMaskTileSlideLeftBase, kMaskTileSlideLeftBase, kMaskTileSlideLeftBase,
+     kMaskTileSlideLeftBase, kMaskTileSlideLeftBase, kMaskTileSlideLeftBase, kMaskTileSlideLeftBase,
+     kMaskTileSlideLeftBase, kMaskTileSlideLeftBase, kMaskTileSlideLeftBase, kMaskTileSlideLeftBase,
+     kMaskTileSlideLeftBase, kMaskTileSlideLeftBase, kMaskTileSlideLeftBase, kMaskTileSlideLeftBase,
+     kMaskTileSlideLeftBase, kMaskTileSlideLeftBase, kMaskTileSlideLeftBase, kMaskTileSlideLeftBase,
+     kMaskTileSlideLeftBase, kMaskTileSlideLeftBase, kMaskTileSlideLeftBase, kMaskTileSlideLeftBase,
+     kMaskTileSlideLeftBase, kMaskTileSlideLeftBase, kMaskTileSlideLeftBase, kMaskTileSlideLeftBase}};
+const std::array<unsigned char, 32> kSlideRightSmoothTable{
+    {kMaskTileSlideRight1,    kMaskTileSlideRightBase, kMaskTileSlideRightBase, kMaskTileSlideRightBase,
+     kMaskTileSlideRightBase, kMaskTileSlideRightBase, kMaskTileSlideRightBase, kMaskTileSlideRightBase,
+     kMaskTileSlideRight1,    kMaskTileSlideRightBase, kMaskTileSlideRightBase, kMaskTileSlideRightBase,
+     kMaskTileSlideRightBase, kMaskTileSlideRightBase, kMaskTileSlideRightBase, kMaskTileSlideRightBase,
+     kMaskTileSlideRight1,    kMaskTileSlideRightBase, kMaskTileSlideRightBase, kMaskTileSlideRightBase,
+     kMaskTileSlideRightBase, kMaskTileSlideRightBase, kMaskTileSlideRightBase, kMaskTileSlideRightBase,
+     kMaskTileSlideRight1,    kMaskTileSlideRightBase, kMaskTileSlideRightBase, kMaskTileSlideRightBase,
+     kMaskTileSlideRightBase, kMaskTileSlideRightBase, kMaskTileSlideRightBase, kMaskTileSlideRightBase}};
 
 }  // namespace alatar_updated
 

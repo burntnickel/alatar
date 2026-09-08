@@ -95,71 +95,66 @@ std::size_t UpdatedTileVertexManager::RowColToVertexIndex(unsigned int row, unsi
   return (col + alatar::kColTiles * row) * num_attributes_ * 4;
 }
 
-void PaintUpdatedTiles(BurningLogic::ShaderVars shader_vars, const BurningLogic::mat4& view_matrix,
+void PaintUpdatedTilesWalls(BurningLogic::ShaderVars shader_vars, const BurningLogic::mat4& view_matrix,
                        const UpdatedTileVertexManager& vertex_manager, UpdatedTileGLBuffers gl_buffers) {
-  /* std::array<GLfloat, 16> vertex_buffer = {{sdl_rect.x, sdl_rect.y, 0.0, 0.0, sdl_rect.x + sdl_rect.w,
-                                             sdl_rect.y, 1.0, 0.0, sdl_rect.x, sdl_rect.y + sdl_rect.h, 0.0,
-                                             1.0, sdl_rect.x + sdl_rect.w, sdl_rect.y +
-   sdl_rect.h, 1.0, 1.0}}; std::array<GLuint, 8> index_buffer = {{0, 1, 2, 3}};*/
-
   // TODO: Setting up the locations of some of the "static" uniform can probably be lifted out of the draw
   // loop
 
   // Bind program
   glUseProgram(shader_vars.program);
-  BurningLogic::PrintGLError("PaintUpdatedTiles:glUseProgram");
+  BurningLogic::PrintGLError("PaintUpdatedTilesWalls:glUseProgram");
 
   glBindVertexArray(shader_vars.vao);
-  BurningLogic::PrintGLError("PaintUpdatedTiles:glBindVertexArray");
+  BurningLogic::PrintGLError("PaintUpdatedTilesWalls:glBindVertexArray");
 
   glBindBuffer(GL_ARRAY_BUFFER, shader_vars.vbo);
-  BurningLogic::PrintGLError("PaintUpdatedTiles:glBindBuffer");
+  BurningLogic::PrintGLError("PaintUpdatedTilesWalls:glBindBuffer");
 
   glBufferData(GL_ARRAY_BUFFER,
                static_cast<GLsizeiptr>(vertex_manager.vertex_buffer_.size() * sizeof(GLfloat)),
                vertex_manager.vertex_buffer_.data(), GL_STREAM_DRAW);
-  BurningLogic::PrintGLError("PaintUpdatedTiles:glBufferData");
+  BurningLogic::PrintGLError("PaintUpdatedTilesWalls:glBufferData");
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, shader_vars.ibo);
-  BurningLogic::PrintGLError("PaintUpdatedTiles:glBindBuffer");
+  BurningLogic::PrintGLError("PaintUpdatedTilesWalls:glBindBuffer");
 
   glBufferData(GL_ELEMENT_ARRAY_BUFFER,
                static_cast<GLsizeiptr>(vertex_manager.index_buffer_.size() * sizeof(GLuint)),
                vertex_manager.index_buffer_.data(), GL_STREAM_DRAW);
-  BurningLogic::PrintGLError("PaintUpdatedTiles:glBufferData");
+  BurningLogic::PrintGLError("PaintUpdatedTilesWalls:glBufferData");
 
   // Enable vertex position
   GLuint in_pos_location = BurningLogic::GetShaderAttributeLocation(shader_vars.program, "in_pos");
   glEnableVertexAttribArray(in_pos_location);
-  BurningLogic::PrintGLError("PaintUpdatedTiles:glEnableVertexAttribArray");
+  BurningLogic::PrintGLError("PaintUpdatedTilesWalls:glEnableVertexAttribArray");
 
   // Enable vertex texture coordinates
   GLuint in_uv_location = BurningLogic::GetShaderAttributeLocation(shader_vars.program, "in_uv");
   glEnableVertexAttribArray(in_uv_location);
-  BurningLogic::PrintGLError("PaintUpdatedTiles:glEnableVertexAttribArray");
+  BurningLogic::PrintGLError("PaintUpdatedTilesWalls:glEnableVertexAttribArray");
 
   // Set vertex data
   glBindBuffer(GL_ARRAY_BUFFER, shader_vars.vbo);
-  BurningLogic::PrintGLError("PaintUpdatedTiles:glBindBuffer");
+  BurningLogic::PrintGLError("PaintUpdatedTilesWalls:glBindBuffer");
 
   glVertexAttribPointer(in_pos_location, 2, GL_FLOAT, GL_FALSE,
                         vertex_manager.num_attributes_ * sizeof(GLfloat), (void*)0);
-  BurningLogic::PrintGLError("PaintUpdatedTiles:glVertexAttribPointer");
+  BurningLogic::PrintGLError("PaintUpdatedTilesWalls:glVertexAttribPointer");
 
   glVertexAttribPointer(in_uv_location, 2, GL_FLOAT, GL_FALSE,
                         vertex_manager.num_attributes_ * sizeof(GLfloat), (void*)(2 * sizeof(GLfloat)));
-  BurningLogic::PrintGLError("PaintUpdatedTiles:glVertexAttribPointer");
+  BurningLogic::PrintGLError("PaintUpdatedTilesWalls:glVertexAttribPointer");
 
   // Texture stuff (wall texture)
   GLint wall_texture_location = BurningLogic::GetShaderUniformLocation(shader_vars.program, "u_wall_texture");
   glUniform1i(wall_texture_location, kUpdatedWallTextureUnitNumber);
-  BurningLogic::PrintGLError("PaintUpdatedTiles:glUniform1i(wall_texture_location)");
+  BurningLogic::PrintGLError("PaintUpdatedTilesWalls:glUniform1i(wall_texture_location)");
 
   // Texture stuff (tile and mask texture)
   GLint tile_mask_texture_location =
       BurningLogic::GetShaderUniformLocation(shader_vars.program, "u_tile_mask_texture");
   glUniform1i(tile_mask_texture_location, kUpdatedTileMaskTextureUnitNumber);
-  BurningLogic::PrintGLError("PaintUpdatedTiles:glUniform1i(tile_mask_texture_location)");
+  BurningLogic::PrintGLError("PaintUpdatedTilesWalls:glUniform1i(tile_mask_texture_location)");
 
   // Texture stuff (tile buffer)
   GLint tilebuffer_location = BurningLogic::GetShaderUniformLocation(shader_vars.program, "u_tile_buffer");
@@ -179,12 +174,12 @@ void PaintUpdatedTiles(BurningLogic::ShaderVars shader_vars, const BurningLogic:
   // Texture stuff (clut)
   GLint clut_location = BurningLogic::GetShaderUniformLocation(shader_vars.program, "u_clut_buffer");
   glUniform1i(clut_location, kUpdatedClutTextureUnitNumber);
-  BurningLogic::PrintGLError("PaintUpdatedTiles:glUniform1i");
+  BurningLogic::PrintGLError("PaintUpdatedTilesWalls:glUniform1i");
 
   // View Matrix
   GLint view_mat_location = BurningLogic::GetShaderUniformLocation(shader_vars.program, "u_view_matrix");
   glUniformMatrix4fv(view_mat_location, 1, GL_FALSE, view_matrix.data());
-  BurningLogic::PrintGLError("PaintClassicTiles:glUniformMatrix4fv");
+  BurningLogic::PrintGLError("PaintUpdatedTilesWalls:glUniformMatrix4fv");
 
   // TODO: do I need these?
   //  ------
@@ -210,18 +205,127 @@ void PaintUpdatedTiles(BurningLogic::ShaderVars shader_vars, const BurningLogic:
 
   // ------
   glActiveTexture(kUpdatedClutTextureUnit);
-  BurningLogic::PrintGLError("PaintUpdatedTiles:glActiveTexture");
+  BurningLogic::PrintGLError("PaintUpdatedTilesWalls:glActiveTexture");
   // glBindTexture(GL_TEXTURE_BUFFER, gl_buffers.clut_buffer);
   glBindTexture(GL_TEXTURE_BUFFER, gl_buffers.clut_texture);
-  BurningLogic::PrintGLError("PaintUpdatedTiles:glBindTexture");
+  BurningLogic::PrintGLError("PaintUpdatedTilesWalls:glBindTexture");
 
   // Set index data and render
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, shader_vars.ibo);
-  BurningLogic::PrintGLError("PaintUpdatedTiles:glBindBuffer");
+  BurningLogic::PrintGLError("PaintUpdatedTilesWalls:glBindBuffer");
 
   glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(vertex_manager.index_buffer_.size()), GL_UNSIGNED_INT,
                  NULL);
-  BurningLogic::PrintGLError("PaintUpdatedTiles:glDrawElements");
+  BurningLogic::PrintGLError("PaintUpdatedTilesWalls:glDrawElements");
+
+  // Disable vertex attributes
+  glDisableVertexAttribArray(in_pos_location);
+  glDisableVertexAttribArray(in_uv_location);
+
+  // Unbind program
+  glUseProgram(0);
+}
+
+void PaintUpdatedTilesMisc(BurningLogic::ShaderVars shader_vars, const BurningLogic::mat4& view_matrix,
+                       const UpdatedTileVertexManager& vertex_manager, UpdatedTileGLBuffers gl_buffers) {
+  // TODO: Setting up the locations of some of the "static" uniform can probably be lifted out of the draw
+  // loop
+
+  // Bind program
+  glUseProgram(shader_vars.program);
+  BurningLogic::PrintGLError("PaintUpdatedTilesMisc:glUseProgram");
+
+  glBindVertexArray(shader_vars.vao);
+  BurningLogic::PrintGLError("PaintUpdatedTilesMisc:glBindVertexArray");
+
+  glBindBuffer(GL_ARRAY_BUFFER, shader_vars.vbo);
+  BurningLogic::PrintGLError("PaintUpdatedTilesMisc:glBindBuffer");
+
+  glBufferData(GL_ARRAY_BUFFER,
+               static_cast<GLsizeiptr>(vertex_manager.vertex_buffer_.size() * sizeof(GLfloat)),
+               vertex_manager.vertex_buffer_.data(), GL_STREAM_DRAW);
+  BurningLogic::PrintGLError("PaintUpdatedTilesMisc:glBufferData");
+
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, shader_vars.ibo);
+  BurningLogic::PrintGLError("PaintUpdatedTilesMisc:glBindBuffer");
+
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+               static_cast<GLsizeiptr>(vertex_manager.index_buffer_.size() * sizeof(GLuint)),
+               vertex_manager.index_buffer_.data(), GL_STREAM_DRAW);
+  BurningLogic::PrintGLError("PaintUpdatedTilesMisc:glBufferData");
+
+  // Enable vertex position
+  GLuint in_pos_location = BurningLogic::GetShaderAttributeLocation(shader_vars.program, "in_pos");
+  glEnableVertexAttribArray(in_pos_location);
+  BurningLogic::PrintGLError("PaintUpdatedTilesMisc:glEnableVertexAttribArray");
+
+  // Enable vertex texture coordinates
+  GLuint in_uv_location = BurningLogic::GetShaderAttributeLocation(shader_vars.program, "in_uv");
+  glEnableVertexAttribArray(in_uv_location);
+  BurningLogic::PrintGLError("PaintUpdatedTilesMisc:glEnableVertexAttribArray");
+
+  // Set vertex data
+  glBindBuffer(GL_ARRAY_BUFFER, shader_vars.vbo);
+  BurningLogic::PrintGLError("PaintUpdatedTilesMisc:glBindBuffer");
+
+  glVertexAttribPointer(in_pos_location, 2, GL_FLOAT, GL_FALSE,
+                        vertex_manager.num_attributes_ * sizeof(GLfloat), (void*)0);
+  BurningLogic::PrintGLError("PaintUpdatedTilesMisc:glVertexAttribPointer");
+
+  glVertexAttribPointer(in_uv_location, 2, GL_FLOAT, GL_FALSE,
+                        vertex_manager.num_attributes_ * sizeof(GLfloat), (void*)(2 * sizeof(GLfloat)));
+  BurningLogic::PrintGLError("PaintUpdatedTilesMisc:glVertexAttribPointer");
+
+  /*// Texture stuff (wall texture)
+  GLint wall_texture_location = BurningLogic::GetShaderUniformLocation(shader_vars.program, "u_wall_texture");
+  glUniform1i(wall_texture_location, kUpdatedWallTextureUnitNumber);
+  BurningLogic::PrintGLError("PaintUpdatedTilesMisc:glUniform1i(wall_texture_location)");*/
+
+  // Texture stuff (tile and mask texture)
+  GLint tile_mask_texture_location =
+      BurningLogic::GetShaderUniformLocation(shader_vars.program, "u_tile_mask_texture");
+  glUniform1i(tile_mask_texture_location, kUpdatedTileMaskTextureUnitNumber);
+  BurningLogic::PrintGLError("PaintUpdatedTilesMisc:glUniform1i(tile_mask_texture_location)");
+
+  // Texture stuff (tile buffer)
+  GLint tilebuffer_location = BurningLogic::GetShaderUniformLocation(shader_vars.program, "u_tile_buffer");
+  glUniform1i(tilebuffer_location, kUpdatedTileDataTextureUnitNumber);
+  BurningLogic::PrintGLError("PaintClassicTiles:glUniform1i");
+
+  // Texture stuff (color buffer)
+  GLint colorbuffer_location = BurningLogic::GetShaderUniformLocation(shader_vars.program, "u_color_buffer");
+  glUniform1i(colorbuffer_location, kUpdatedColorTextureUnitNumber);
+  BurningLogic::PrintGLError("PaintClassicTiles:glUniform1i");
+
+  /*// Texture stuff (tile set buffer)
+  GLint tileset_location = BurningLogic::GetShaderUniformLocation(shader_vars.program, "u_tileset_buffer");
+  glUniform1i(tileset_location, 2);
+  BurningLogic::PrintGLError("PaintClassicTiles:glUniform1i");*/
+
+  // Texture stuff (clut)
+  GLint clut_location = BurningLogic::GetShaderUniformLocation(shader_vars.program, "u_clut_buffer");
+  glUniform1i(clut_location, kUpdatedClutTextureUnitNumber);
+  BurningLogic::PrintGLError("PaintUpdatedTilesMisc:glUniform1i");
+
+  // View Matrix
+  GLint view_mat_location = BurningLogic::GetShaderUniformLocation(shader_vars.program, "u_view_matrix");
+  glUniformMatrix4fv(view_mat_location, 1, GL_FALSE, view_matrix.data());
+  BurningLogic::PrintGLError("PaintUpdatedTilesMisc:glUniformMatrix4fv");
+
+  // ------
+  glActiveTexture(kUpdatedClutTextureUnit);
+  BurningLogic::PrintGLError("PaintUpdatedTilesMisc:glActiveTexture");
+  // glBindTexture(GL_TEXTURE_BUFFER, gl_buffers.clut_buffer);
+  glBindTexture(GL_TEXTURE_BUFFER, gl_buffers.clut_texture);
+  BurningLogic::PrintGLError("PaintUpdatedTilesMisc:glBindTexture");
+
+  // Set index data and render
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, shader_vars.ibo);
+  BurningLogic::PrintGLError("PaintUpdatedTilesMisc:glBindBuffer");
+
+  glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(vertex_manager.index_buffer_.size()), GL_UNSIGNED_INT,
+                 NULL);
+  BurningLogic::PrintGLError("PaintUpdatedTilesMisc:glDrawElements");
 
   // Disable vertex attributes
   glDisableVertexAttribArray(in_pos_location);

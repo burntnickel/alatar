@@ -1,7 +1,7 @@
 
 #include "updated.h"
 
-#include <SDL_image.h>
+// #include <SDL_image.h>
 
 #include <iostream>
 
@@ -10,7 +10,7 @@
 
 namespace alatar_updated {
 
-static bool LoadToSurfaceRGBA(std::filesystem::path path_and_name, SDL_Surface*& target_surface) {
+/*static bool LoadToSurfaceRGBA(std::filesystem::path path_and_name, SDL_Surface*& target_surface) {
   SDL_Surface* raw_surface = IMG_Load(path_and_name.c_str());
   bool success = ErrorEvalPrintSDL(raw_surface == NULL, "Error calling IMG_Load:");
 
@@ -60,7 +60,7 @@ static bool LoadToSurface1Chan(std::filesystem::path path_and_name, SDL_Surface*
   }
 
   return success;
-}
+}*/
 
 //--------------------------------------------------------------------
 // UpdatedClass implementation
@@ -82,11 +82,17 @@ UpdatedClass& UpdatedClass::operator=(UpdatedClass&& other) {
 
 // Destructor
 UpdatedClass::~UpdatedClass(void) {
-  // Delete tile shader opengl constructs
-  glDeleteBuffers(1, &(data_.tile_shader.vbo));
-  glDeleteBuffers(1, &(data_.tile_shader.ibo));
-  glDeleteVertexArrays(1, &(data_.tile_shader.vao));
-  glDeleteProgram(data_.tile_shader.program);
+  // Delete tile wall shader opengl constructs
+  glDeleteBuffers(1, &(data_.tile_wall_shader.vbo));
+  glDeleteBuffers(1, &(data_.tile_wall_shader.ibo));
+  glDeleteVertexArrays(1, &(data_.tile_wall_shader.vao));
+  glDeleteProgram(data_.tile_wall_shader.program);
+
+  // Delete tile misc shader opengl constructs
+  glDeleteBuffers(1, &(data_.tile_misc_shader.vbo));
+  glDeleteBuffers(1, &(data_.tile_misc_shader.ibo));
+  glDeleteVertexArrays(1, &(data_.tile_misc_shader.vao));
+  glDeleteProgram(data_.tile_misc_shader.program);
 
   /*// Delete sprite shader opengl constructs
   glDeleteBuffers(1, &(data_.sprite_shader.vbo));
@@ -115,8 +121,7 @@ void UpdatedClass::LevelInit([[maybe_unused]] const alatar::LevelClass& level) {
   }
 }
 
-void UpdatedClass::Update([[maybe_unused]] Uint64 counter, [[maybe_unused]] const alatar::LevelClass& level) {
-  // Update wall masks
+void UpdatedClass::UpdateWalls(const alatar::LevelClass& level) {
   for (int row = 0; row < alatar::kTileDataRows; ++row) {
     for (int col = 0; col < alatar::kTileDataCols; ++col) {
       unsigned int screen_row = static_cast<unsigned int>(row) + 1;
@@ -132,21 +137,16 @@ void UpdatedClass::Update([[maybe_unused]] Uint64 counter, [[maybe_unused]] cons
 
       switch (tile) {
         case 91:  // Wall
-                  // mask = 1;
           mask = kWallMaskSmoothTable[mask_index];
           break;
         case 92:  // Floor
-                  // mask = 1;
           mask = kWallMaskSmoothTable[mask_index];
           break;
         case 93:  // Steep stair left
-                  // mask = 8;
           mask = kSteepStairLeftSmoothTable[mask_index];
           break;
         case 94:  // Steep stair right
-                  // mask = 10;
           mask = kSteepStairRightSmoothTable[mask_index];
-          ;
           break;
         case 95:  // Shallow stair left (left part)
                   // mask = 12;
@@ -173,7 +173,7 @@ void UpdatedClass::Update([[maybe_unused]] Uint64 counter, [[maybe_unused]] cons
           mask = kSlideRightSmoothTable[mask_index];
           break;
         default:
-          mask = 0;
+          mask = kMaskTileBlank;
       }
 
       data_.tile_buffer[kWallMaskOffset + screen_index] = mask;
@@ -182,6 +182,48 @@ void UpdatedClass::Update([[maybe_unused]] Uint64 counter, [[maybe_unused]] cons
       data_.color_buffer[screen_index] = level.GetTileColor(tile);
     }
   }
+}
+
+void UpdatedClass::UpdateMiscTiles(const alatar::LevelClass& level) {
+  // How can I avoid duplication with other functions for things like the color?
+  for (int row = 0; row < alatar::kTileDataRows; ++row) {
+    for (int col = 0; col < alatar::kTileDataCols; ++col) {
+      unsigned int screen_row = static_cast<unsigned int>(row) + 1;
+      unsigned int screen_col = static_cast<unsigned int>(col);
+      unsigned int screen_index = alatar::kColTiles * screen_row + screen_col;
+
+      unsigned char tile = level.GetTileAt(row, col);
+
+      // TODO: add context like for the walls to correctly draw just vertical parts
+
+      // Tile and mask updates
+      unsigned char new_tile;
+
+      switch (tile) {
+        case 101:  // Ladder left
+          new_tile = kLadderTileComboLeft;
+          break;
+        case 102:  // Ladder middle
+          new_tile = kLadderTileHorizontal;
+          break;
+        case 103:  // Ladder right
+          new_tile = kLadderTileComboRight;
+          break;
+        default:
+          new_tile = kLadderTileLadderBlank;
+      }
+
+      data_.tile_buffer[kTileMiscOffset + screen_index] = new_tile;
+
+      // Color buffer updates
+      data_.color_buffer[screen_index] = level.GetTileColor(tile);
+    }
+  }
+}
+
+void UpdatedClass::Update([[maybe_unused]] Uint64 counter, const alatar::LevelClass& level) {
+  UpdateWalls(level);
+  UpdateMiscTiles(level);
 
   glBindBuffer(GL_TEXTURE_BUFFER, data_.tile_glbuffers.color_buffer);
   BurningLogic::PrintGLError("main:glBindBuffer");
@@ -220,8 +262,10 @@ void UpdatedClass::Update([[maybe_unused]] Uint64 counter, [[maybe_unused]] cons
 void UpdatedClass::Draw([[maybe_unused]] const alatar::MonsterClassArray& monster_info,
                         [[maybe_unused]] const alatar::WizardInfo& wizard_info,
                         const BurningLogic::mat4& view_matrix) {
-  alatar_updated::PaintUpdatedTiles(data_.tile_shader, view_matrix, data_.vertex_manager,
-                                    data_.tile_glbuffers);
+  alatar_updated::PaintUpdatedTilesWalls(data_.tile_wall_shader, view_matrix, data_.vertex_manager,
+                                         data_.tile_glbuffers);
+  alatar_updated::PaintUpdatedTilesMisc(data_.tile_misc_shader, view_matrix, data_.vertex_manager,
+                                        data_.tile_glbuffers);
 }
 
 std::optional<alatar::GraphicsCommonPtr> UpdatedClass::UpdatedClassFactory(
@@ -242,7 +286,8 @@ std::optional<alatar::GraphicsCommonPtr> UpdatedClass::UpdatedClassFactory(
   }
 
   auto tiles_and_masks_path_and_name = resource_path / kUpdatedDirName / kTilesAndMasksName;
-  success = LoadToSurface1Chan(tiles_and_masks_path_and_name, data.tiles_and_masks_surface);
+  // success = LoadToSurface1Chan(tiles_and_masks_path_and_name, data.tiles_and_masks_surface);
+  success = LoadToSurfaceRGBA(tiles_and_masks_path_and_name, data.tiles_and_masks_surface);
 
   if (!success) {
     std::cerr << "Failed to load tile and masks texture\n";
@@ -314,7 +359,9 @@ std::optional<alatar::GraphicsCommonPtr> UpdatedClass::UpdatedClassFactory(
     GLsizei height = width;
     GLsizei depth = data.tiles_and_masks_surface->h / height;
 
-    glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_R8, width, height, depth, 0, GL_RED, GL_UNSIGNED_BYTE,
+    /*  glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_R8, width, height, depth, 0, GL_RED, GL_UNSIGNED_BYTE,
+                   data.tiles_and_masks_surface->pixels);*/
+    glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA, width, height, depth, 0,  GL_RGBA, GL_UNSIGNED_BYTE,
                  data.tiles_and_masks_surface->pixels);
     BurningLogic::PrintGLError("UpdatedClassFactory:glTexImage3D");
   }
@@ -352,12 +399,21 @@ std::optional<alatar::GraphicsCommonPtr> UpdatedClass::UpdatedClassFactory(
 
   // Tile shaders
   const std::filesystem::path kTileVertexShaderFilename = shader_path / kUpdatedTileVertexShaderName;
-  const std::filesystem::path kTileFragmentShaderFilename = shader_path / kUpdatedTileFragmentShaderName;
+  const std::filesystem::path kTileWallFragmentShaderFilename =
+      shader_path / kUpdatedTileWallFragmentShaderName;
+  const std::filesystem::path kTileMiscFragmentShaderFilename =
+      shader_path / kUpdatedTileMiscFragmentShaderName;
 
   const std::string tile_vertex_shader_source = BurningLogic::LoadShaderSource(kTileVertexShaderFilename);
-  const std::string tile_fragment_shader_source = BurningLogic::LoadShaderSource(kTileFragmentShaderFilename);
+  const std::string tile_wall_fragment_shader_source =
+      BurningLogic::LoadShaderSource(kTileWallFragmentShaderFilename);
+  const std::string tile_misc_fragment_shader_source =
+      BurningLogic::LoadShaderSource(kTileMiscFragmentShaderFilename);
 
-  data.tile_shader = BurningLogic::BuildShaderProgram(tile_vertex_shader_source, tile_fragment_shader_source);
+  data.tile_wall_shader =
+      BurningLogic::BuildShaderProgram(tile_vertex_shader_source, tile_wall_fragment_shader_source);
+  data.tile_misc_shader =
+      BurningLogic::BuildShaderProgram(tile_vertex_shader_source, tile_misc_fragment_shader_source);
 
   /*// Sprite shaders
   const std::filesystem::path kClassicSpriteVertexShaderFilename =

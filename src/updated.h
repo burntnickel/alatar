@@ -17,7 +17,8 @@ namespace alatar_updated {
 
 // Shader filenames
 const std::string kUpdatedTileVertexShaderName{"updated_tile_vertex.glsl"};
-const std::string kUpdatedTileFragmentShaderName{"updated_tile_fragment.glsl"};
+const std::string kUpdatedTileWallFragmentShaderName{"updated_tile_wall_fragment.glsl"};
+const std::string kUpdatedTileMiscFragmentShaderName{"updated_tile_misc_fragment.glsl"};
 // const std::string kClassicSpriteVertexShaderName{"classic_vertex.glsl"};
 // const std::string kClassicSpriteFragmentShaderName{"classic_sprite_fragment.glsl"};
 
@@ -37,10 +38,11 @@ constexpr auto kUpdatedColorTextureUnit = GL_TEXTURE0 + kUpdatedColorTextureUnit
 
 constexpr unsigned int kLevelTileCount = alatar::kRowTiles * alatar::kColTiles;
 constexpr unsigned int kWallMaskOffset = 0 * kLevelTileCount;
+constexpr unsigned int kTileMiscOffset = 1 * kLevelTileCount;
 
 // Data use in main program for the updated display mode
 struct UpdatedData {
-  std::array<unsigned char, kLevelTileCount> tile_buffer;
+  std::array<unsigned char, 2 * kLevelTileCount> tile_buffer;
   std::array<unsigned char, kLevelTileCount> color_buffer;
 
   // std::array<unsigned char, wizard_level::kTileBufferSize> tile_set{};
@@ -51,7 +53,8 @@ struct UpdatedData {
   UpdatedTileGLBuffers tile_glbuffers;
   // alatar_classic::ClassicSpriteGLBuffers sprite_glbuffers;
 
-  BurningLogic::ShaderVars tile_shader;
+  BurningLogic::ShaderVars tile_wall_shader;
+  BurningLogic::ShaderVars tile_misc_shader;
   // BurningLogic::ShaderVars sprite_shader;
 
   UpdatedTileVertexManager vertex_manager;
@@ -88,6 +91,10 @@ class UpdatedClass : public alatar::GraphicsCommonClass {
 
   // Constructor for the factory (protected by the token)
   UpdatedClass(Token, const UpdatedData& data);
+
+ private:
+  void UpdateWalls(const alatar::LevelClass& level);
+  void UpdateMiscTiles(const alatar::LevelClass& level);
 
  private:
   UpdatedData data_;

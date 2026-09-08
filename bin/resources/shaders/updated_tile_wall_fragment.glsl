@@ -1,6 +1,6 @@
 #version 400 core
 
-// OpenGL tile fragment shader for Alatar updated graphics mode
+// OpenGL tile fragment shader for Alatar updated graphics mode wall tiles/masks
 
 // Uniforms
 // ----------------------------------
@@ -23,6 +23,10 @@ out vec4 frag_color;
 const int kTilesInRow = 40;
 const int kTilesInColumn = 25;
 
+float ToGreyscale(vec3 color) {
+    return 0.2126 * color.r + 0.7152 * color.g + 0.0722 * color.b;
+}
+
 void main() {
     // Move these to the vertex shader?
     float u_global = (shader_coord.x + 1.0) / 2.0;
@@ -36,14 +40,15 @@ void main() {
     int tile_y = int(v_global * kTilesInColumn);
     int tile_buffer_index = tile_x + tile_y * kTilesInRow;
 
-    // Get wall mask index from the color buffer
+    // Get wall mask index from the tile buffer & wall texture data
     vec4 mask_index4 = texelFetch(u_tile_buffer, tile_buffer_index);
     int mask_index = int(mask_index4.r);
 
     vec4 tmp_color = texture(u_wall_texture, vec2(u_global, v_global));
     vec4 mask = texture(u_tile_mask_texture, vec3(u_local, v_local, mask_index));
 
-    float gray = 0.2126 * tmp_color.r + 0.7152 *tmp_color.g + 0.0722 * tmp_color.b;
+    //float gray = 0.2126 * tmp_color.r + 0.7152 *tmp_color.g + 0.0722 * tmp_color.b;
+    float gray = ToGreyscale(tmp_color.rgb);
 
     // Get color index from the color buffer
     vec4 color_index4 = texelFetch(u_color_buffer, tile_buffer_index);
@@ -53,8 +58,8 @@ void main() {
     frag_color = local_color / 255.0;
 
     //frag_color = vec4(gray, gray, gray, 1.0) * mask.rrrr * frag_color;
-    frag_color.rgb = pow(vec3(gray, gray, gray) * mask.rrr * frag_color.rgb, vec3(1.0 / 2.2));
-    frag_color.a = 1.0;
+    frag_color.rgb = pow(vec3(gray, gray, gray) * mask.rgb * frag_color.rgb, vec3(1.0 / 2.2));
+    frag_color.a = mask.a;
 }
 
 

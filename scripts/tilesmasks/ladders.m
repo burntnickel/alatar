@@ -29,7 +29,8 @@ yVec = linspace(-1, 1, ySize).';
 %---------------------------------------------------------------------------
 % blank
 %---------------------------------------------------------------------------
-tileCell{index} = zeros(ySize / oversample, xSize / oversample, 'uint8');
+tileCell{index}.gray = zeros(ySize / oversample, xSize / oversample, 'uint8');
+tileCell{index}.alpha = zeros(ySize / oversample, xSize / oversample, 'uint8');
 nameCell{index} = 'Blank';
 constCell{index} = 'LadderBlank';
 index = index + 1;
@@ -48,8 +49,6 @@ tmp = amb * ambient(nMat) ...
   + spec * specular(nMat, lVec, vVec, k);
 tmp(mask) = 0;
 tmp = min(tmp, 1);
-tmp = 255 * tmp;
-
 tmp = repmat(tmp.', [xSize 1]);
 
 tmpD = zVec.';
@@ -57,7 +56,8 @@ tmpD(mask) = -Inf;
 depthV = repmat(tmpD, [xSize 1]);
 
 rawV = tmp;
-tileCell{index} = uint8(downsample(tmp, oversample));
+tileCell{index}.gray = uint8(downsample(255 * tmp, oversample));
+tileCell{index}.alpha = uint8(downsample(255 * double(tmp > 0), oversample));
 nameCell{index} = 'Ladder Vertical Only';
 constCell{index} = 'Vertical';
 index = index + 1;
@@ -76,7 +76,6 @@ tmp = amb * ambient(nMat) ...
   + spec * specular(nMat, lVec, vVec, k);
 tmp(mask) = 0;
 tmp = min(tmp, 1);
-tmp = 255 * tmp;
 
 tmp = repmat(tmp, [1 ySize]);
 
@@ -85,7 +84,8 @@ tmpD(mask) = -Inf;
 depthH = repmat(tmpD, [1 ySize]);
 
 rawH = tmp;
-tileCell{index} = uint8(downsample(tmp, oversample));
+tileCell{index}.gray = uint8(downsample(255 * tmp, oversample));
+tileCell{index}.alpha = uint8(downsample(255 * double(tmp > 0), oversample));
 nameCell{index} = 'Ladder Horizontal Only';
 constCell{index} = 'Horizontal';
 index = index + 1;
@@ -99,7 +99,8 @@ hMask = repmat(xVec.' > 0, [xSize 1]);
 mask = dMask & hMask;
 tmp(mask) = rawH(mask);
 
-tileCell{index} = uint8(downsample(tmp, oversample));
+tileCell{index}.gray = uint8(downsample(255 * tmp, oversample));
+tileCell{index}.alpha = uint8(downsample(255 * double(tmp > 0), oversample));
 nameCell{index} = 'Ladder Combo Left';
 constCell{index} = 'ComboLeft';
 index = index + 1;
@@ -113,7 +114,8 @@ hMask = repmat(xVec.' < 0, [xSize 1]);
 mask = dMask & hMask;
 tmp(mask) = rawH(mask);
 
-tileCell{index} = uint8(downsample(tmp, oversample));
+tileCell{index}.gray = uint8(downsample(255 * tmp, oversample));
+tileCell{index}.alpha = uint8(downsample(255 * double(tmp > 0), oversample));
 nameCell{index} = 'Ladder Combo Left';
 constCell{index} = 'ComboRight';
 index = index + 1;
