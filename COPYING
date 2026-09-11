@@ -1,0 +1,28 @@
+COPYING
+-------
+
+This file describes the locations of the licenses under with the files
+comprising Alatar may be copied and distributed.
+
+License files can be found at the top level director of the Alatar project
+(the same location as this file).
+
+Currently the following licenses are used by the various files in this
+project:
+    - LICENSE-GPL
+    
+Source files will indicate the relevant license (usually the GPL) at the top
+of the file.
+
+Other files for which it is possible to embed an indication of the license
+under which they may be copied and distributed will have that information
+included.
+
+If there are files (such as graphics) that cannot have an indication of the
+license embedded the containing directory will contain a license.txt file
+indicating which license applies to the files in that directory.
+
+No copyright is asserted over this file.  It maybe copied/distributed freely
+and without limitation.
+
+
