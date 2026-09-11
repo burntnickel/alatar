@@ -1,4 +1,4 @@
-function [masksCell, namesCell, constCell] = wall_masks(xSize)
+function [masksCell, namesCell, constCell, seqVec] = wall_masks(xSize)
 
 ySize = xSize;
 hSize = xSize / 2;
@@ -6,19 +6,21 @@ qSize = hSize / 2;
 
 fadeWidth = xSize / 4;
 
-masksCell = cell(1,0);
-namesCell = cell(1,0);
-constCell = cell(1,0);
+masksCell = cell(1, 0);
+namesCell = cell(1, 0);
+constCell = cell(1, 0);
+seqVec = zeros(1, 0);
 
 index = 1;
 
 %---------------------------------------------------------------------------
-% blank
+% space
 %---------------------------------------------------------------------------
 masksCell{index}.gray = zeros(ySize, xSize, 'uint8');
 masksCell{index}.alpha = zeros(ySize, xSize, 'uint8');
 namesCell{index} = 'Blank';
 constCell{index} = 'Blank';
+seqVec(index) = 32;
 index = index + 1;
 
 %---------------------------------------------------------------------------
@@ -29,6 +31,7 @@ masksCell{index}.gray = 255 * ones(ySize, xSize, 'uint8');
 masksCell{index}.alpha = 255 * ones(ySize, xSize, 'uint8');
 namesCell{index} = 'Wall/Floor (base)';
 constCell{index} = 'WallBase';
+seqVec(index) = 91;
 index = index + 1;
 
 %---------------------------------------------------------------------------
@@ -52,6 +55,7 @@ masksCell{index}.gray = masksCell{kWallFloorBase}.gray;
 masksCell{index}.alpha = uint8(rightWallFloorFade * 255);
 namesCell{index} = 'Wall/Floor (001)';
 constCell{index} = 'Wall001';
+seqVec(index) = -1;
 index = index + 1;
 
 %---------------------------------------------------------------------------
@@ -71,6 +75,7 @@ masksCell{index}.gray = masksCell{kWallFloorBase}.gray;
 masksCell{index}.alpha = uint8(middleWallFloorFade * 255);
 namesCell{index} = 'Wall/Floor (010)';
 constCell{index} = 'Wall010';
+seqVec(index) = -1;
 index = index + 1;
 
 %---------------------------------------------------------------------------
@@ -80,6 +85,7 @@ masksCell{index}.gray = masksCell{kWallFloorBase}.gray;
 masksCell{index}.alpha = uint8(min(middleWallFloorFade, rightWallFloorFade) * 255);
 namesCell{index} = 'Wall/Floor (011)';
 constCell{index} = 'Wall011';
+seqVec(index) = -1;
 index = index + 1;
 
 %---------------------------------------------------------------------------
@@ -90,6 +96,7 @@ masksCell{index}.gray = masksCell{kWallFloorBase}.gray;
 masksCell{index}.alpha = uint8(leftWallFloorFade * 255);
 namesCell{index} = 'Wall/Floor (100)';
 constCell{index} = 'Wall100';
+seqVec(index) = -1;
 index = index + 1;
 
 %---------------------------------------------------------------------------
@@ -99,6 +106,7 @@ masksCell{index}.gray = masksCell{kWallFloorBase}.gray;
 masksCell{index}.alpha = uint8(min(leftWallFloorFade, rightWallFloorFade) * 255);
 namesCell{index} = 'Wall/Floor (101/111)';
 constCell{index} = 'Wall101';
+seqVec(index) = -1;
 index = index + 1;
 
 %---------------------------------------------------------------------------
@@ -108,6 +116,7 @@ masksCell{index}.gray = masksCell{kWallFloorBase}.gray;
 masksCell{index}.alpha = uint8(min(leftWallFloorFade, middleWallFloorFade) * 255);
 namesCell{index} = 'Wall/Floor (110)';
 constCell{index} = 'Wall110';
+seqVec(index) = -1;
 index = index + 1;
 
 %---------------------------------------------------------------------------
@@ -121,6 +130,7 @@ masksCell{index}.alpha(1:qSize, (qSize + 1):hSize) = 0;
 masksCell{index}.alpha((hSize + 1):(hSize + qSize), (hSize + qSize + 1):end) = 0;
 namesCell{index} = 'Steep Stairs Left (base)';
 constCell{index} = 'SteepStairsLeftBase';
+seqVec(index) = 93;
 index = index + 1;
 
 %---------------------------------------------------------------------------
@@ -146,6 +156,7 @@ masksCell{index}.gray = masksCell{kWallFloorBase}.gray;
 masksCell{index}.alpha = uint8(leftSteepStairsFade .* double(masksCell{kSteepStairsLeftBase}.alpha));
 namesCell{index} = 'Steep Stairs Left (1)';
 constCell{index} = 'SteepStairsLeft1';
+seqVec(index) = -1;
 index = index + 1;
 
 %---------------------------------------------------------------------------
@@ -156,6 +167,7 @@ masksCell{index}.gray = fliplr(masksCell{kSteepStairsLeftBase}.gray);
 masksCell{index}.alpha = fliplr(masksCell{kSteepStairsLeftBase}.alpha);
 namesCell{index} = 'Steep Stairs Right (base)';
 constCell{index} = 'SteepStairsRightBase';
+seqVec(index) = 94;
 index = index + 1;
 
 %---------------------------------------------------------------------------
@@ -166,6 +178,7 @@ masksCell{index}.gray = fliplr(masksCell{kSteepStairsLeftFade}.gray);
 masksCell{index}.alpha = fliplr(masksCell{kSteepStairsLeftFade}.alpha);
 namesCell{index} = 'Steep Stairs Right (1)';
 constCell{index} = 'SteepStairsRight1';
+seqVec(index) = -1;
 index = index + 1;
 
 %---------------------------------------------------------------------------
@@ -178,6 +191,7 @@ masksCell{index}.gray = tmpGray(:, 1:xSize);
 masksCell{index}.alpha = tmpAlpha(:, 1:xSize);
 namesCell{index} = 'Shallow Stairs Left (left part) (base)';
 constCell{index} = 'ShallowStairsLeftLeftPartBase';
+seqVec(index) = 95;
 index = index + 1;
 
 %---------------------------------------------------------------------------
@@ -190,6 +204,7 @@ masksCell{index}.gray = tmpGray(:, 1:xSize);
 masksCell{index}.alpha = tmpAlpha(:, 1:xSize);
 namesCell{index} = 'Shallow Stairs Left (left part) (1)';
 constCell{index} = 'ShallowStairsLeftLeftPart1';
+seqVec(index) = -1;
 index = index + 1;
 
 %---------------------------------------------------------------------------
@@ -202,6 +217,7 @@ masksCell{index}.gray = tmpGray(:, (xSize + 1):end);
 masksCell{index}.alpha = tmpAlpha(:, (xSize + 1):end);
 namesCell{index} = 'Shallow Stairs Left (right part) (base)';
 constCell{index} = 'ShallowStairsLeftRightPartBase';
+seqVec(index) = 96;
 index = index + 1;
 
 %---------------------------------------------------------------------------
@@ -214,6 +230,7 @@ masksCell{index}.gray = tmpGray(:, (xSize + 1):end);
 masksCell{index}.alpha = tmpAlpha(:, (xSize + 1):end);
 namesCell{index} = 'Shallow Stairs Left (right part) (1)';
 constCell{index} = 'ShallowStairsLeftRightPart1';
+seqVec(index) = -1;
 index = index + 1;
 
 %---------------------------------------------------------------------------
@@ -225,6 +242,7 @@ masksCell{index}.gray = tmpGray(:, 1:xSize);
 masksCell{index}.alpha = tmpAlpha(:, 1:xSize);
 namesCell{index} = 'Shallow Stairs Right (left part) (base)';
 constCell{index} = 'ShallowStairsRightLeftPartBase';
+seqVec(index) = 97;
 index = index + 1;
 
 %---------------------------------------------------------------------------
@@ -234,6 +252,7 @@ masksCell{index}.gray = fliplr(masksCell{kShallowStairsLeftRightFade}.gray);
 masksCell{index}.alpha = fliplr(masksCell{kShallowStairsLeftRightFade}.alpha);
 namesCell{index} = 'Shallow Stairs Right (left part) (1)';
 constCell{index} = 'ShallowStairsRightLeftPart1';
+seqVec(index) = -1;
 index = index + 1;
 
 %---------------------------------------------------------------------------
@@ -245,6 +264,7 @@ masksCell{index}.gray = tmpGray(:, (xSize + 1):end);
 masksCell{index}.alpha = tmpAlpha(:, (xSize + 1):end);
 namesCell{index} = 'Shallow Stairs Right (right part) (base)';
 constCell{index} = 'ShallowStairsRightRightPartBase';
+seqVec(index) = 98;
 index = index + 1;
 
 %---------------------------------------------------------------------------
@@ -254,6 +274,7 @@ masksCell{index}.gray = fliplr(masksCell{kShallowStairsLeftLeftFade}.gray);
 masksCell{index}.alpha = fliplr(masksCell{kShallowStairsLeftLeftFade}.alpha);
 namesCell{index} = 'Shallow Stairs Right (right part) (1)';
 constCell{index} = 'ShallowStairsRightRightPart1';
+seqVec(index) = -1;
 index = index + 1;
 
 %---------------------------------------------------------------------------
@@ -270,6 +291,7 @@ end
 
 namesCell{index} = 'Slide Left (base)';
 constCell{index} = 'SlideLeftBase';
+seqVec(index) = 122;
 index = index + 1;
 
 %---------------------------------------------------------------------------
@@ -280,6 +302,7 @@ masksCell{index}.gray = masksCell{kSlideLeftBase}.gray;
 masksCell{index}.alpha = uint8(leftSteepStairsFade .* double(masksCell{kSlideLeftBase}.alpha));
 namesCell{index} = 'Slide Left (1)';
 constCell{index} = 'SlideLeft1';
+seqVec(index) = -1;
 index = index + 1;
 
 %---------------------------------------------------------------------------
@@ -290,6 +313,7 @@ masksCell{index}.gray = fliplr(masksCell{kSlideLeftBase}.gray);
 masksCell{index}.alpha = fliplr(masksCell{kSlideLeftBase}.alpha);
 namesCell{index} = 'Slide Right (base)';
 constCell{index} = 'SlideRightBase';
+seqVec(index) = 123;
 index = index + 1;
 
 %---------------------------------------------------------------------------
@@ -299,6 +323,7 @@ masksCell{index}.gray = fliplr(masksCell{kSlideLeftFade}.gray);
 masksCell{index}.alpha = fliplr(masksCell{kSlideLeftFade}.alpha);
 namesCell{index} = 'Slide Right (1)';
 constCell{index} = 'SlideRight1';
+seqVec(index) = -1;
 index = index + 1;
 
 endfunction

@@ -7,47 +7,76 @@ headerFilename = 'maskstiles.h';
 
 ySize = xSize;
 
-masksTilesCell = cell(1, 0);
-namesCell = cell(1, 0);
-constCell = cell(1, 0);
+masksTilesCellRaw = cell(1, 0);
+namesCellRaw = cell(1, 0);
+constCellRaw = cell(1, 0);
+seqVec = zeros(1, 0);
 
 index = 0;
 
 %---------------------------------------------------------------------------
 % Wall/Floor Masks
 %---------------------------------------------------------------------------
-[masksTilesCell0, namesCell0, constEndCell] = wall_masks(xSize);
+[masksTilesCell0, namesCell0, constEndCell, seqVec0] = wall_masks(xSize);
 constBase = 'kMaskTile';
 
 N = length(constEndCell);
 
-masksTilesCell((1:N) + index) = masksTilesCell0;
-namesCell((1:N) + index) = namesCell0;
+masksTilesCellRaw((1:N) + index) = masksTilesCell0;
+namesCellRaw((1:N) + index) = namesCell0;
 
 for iN = 1:N
   tmp = sprintf('%s%s', constBase, constEndCell{iN});
-  constCell{index + iN} = tmp;
+  constCellRaw{index + iN} = tmp;
 endfor
+
+seqVec((1:N) + index) = seqVec0;
 
 index = index + N;
 
 %---------------------------------------------------------------------------
 % Ladder Tiles
 %---------------------------------------------------------------------------
-[masksTilesCell0, namesCell0, constEndCell] = ladders(xSize);
+[masksTilesCell0, namesCell0, constEndCell, seqVec0] = ladders(xSize);
 constBase = 'kLadderTile';
 
 N = length(constEndCell);
 
-masksTilesCell((1:N) + index) = masksTilesCell0;
-namesCell((1:N) + index) = namesCell0;
+masksTilesCellRaw((1:N) + index) = masksTilesCell0;
+namesCellRaw((1:N) + index) = namesCell0;
 
 for iN = 1:N
   tmp = sprintf('%s%s', constBase, constEndCell{iN});
-  constCell{index + iN} = tmp;
+  constCellRaw{index + iN} = tmp;
 endfor
 
+seqVec((1:N) + index) = seqVec0;
+
 index = index + N;
+
+%---------------------------------------------------------------------------
+% Repack tiles here
+%---------------------------------------------------------------------------
+nRawTiles = length(masksTilesCellRaw);
+
+masksTilesCell = cell(1, 0);
+namesCell = cell(1, 0);
+constCell = cell(1, 0);
+
+newSeq = 128;
+
+for iTile = 1:nRawTiles
+  if (seqVec(iTile) == -1)
+    idx = newSeq;
+    newSeq = newSeq + 1;
+  else
+    idx = seqVec(iTile) + 1;
+  end
+
+  masksTilesCell(idx) = masksTilesCellRaw(iTile);
+  namesCell(idx) = namesCellRaw(iTile);
+  constCell(idx) = constCellRaw(iTile);
+endfor
 
 %---------------------------------------------------------------------------
 % Output PNG file
@@ -57,17 +86,27 @@ nMasksTiles = length(masksTilesCell);
 data = zeros(nMasksTiles * ySize, xSize, 3, 'uint8');
 alpha = zeros(nMasksTiles * ySize, xSize, 'uint8');
 
+[xx, yy] = meshgrid(1:xSize, 1:ySize);
+dummyTile = 255 * iseven((mod(xx - 1, 32) > 15) + (mod(yy - 1, 32) > 15));
+
 for iMaskTile = 1:nMasksTiles
   s0 = 1 + (iMaskTile - 1) * ySize;
   s1 = s0 + ySize - 1;
 
-  for iChan = 1:3
-    data(s0:s1, :, iChan) = masksTilesCell{iMaskTile}.gray;
-  endfor
+  if isempty(masksTilesCell{iMaskTile})
+    for iChan = 1:3
+      data(s0:s1, :, iChan) = dummyTile;
+      alpha(s0:s1, :) = 255 * ones(xSize, ySize);
+    endfor
+  else
+    for iChan = 1:3
+      data(s0:s1, :, iChan) = masksTilesCell{iMaskTile}.gray;
+    endfor
 
-  alpha(s0:s1, :) = masksTilesCell{iMaskTile}.alpha;
+    alpha(s0:s1, :) = masksTilesCell{iMaskTile}.alpha;
 
-  fprintf(1,'%d\t%s\n', iMaskTile - 1, namesCell{iMaskTile});
+    fprintf(1,'%d\t%s\n', iMaskTile - 1, namesCell{iMaskTile});
+  end
 end
 
 imwrite(data, pngFilename, 'Alpha', alpha)
@@ -81,7 +120,9 @@ imwrite(alpha, 'alpha.png')
 fid = fopen(txtFilename, 'w');
 
 for iMaskTile = 1:nMasksTiles
-  fprintf(fid, '%d\t%s\n', iMaskTile - 1, namesCell{iMaskTile});
+  if ~isempty(namesCell{iMaskTile})
+    fprintf(fid, '%d\t%s\n', iMaskTile - 1, namesCell{iMaskTile});
+  endif
 endfor
 
 fclose(fid);
@@ -103,12 +144,14 @@ fprintf(fid, 'namespace alatar_updated {\n\n');
 fprintf(fid, 'enum MaskTileIDs {\n');
 
 for iMaskTile = 1:nMasksTiles
-  fprintf(fid, '%s = %d', constCell{iMaskTile}, iMaskTile - 1);
+  if ~isempty(namesCell{iMaskTile})
+    fprintf(fid, '%s = %d', constCell{iMaskTile}, iMaskTile - 1);
 
-  if (iMaskTile == nMasksTiles)
-    fprintf(fid, ' // %s\n', namesCell{iMaskTile});
-  else
-    fprintf(fid, ', // %s\n', namesCell{iMaskTile});
+    if (iMaskTile == nMasksTiles)
+      fprintf(fid, ' // %s\n', namesCell{iMaskTile});
+    else
+      fprintf(fid, ', // %s\n', namesCell{iMaskTile});
+    endif
   endif
 endfor
 

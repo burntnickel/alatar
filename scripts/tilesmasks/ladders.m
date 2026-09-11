@@ -1,4 +1,4 @@
-function [tileCell, nameCell, constCell] = ladders(xSize)
+function [tileCell, nameCell, constCell, seqVec] = ladders(xSize)
 
 oversample = 3;
 
@@ -20,6 +20,7 @@ k = 16.0;
 tileCell = cell(1, 0);
 nameCell = cell(1, 0);
 constCell = cell(1,0);
+seqVec = zeros(1, 0);
 
 index = 1;
 
@@ -29,12 +30,12 @@ yVec = linspace(-1, 1, ySize).';
 %---------------------------------------------------------------------------
 % blank
 %---------------------------------------------------------------------------
-tileCell{index}.gray = zeros(ySize / oversample, xSize / oversample, 'uint8');
-tileCell{index}.alpha = zeros(ySize / oversample, xSize / oversample, 'uint8');
-nameCell{index} = 'Blank';
-constCell{index} = 'LadderBlank';
-index = index + 1;
-
+%tileCell{index}.gray = zeros(ySize / oversample, xSize / oversample, 'uint8');
+%tileCell{index}.alpha = zeros(ySize / oversample, xSize / oversample, 'uint8');
+%nameCell{index} = 'Blank';
+%constCell{index} = 'LadderBlank';
+%index = index + 1;
+%
 %---------------------------------------------------------------------------
 % vertical only
 %---------------------------------------------------------------------------
@@ -60,6 +61,7 @@ tileCell{index}.gray = uint8(downsample(255 * tmp, oversample));
 tileCell{index}.alpha = uint8(downsample(255 * double(tmp > 0), oversample));
 nameCell{index} = 'Ladder Vertical Only';
 constCell{index} = 'Vertical';
+seqVec(index) = -1;
 index = index + 1;
 
 %---------------------------------------------------------------------------
@@ -88,6 +90,7 @@ tileCell{index}.gray = uint8(downsample(255 * tmp, oversample));
 tileCell{index}.alpha = uint8(downsample(255 * double(tmp > 0), oversample));
 nameCell{index} = 'Ladder Horizontal Only';
 constCell{index} = 'Horizontal';
+seqVec(index) = 102;
 index = index + 1;
 
 %---------------------------------------------------------------------------
@@ -103,6 +106,7 @@ tileCell{index}.gray = uint8(downsample(255 * tmp, oversample));
 tileCell{index}.alpha = uint8(downsample(255 * double(tmp > 0), oversample));
 nameCell{index} = 'Ladder Combo Left';
 constCell{index} = 'ComboLeft';
+seqVec(index) = 101;
 index = index + 1;
 
 %---------------------------------------------------------------------------
@@ -118,6 +122,7 @@ tileCell{index}.gray = uint8(downsample(255 * tmp, oversample));
 tileCell{index}.alpha = uint8(downsample(255 * double(tmp > 0), oversample));
 nameCell{index} = 'Ladder Combo Left';
 constCell{index} = 'ComboRight';
+seqVec(index) = 103;
 index = index + 1;
 
 endfunction

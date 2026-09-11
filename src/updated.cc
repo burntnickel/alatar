@@ -4,6 +4,7 @@
 // #include <SDL_image.h>
 
 #include <iostream>
+#include <set>
 
 #include "c64_clut.h"
 #include "sdl_helper.h"
@@ -178,14 +179,15 @@ void UpdatedClass::UpdateWalls(const alatar::LevelClass& level) {
 
       data_.tile_buffer[kWallMaskOffset + screen_index] = mask;
 
-      // Color buffer updates
+      // Color buffer updates (only do this once here)
       data_.color_buffer[screen_index] = level.GetTileColor(tile);
     }
   }
 }
 
 void UpdatedClass::UpdateMiscTiles(const alatar::LevelClass& level) {
-  // How can I avoid duplication with other functions for things like the color?
+  const std::set<unsigned char> kSkipTiles{91, 92, 93, 94, 95, 96, 97, 98, 122, 123};
+
   for (int row = 0; row < alatar::kTileDataRows; ++row) {
     for (int col = 0; col < alatar::kTileDataCols; ++col) {
       unsigned int screen_row = static_cast<unsigned int>(row) + 1;
@@ -196,27 +198,30 @@ void UpdatedClass::UpdateMiscTiles(const alatar::LevelClass& level) {
 
       // TODO: add context like for the walls to correctly draw just vertical parts
 
-      // Tile and mask updates
       unsigned char new_tile;
 
-      switch (tile) {
-        case 101:  // Ladder left
-          new_tile = kLadderTileComboLeft;
-          break;
-        case 102:  // Ladder middle
-          new_tile = kLadderTileHorizontal;
-          break;
-        case 103:  // Ladder right
-          new_tile = kLadderTileComboRight;
-          break;
-        default:
-          new_tile = kLadderTileLadderBlank;
+      if (!kSkipTiles.contains(tile)) {
+        // Tile and mask updates
+
+        switch (tile) {
+          case 101:  // Ladder left
+            new_tile = kLadderTileComboLeft;
+            break;
+          case 102:  // Ladder middle
+            new_tile = kLadderTileHorizontal;
+            break;
+          case 103:  // Ladder right
+            new_tile = kLadderTileComboRight;
+            break;
+          default:
+            //new_tile = kMaskTileBlank;
+            new_tile = tile;
+        }
+      } else {
+        new_tile = kMaskTileBlank;
       }
 
       data_.tile_buffer[kTileMiscOffset + screen_index] = new_tile;
-
-      // Color buffer updates
-      data_.color_buffer[screen_index] = level.GetTileColor(tile);
     }
   }
 }
@@ -361,7 +366,7 @@ std::optional<alatar::GraphicsCommonPtr> UpdatedClass::UpdatedClassFactory(
 
     /*  glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_R8, width, height, depth, 0, GL_RED, GL_UNSIGNED_BYTE,
                    data.tiles_and_masks_surface->pixels);*/
-    glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA, width, height, depth, 0,  GL_RGBA, GL_UNSIGNED_BYTE,
+    glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA, width, height, depth, 0, GL_RGBA, GL_UNSIGNED_BYTE,
                  data.tiles_and_masks_surface->pixels);
     BurningLogic::PrintGLError("UpdatedClassFactory:glTexImage3D");
   }

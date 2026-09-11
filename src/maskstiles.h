@@ -7,36 +7,36 @@
 namespace alatar_updated {
 
 enum MaskTileIDs {
-  kMaskTileBlank = 0,                             // Blank
-  kMaskTileWallBase = 1,                          // Wall/Floor (base)
-  kMaskTileWall001 = 2,                           // Wall/Floor (001)
-  kMaskTileWall010 = 3,                           // Wall/Floor (010)
-  kMaskTileWall011 = 4,                           // Wall/Floor (011)
-  kMaskTileWall100 = 5,                           // Wall/Floor (100)
-  kMaskTileWall101 = 6,                           // Wall/Floor (101/111)
-  kMaskTileWall110 = 7,                           // Wall/Floor (110)
-  kMaskTileSteepStairsLeftBase = 8,               // Steep Stairs Left (base)
-  kMaskTileSteepStairsLeft1 = 9,                  // Steep Stairs Left (1)
-  kMaskTileSteepStairsRightBase = 10,             // Steep Stairs Right (base)
-  kMaskTileSteepStairsRight1 = 11,                // Steep Stairs Right (1)
-  kMaskTileShallowStairsLeftLeftPartBase = 12,    // Shallow Stairs Left (left part) (base)
-  kMaskTileShallowStairsLeftLeftPart1 = 13,       // Shallow Stairs Left (left part) (1)
-  kMaskTileShallowStairsLeftRightPartBase = 14,   // Shallow Stairs Left (right part) (base)
-  kMaskTileShallowStairsLeftRightPart1 = 15,      // Shallow Stairs Left (right part) (1)
-  kMaskTileShallowStairsRightLeftPartBase = 16,   // Shallow Stairs Right (left part) (base)
-  kMaskTileShallowStairsRightLeftPart1 = 17,      // Shallow Stairs Right (left part) (1)
-  kMaskTileShallowStairsRightRightPartBase = 18,  // Shallow Stairs Right (right part) (base)
-  kMaskTileShallowStairsRightRightPart1 = 19,     // Shallow Stairs Right (right part) (1)
-  kMaskTileSlideLeftBase = 20,                    // Side Left (base)
-  kMaskTileSlideLeft1 = 21,                       // Side Left (1)
-  kMaskTileSlideRightBase = 22,                   // Side Right (base)
-  kMaskTileSlideRight1 = 23,                      // Side Right (1)
-  kLadderTileLadderBlank = 24,                    // Blank
-  kLadderTileVertical = 25,                       // Ladder Vertical Only
-  kLadderTileHorizontal = 26,                     // Ladder Horizontal Only
-  kLadderTileComboLeft = 27,                      // Ladder Combo Left
-  kLadderTileComboRight = 28                      // Ladder Combo Left
+  kMaskTileBlank = 32,                            // Blank
+  kMaskTileWallBase = 91,                         // Wall/Floor (base)
+  kMaskTileSteepStairsLeftBase = 93,              // Steep Stairs Left (base)
+  kMaskTileSteepStairsRightBase = 94,             // Steep Stairs Right (base)
+  kMaskTileShallowStairsLeftLeftPartBase = 95,    // Shallow Stairs Left (left part) (base)
+  kMaskTileShallowStairsLeftRightPartBase = 96,   // Shallow Stairs Left (right part) (base)
+  kMaskTileShallowStairsRightLeftPartBase = 97,   // Shallow Stairs Right (left part) (base)
+  kMaskTileShallowStairsRightRightPartBase = 98,  // Shallow Stairs Right (right part) (base)
+  kLadderTileComboLeft = 101,                     // Ladder Combo Left
+  kLadderTileHorizontal = 102,                    // Ladder Horizontal Only
+  kLadderTileComboRight = 103,                    // Ladder Combo Left
+  kMaskTileSlideLeftBase = 122,                   // Slide Left (base)
+  kMaskTileSlideRightBase = 123,                  // Slide Right (base)
+  kMaskTileWall001 = 127,                         // Wall/Floor (001)
+  kMaskTileWall010 = 128,                         // Wall/Floor (010)
+  kMaskTileWall011 = 129,                         // Wall/Floor (011)
+  kMaskTileWall100 = 130,                         // Wall/Floor (100)
+  kMaskTileWall101 = 131,                         // Wall/Floor (101/111)
+  kMaskTileWall110 = 132,                         // Wall/Floor (110)
+  kMaskTileSteepStairsLeft1 = 133,                // Steep Stairs Left (1)
+  kMaskTileSteepStairsRight1 = 134,               // Steep Stairs Right (1)
+  kMaskTileShallowStairsLeftLeftPart1 = 135,      // Shallow Stairs Left (left part) (1)
+  kMaskTileShallowStairsLeftRightPart1 = 136,     // Shallow Stairs Left (right part) (1)
+  kMaskTileShallowStairsRightLeftPart1 = 137,     // Shallow Stairs Right (left part) (1)
+  kMaskTileShallowStairsRightRightPart1 = 138,    // Shallow Stairs Right (right part) (1)
+  kMaskTileSlideLeft1 = 139,                      // Slide Left (1)
+  kMaskTileSlideRight1 = 140,                     // Slide Right (1)
+  kLadderTileVertical = 141                       // Ladder Vertical Only
 };
 
 }  // namespace alatar_updated
+
 #endif
