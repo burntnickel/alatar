@@ -11,7 +11,7 @@
 // PARTICULAR PURPOSE. See the GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License along with Alatar.
-// If not, see <https://www.gnu.org/licenses/>. 
+// If not, see <https://www.gnu.org/licenses/>.
 
 #include "classic.h"
 
@@ -21,6 +21,7 @@
 
 #include "c64_clut.h"
 #include "globals.h"
+#include "slides.h"
 
 namespace alatar_classic {
 
@@ -64,7 +65,7 @@ ClassicClass::ClassicClass(Token, const ClassicData& data) {
 
 void ClassicClass::LevelInit(const alatar::LevelClass& level) {
   // Set to 32 (space) as blank character & black (0)
-  for (unsigned int ii = 0; ii < (alatar::kRowTiles * alatar::kColTiles); ++ii) {
+  for (unsigned int ii = 0; ii < alatar::kLevelTileCount; ++ii) {
     data_.tile_buffer[ii] = 32;
     data_.color_buffer[ii] = 0;
   }
@@ -84,6 +85,8 @@ void ClassicClass::LevelInit(const alatar::LevelClass& level) {
 }
 
 void ClassicClass::Update(Uint64 counter, const alatar::LevelClass& level) {
+  alatar::UpdateSlides(level, data_.tile_buffer);
+
   // Update graphics (these probably don't upate at 60 Hz, need to get the correct number)
   // I think color changes faster then the fire animation
   if ((static_cast<double>(counter - data_.treasure_color_cycle_counter) * alatar::gCounterToMsScale) >
@@ -109,7 +112,7 @@ void ClassicClass::Update(Uint64 counter, const alatar::LevelClass& level) {
       unsigned int screen_col = static_cast<unsigned int>(col);
       unsigned int screen_index = alatar::kColTiles * screen_row + screen_col;
 
-      unsigned char tile = level.GetTileAt(row, col);
+      unsigned char tile = data_.tile_buffer[screen_index];
 
       if (alatar::GetTileGroup(tile) == alatar::kTreasure) {
         data_.color_buffer[screen_index] = treasure_color_idx;
@@ -132,7 +135,8 @@ void ClassicClass::Update(Uint64 counter, const alatar::LevelClass& level) {
         unsigned int screen_col = static_cast<unsigned int>(col);
         unsigned int screen_index = alatar::kColTiles * screen_row + screen_col;
 
-        unsigned char tile = level.GetTileAt(row, col);
+        unsigned char tile = data_.tile_buffer[screen_index];
+
         if (alatar::GetTileGroup(tile) == alatar::kFire) {
           data_.fire_animation_counter = counter;
           auto tmp_tile = data_.tile_buffer[screen_index];

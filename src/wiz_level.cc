@@ -11,7 +11,7 @@
 // PARTICULAR PURPOSE. See the GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License along with Alatar.
-// If not, see <https://www.gnu.org/licenses/>. 
+// If not, see <https://www.gnu.org/licenses/>.
 
 #include "wiz_level.h"
 
@@ -162,6 +162,19 @@ LevelClass::LevelClass(std::span<unsigned char, kFileLength> data) {
   ladder_color_ = raw_data_[kLadderColorCode] & 0x0f;
   rope_color_ = raw_data_[kRopeColorCode] & 0x0f;
   portal_color_ = raw_data_[kPortalColorCode] & 0x0f;
+
+  // Slide info
+  for (std::size_t ii = 0; ii < slide_info_array_.size(); ++ii) {
+    // Need to subtract 0xc400 here as the level file has the starting offset to the RAM memory location on
+    // the Commodore 64
+    slide_info_array_[ii].start_tile_offset =
+        256u * raw_data_[kSlide0StartTileHighByte + ii] + raw_data_[kSlide0StartTileLowByte + ii] - 0xc400;
+    slide_info_array_[ii].stride = raw_data_[kSlide0Stride + ii];
+    slide_info_array_[ii].slide_time = raw_data_[kSlide0Time + ii] >> 4;
+    slide_info_array_[ii].normal_time = raw_data_[kSlide0Time + ii] & 0x0f;
+    slide_info_array_[ii].active =
+        (slide_info_array_[ii].slide_time > 0) && (slide_info_array_[ii].normal_time > 0);
+  }
 }
 
 unsigned char LevelClass::GetTileAt(int row, int col) const {
@@ -174,6 +187,14 @@ unsigned char LevelClass::GetTileAt(int row, int col) const {
   }
 
   unsigned int offset = static_cast<unsigned int>(row * kTileDataCols + col);
+
+  return raw_data_[kTileDataStart + offset];
+}
+
+unsigned char LevelClass::GetTileAtOffset(unsigned int offset) const {
+  if (offset > 999) {
+    throw std::out_of_range("Tile offset out of range");
+  }
 
   return raw_data_[kTileDataStart + offset];
 }
@@ -304,6 +325,10 @@ MaskTiles LevelClass::GetMaskTiles(int row, int col) const {
   return tmp;
 }
 
+SlideInfoArray LevelClass::GetSlideInfo(void) const {
+  return slide_info_array_;
+}
+
 void LevelClass::SetTileAt(int row, int col, unsigned char c) {
   if ((row < 0) || (row > (kTileDataRows - 1))) {
     throw std::out_of_range("Tile column out of range");
@@ -314,6 +339,14 @@ void LevelClass::SetTileAt(int row, int col, unsigned char c) {
   }
 
   unsigned int offset = static_cast<unsigned int>(row * kTileDataCols + col);
+
+  raw_data_[kTileDataStart + offset] = c;
+}
+
+void LevelClass::SetTileOffset(unsigned int offset, unsigned char c) {
+  if (offset > 999) {
+    throw std::out_of_range("Tile offset out of range");
+  }
 
   raw_data_[kTileDataStart + offset] = c;
 }

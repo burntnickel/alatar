@@ -11,7 +11,7 @@
 // PARTICULAR PURPOSE. See the GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License along with Alatar.
-// If not, see <https://www.gnu.org/licenses/>. 
+// If not, see <https://www.gnu.org/licenses/>.
 
 #ifndef H_ALATAR_CLASSIC
 #define H_ALATAR_CLASSIC
@@ -61,8 +61,8 @@ constexpr auto kClassicSpriteTextureUnit = GL_TEXTURE4;
 // Data use in main program for classic display mode
 struct ClassicData {
   std::array<unsigned char, alatar::kTileBufferSize> tile_set{};
-  std::array<unsigned char, alatar::kRowTiles * alatar::kColTiles> tile_buffer{};
-  std::array<unsigned char, alatar::kRowTiles * alatar::kColTiles> color_buffer{};
+  alatar::WizardLevelBuffer tile_buffer{};
+  alatar::WizardLevelBuffer color_buffer{};
   std::array<unsigned char, kSpriteProcDataSize> processed_sprites{};
 
   alatar::ValueCycle<unsigned char> treasure_color_cycle{kTreasureCycleColors};

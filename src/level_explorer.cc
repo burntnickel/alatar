@@ -121,9 +121,9 @@ static void DisplayLevelInfo(std::span<const char, kFileLength> data) {
       continue;
     }
 
-    if ((ii >= kSlide0EndTile) && (ii <= kSlide2EndTile)) {
-      int n = static_cast<int>(ii - kSlide0EndTile);
-      std::cout << "Slide " << n << " End Tile Offset\n";
+    if ((ii >= kSlide0Stride) && (ii <= kSlide2Stride)) {
+      int n = static_cast<int>(ii - kSlide0Stride);
+      std::cout << "Slide " << n << " Stride\n";
       continue;
     }
 

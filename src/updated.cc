@@ -11,7 +11,7 @@
 // PARTICULAR PURPOSE. See the GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License along with Alatar.
-// If not, see <https://www.gnu.org/licenses/>. 
+// If not, see <https://www.gnu.org/licenses/>.
 
 #include "updated.h"
 
@@ -22,60 +22,9 @@
 
 #include "c64_clut.h"
 #include "sdl_helper.h"
+#include "slides.h"
 
 namespace alatar_updated {
-
-/*static bool LoadToSurfaceRGBA(std::filesystem::path path_and_name, SDL_Surface*& target_surface) {
-  SDL_Surface* raw_surface = IMG_Load(path_and_name.c_str());
-  bool success = ErrorEvalPrintSDL(raw_surface == NULL, "Error calling IMG_Load:");
-
-  // Convert to the required RGBA format here
-  SDL_Surface* converted_surface;
-
-  if (success) {
-    converted_surface = SDL_ConvertSurfaceFormat(raw_surface, SDL_PIXELFORMAT_RGBA32, 0);
-    success = ErrorEvalPrintSDL(raw_surface == NULL, "Error calling SDL_ConvertSurfaceFormat:");
-  }
-
-  if (raw_surface != NULL) {
-    SDL_FreeSurface(raw_surface);
-  }
-
-  if (success) {
-    target_surface = converted_surface;
-  }
-
-  return success;
-}
-
-static bool LoadToSurface1Chan(std::filesystem::path path_and_name, SDL_Surface*& target_surface) {
-  SDL_Surface* raw_surface = IMG_Load(path_and_name.c_str());
-  bool success = ErrorEvalPrintSDL(raw_surface == NULL, "Error calling IMG_Load:");
-
-  if (success) {
-    // Convert to single 8 bit channel here
-    SDL_Surface* tmp_surface = SDL_CreateRGBSurface(0, 1, 1, 8, 0, 0, 0, 0);
-    // SDL_PixelFormat* index_8_format = tmp_surface->format;
-
-    std::array<SDL_Color, 256> colors;
-
-    for (unsigned int i = 0; i < 256; ++i) {
-      colors[i].r = static_cast<Uint8>(i);
-      colors[i].g = static_cast<Uint8>(i);
-      colors[i].b = static_cast<Uint8>(i);
-      colors[i].a = 255;
-    }
-
-    SDL_SetPaletteColors(tmp_surface->format->palette, colors.data(), 0, 256);
-
-    target_surface = SDL_ConvertSurface(raw_surface, tmp_surface->format, 0);
-
-    SDL_FreeSurface(tmp_surface);
-    SDL_FreeSurface(raw_surface);
-  }
-
-  return success;
-}*/
 
 //--------------------------------------------------------------------
 // UpdatedClass implementation
@@ -125,15 +74,28 @@ UpdatedClass::UpdatedClass(Token, const UpdatedData& data) {
   data_ = data;
 }
 
-void UpdatedClass::LevelInit([[maybe_unused]] const alatar::LevelClass& level) {
+void UpdatedClass::LevelInit(const alatar::LevelClass& level) {
   // Initalize the buffers used to pass level data to the shader
-  for (auto& array_entry : data_.tile_buffer) {
+  for (auto& array_entry : data_.draw_tile_buffer) {
     array_entry = 0;
   }
 
-  for (auto& array_entry : data_.color_buffer) {
-    array_entry = 0;
+  for (int row = 0; row < alatar::kTileDataRows; ++row) {
+    for (int col = 0; col < alatar::kTileDataCols; ++col) {
+      unsigned int screen_row = static_cast<unsigned int>(row) + 1;
+      unsigned int screen_col = static_cast<unsigned int>(col);
+      unsigned int screen_index = alatar::kColTiles * screen_row + screen_col;
+
+      unsigned char tile = level.GetTileAt(row, col);
+
+      data_.tile_buffer[screen_index] = tile;
+      data_.color_buffer[screen_index] = level.GetTileColor(tile);
+    }
   }
+
+  /*for (auto& array_entry : data_.color_buffer) {
+    array_entry = 0;
+  }*/
 }
 
 void UpdatedClass::UpdateWalls(const alatar::LevelClass& level) {
@@ -143,7 +105,8 @@ void UpdatedClass::UpdateWalls(const alatar::LevelClass& level) {
       unsigned int screen_col = static_cast<unsigned int>(col);
       unsigned int screen_index = alatar::kColTiles * screen_row + screen_col;
 
-      unsigned char tile = level.GetTileAt(row, col);
+      // unsigned char tile = level.GetTileAt(row, col);
+      unsigned char tile = data_.tile_buffer[screen_index];
       alatar::MaskTiles mask_tiles = level.GetMaskTiles(row, col);
       auto mask_index = GetWallTileMaskIndex(mask_tiles);
 
@@ -191,7 +154,7 @@ void UpdatedClass::UpdateWalls(const alatar::LevelClass& level) {
           mask = kMaskTileBlank;
       }
 
-      data_.tile_buffer[kWallMaskOffset + screen_index] = mask;
+      data_.draw_tile_buffer[kWallMaskOffset + screen_index] = mask;
 
       // Color buffer updates (only do this once here)
       data_.color_buffer[screen_index] = level.GetTileColor(tile);
@@ -199,7 +162,7 @@ void UpdatedClass::UpdateWalls(const alatar::LevelClass& level) {
   }
 }
 
-void UpdatedClass::UpdateMiscTiles(const alatar::LevelClass& level) {
+void UpdatedClass::UpdateMiscTiles([[maybe_unused]] const alatar::LevelClass& level) {
   const std::set<unsigned char> kSkipTiles{91, 92, 93, 94, 95, 96, 97, 98, 122, 123};
 
   for (int row = 0; row < alatar::kTileDataRows; ++row) {
@@ -208,7 +171,8 @@ void UpdatedClass::UpdateMiscTiles(const alatar::LevelClass& level) {
       unsigned int screen_col = static_cast<unsigned int>(col);
       unsigned int screen_index = alatar::kColTiles * screen_row + screen_col;
 
-      unsigned char tile = level.GetTileAt(row, col);
+      // unsigned char tile = level.GetTileAt(row, col);
+      unsigned char tile = data_.tile_buffer[screen_index];
 
       // TODO: add context like for the walls to correctly draw just vertical parts
 
@@ -228,19 +192,21 @@ void UpdatedClass::UpdateMiscTiles(const alatar::LevelClass& level) {
             new_tile = kLadderTileComboRight;
             break;
           default:
-            //new_tile = kMaskTileBlank;
+            // new_tile = kMaskTileBlank;
             new_tile = tile;
         }
       } else {
         new_tile = kMaskTileBlank;
       }
 
-      data_.tile_buffer[kTileMiscOffset + screen_index] = new_tile;
+      data_.draw_tile_buffer[kTileMiscOffset + screen_index] = new_tile;
     }
   }
 }
 
 void UpdatedClass::Update([[maybe_unused]] Uint64 counter, const alatar::LevelClass& level) {
+  alatar::UpdateSlides(level, data_.tile_buffer);
+
   UpdateWalls(level);
   UpdateMiscTiles(level);
 
@@ -254,8 +220,8 @@ void UpdatedClass::Update([[maybe_unused]] Uint64 counter, const alatar::LevelCl
   glBindBuffer(GL_TEXTURE_BUFFER, data_.tile_glbuffers.tile_buffer);
   BurningLogic::PrintGLError("main:glBindBuffer");
 
-  glBufferSubData(GL_TEXTURE_BUFFER, 0, static_cast<GLsizeiptr>(data_.tile_buffer.size()),
-                  data_.tile_buffer.data());
+  glBufferSubData(GL_TEXTURE_BUFFER, 0, static_cast<GLsizeiptr>(data_.draw_tile_buffer.size()),
+                  data_.draw_tile_buffer.data());
   BurningLogic::PrintGLError("main:glBufferSubData");
 
   /*// Set updated fire and treasure colors
@@ -401,7 +367,7 @@ std::optional<alatar::GraphicsCommonPtr> UpdatedClass::UpdatedClassFactory(
 
   // Tile data
   BurningLogic::TextureSetupHelper(kUpdatedTileDataTextureUnit, &data.tile_glbuffers.tile_buffer,
-                                   data.tile_buffer, GL_DYNAMIC_DRAW, &data.tile_glbuffers.tile_texture,
+                                   data.draw_tile_buffer, GL_DYNAMIC_DRAW, &data.tile_glbuffers.tile_texture,
                                    GL_R8UI);
 
   // CLUT

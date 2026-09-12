@@ -40,8 +40,6 @@ struct UpdatedTileGLBuffers {
   GLuint tile_mask_texture;
 };
 
-constexpr std::size_t kNumTiles = alatar::kRowTiles * alatar::kColTiles;
-
 // Vertex buffer is number of tiles * 4 (the four verticies of each tile) * the number of attributes
 // Index buffer is number of tiles * 2 (triangles per tile) * 3 (verticies per triangle)
 class UpdatedTileVertexManager {
@@ -55,8 +53,8 @@ class UpdatedTileVertexManager {
   const static std::size_t num_attributes_ = 4;
 
  public:
-  std::array<GLfloat, 4 * num_attributes_ * kNumTiles> vertex_buffer_;
-  std::array<GLuint, 2 * 3 * kNumTiles> index_buffer_;
+  std::array<GLfloat, 4 * num_attributes_ * alatar::kLevelTileCount> vertex_buffer_;
+  std::array<GLuint, 2 * 3 * alatar::kLevelTileCount> index_buffer_;
 
  private:
   void SetXY(unsigned int row, unsigned int col, float x0, float x1, float y0, float y1);

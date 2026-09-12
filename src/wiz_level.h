@@ -11,7 +11,7 @@
 // PARTICULAR PURPOSE. See the GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License along with Alatar.
-// If not, see <https://www.gnu.org/licenses/>. 
+// If not, see <https://www.gnu.org/licenses/>.
 
 #ifndef H_ALATAR_WIZ_LEVEL
 #define H_ALATAR_WIZ_LEVEL
@@ -31,6 +31,7 @@ constexpr int kTileDataRows = 21;
 
 constexpr unsigned int kRowTiles = 25;
 constexpr unsigned int kColTiles = 40;
+constexpr unsigned int kLevelTileCount = kRowTiles * kColTiles;
 
 // 256 characters at 8 bytes each
 constexpr std::size_t kNumCharInSet = 256;
@@ -84,9 +85,9 @@ enum {
   kSlide0StartTileHighByte = 88,
   kSlide1StartTileHighByte = 89,
   kSlide2StartTileHighByte = 90,
-  kSlide0EndTile = 91,
-  kSlide1EndTile = 92,
-  kSlide2EndTile = 93,
+  kSlide0Stride = 91,
+  kSlide1Stride = 92,
+  kSlide2Stride = 93,
   kSlide0Time = 94,
   kSlide1Time = 95,
   kSlide2Time = 96,
@@ -179,7 +180,19 @@ struct WizardInfo {
   unsigned int color;
 };
 
+struct SlideInfo {
+  bool active;
+  unsigned int start_tile_offset;
+  unsigned int stride;
+  unsigned int slide_time;
+  unsigned int normal_time;
+};
+
+using SlideInfoArray = std::array<SlideInfo, 3>;
+
 using MaskTiles = std::array<unsigned char, 6>;
+
+using WizardLevelBuffer = std::array<unsigned char, kLevelTileCount>;
 
 class LevelClass {
  public:
@@ -187,6 +200,7 @@ class LevelClass {
   explicit LevelClass(std::span<unsigned char, kFileLength> data);
 
   unsigned char GetTileAt(int row, int col) const;
+  unsigned char GetTileAtOffset(unsigned int offset) const;
   unsigned char GetBrickColor(void) const;
   unsigned char GetLadderColor(void) const;
   unsigned char GetRopeColor(void) const;
@@ -195,8 +209,11 @@ class LevelClass {
   WizardInfo GetWizardInfo(void) const;
   alatar::MonsterClassArray GetMonsterInfo(void) const;
   MaskTiles GetMaskTiles(int row, int col) const;
+  SlideInfoArray GetSlideInfo(void) const;
+
  private:
   void SetTileAt(int row, int col, unsigned char c);
+  void SetTileOffset(unsigned int offset, unsigned char c);
 
  private:
   std::array<unsigned char, kFileLength> raw_data_{};
@@ -204,6 +221,7 @@ class LevelClass {
   unsigned char ladder_color_ = 0;
   unsigned char rope_color_ = 0;
   unsigned char portal_color_ = 0;
+  SlideInfoArray slide_info_array_;
 };
 
 std::string GetC64Color(unsigned char c);

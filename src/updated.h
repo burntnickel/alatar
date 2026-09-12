@@ -51,18 +51,17 @@ constexpr auto kUpdatedTileDataTextureUnit = GL_TEXTURE0 + kUpdatedTileDataTextu
 constexpr auto kUpdatedClutTextureUnit = GL_TEXTURE0 + kUpdatedClutTextureUnitNumber;
 constexpr auto kUpdatedColorTextureUnit = GL_TEXTURE0 + kUpdatedColorTextureUnitNumber;
 
-constexpr unsigned int kLevelTileCount = alatar::kRowTiles * alatar::kColTiles;
-constexpr unsigned int kWallMaskOffset = 0 * kLevelTileCount;
-constexpr unsigned int kTileMiscOffset = 1 * kLevelTileCount;
+constexpr unsigned int kWallMaskOffset = 0 * alatar::kLevelTileCount;
+constexpr unsigned int kTileMiscOffset = 1 * alatar::kLevelTileCount;
 
 // Data use in main program for the updated display mode
 struct UpdatedData {
-  std::array<unsigned char, 2 * kLevelTileCount> tile_buffer;
-  std::array<unsigned char, kLevelTileCount> color_buffer;
+  std::array<unsigned char, 2 * alatar::kLevelTileCount> draw_tile_buffer;
 
-  // std::array<unsigned char, wizard_level::kTileBufferSize> tile_set{};
-  // std::array<unsigned char, wizard_level::kRowTiles * wizard_level::kColTiles> tile_buffer{};
-  // std::array<unsigned char, wizard_level::kRowTiles * wizard_level::kColTiles> color_buffer{};
+
+  alatar::WizardLevelBuffer color_buffer{};
+  alatar::WizardLevelBuffer tile_buffer{};
+
   // std::array<unsigned char, alatar_classic::kSpriteProcDataSize> processed_sprites{};
 
   UpdatedTileGLBuffers tile_glbuffers;
