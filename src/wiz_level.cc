@@ -294,7 +294,7 @@ MonsterClassArray LevelClass::GetMonsterInfo(void) const {
   return tmp_monster_array;
 }
 
-MaskTiles LevelClass::GetMaskTiles(int row, int col) const {
+/*MaskTiles LevelClass::GetMaskTiles(int row, int col) const {
   MaskTiles tmp;
 
   if ((row < 0) || (row > (kTileDataRows - 1))) {
@@ -323,7 +323,7 @@ MaskTiles LevelClass::GetMaskTiles(int row, int col) const {
   }
 
   return tmp;
-}
+}*/
 
 SlideInfoArray LevelClass::GetSlideInfo(void) const {
   return slide_info_array_;
@@ -349,6 +349,41 @@ void LevelClass::SetTileOffset(unsigned int offset, unsigned char c) {
   }
 
   raw_data_[kTileDataStart + offset] = c;
+}
+
+MaskTiles GetMaskTiles(const WizardLevelBuffer& buffer, int row, int col) {
+  MaskTiles tmp;
+
+  if ((row < 0) || (row > (kTileDataRows - 1))) {
+    throw std::out_of_range("Tile column out of range");
+  }
+
+  if ((col < 0) || (col > (kTileDataCols - 1))) {
+    throw std::out_of_range("Tile row out of range");
+  }
+
+  std::size_t idx = 0;
+
+  for (int ir = 0; ir < 2; ++ir) {
+    if ((row + ir) < (kTileDataRows - 1)) {
+      for (int ic = 0; ic < 3; ++ic) {
+        // The +1 is because game level data starts on the second row of the screen
+        // The -1 is becasue we want to start on tile to the left of the one targeted to generate the mask
+        // x T x
+        // x x x 
+        unsigned int offset = static_cast<unsigned int>((row + ir + 1) * kTileDataCols + col + ic - 1);
+        tmp[idx] = buffer[offset];
+        idx = idx + 1;
+      }
+    } else {
+      for (int ic = 0; ic < 3; ++ic) {
+        tmp[idx] = 92;  // If below the bottom row set to floor
+        idx = idx + 1;
+      }
+    }
+  }
+
+  return tmp;
 }
 
 }  // namespace alatar

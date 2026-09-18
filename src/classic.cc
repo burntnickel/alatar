@@ -72,6 +72,7 @@ void ClassicClass::LevelInit(const alatar::LevelClass& level) {
 
   for (int row = 0; row < alatar::kTileDataRows; ++row) {
     for (int col = 0; col < alatar::kTileDataCols; ++col) {
+      // Game data starts on the second screen row
       unsigned int screen_row = static_cast<unsigned int>(row) + 1;
       unsigned int screen_col = static_cast<unsigned int>(col);
       unsigned int screen_index = alatar::kColTiles * screen_row + screen_col;
@@ -82,10 +83,12 @@ void ClassicClass::LevelInit(const alatar::LevelClass& level) {
       data_.color_buffer[screen_index] = level.GetTileColor(tile);
     }
   }
+
+  InitSlides(level, data_.tile_buffer, data_.slide_states);
 }
 
 void ClassicClass::Update(Uint64 counter, const alatar::LevelClass& level) {
-  alatar::UpdateSlides(level, data_.tile_buffer);
+  alatar::UpdateSlides(level, data_.tile_buffer, data_.slide_states, counter);
 
   // Update graphics (these probably don't upate at 60 Hz, need to get the correct number)
   // I think color changes faster then the fire animation

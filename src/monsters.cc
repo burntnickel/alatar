@@ -23,8 +23,6 @@
 
 namespace alatar {
 
-const float kSpeedFactor = 1.0f;
-
 void UpdateMonsters(MonsterClassArray& monster_info, Uint64 counter) {
   for (unsigned int ii = 0; ii < 6; ++ii) {
     if (monster_info[ii]->IsActive()) {

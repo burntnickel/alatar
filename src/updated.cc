@@ -82,6 +82,7 @@ void UpdatedClass::LevelInit(const alatar::LevelClass& level) {
 
   for (int row = 0; row < alatar::kTileDataRows; ++row) {
     for (int col = 0; col < alatar::kTileDataCols; ++col) {
+      // Game data starts on the second screen row
       unsigned int screen_row = static_cast<unsigned int>(row) + 1;
       unsigned int screen_col = static_cast<unsigned int>(col);
       unsigned int screen_index = alatar::kColTiles * screen_row + screen_col;
@@ -93,9 +94,7 @@ void UpdatedClass::LevelInit(const alatar::LevelClass& level) {
     }
   }
 
-  /*for (auto& array_entry : data_.color_buffer) {
-    array_entry = 0;
-  }*/
+  InitSlides(level, data_.tile_buffer, data_.slide_states);
 }
 
 void UpdatedClass::UpdateWalls(const alatar::LevelClass& level) {
@@ -107,7 +106,7 @@ void UpdatedClass::UpdateWalls(const alatar::LevelClass& level) {
 
       // unsigned char tile = level.GetTileAt(row, col);
       unsigned char tile = data_.tile_buffer[screen_index];
-      alatar::MaskTiles mask_tiles = level.GetMaskTiles(row, col);
+      alatar::MaskTiles mask_tiles = alatar::GetMaskTiles(data_.tile_buffer, row, col);
       auto mask_index = GetWallTileMaskIndex(mask_tiles);
 
       // Tile and mask updates
@@ -205,7 +204,7 @@ void UpdatedClass::UpdateMiscTiles([[maybe_unused]] const alatar::LevelClass& le
 }
 
 void UpdatedClass::Update([[maybe_unused]] Uint64 counter, const alatar::LevelClass& level) {
-  alatar::UpdateSlides(level, data_.tile_buffer);
+  alatar::UpdateSlides(level, data_.tile_buffer, data_.slide_states, counter);
 
   UpdateWalls(level);
   UpdateMiscTiles(level);

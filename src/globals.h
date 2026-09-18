@@ -22,6 +22,9 @@ namespace alatar {
 // SDL convertion between clock counts and time
 extern double gCounterToMsScale;
 
+// Global control of game speed, should eventuall become a configurable global
+constexpr float kSpeedFactor = 1.0f;
+
 }  // namespace alatar
 
 #endif

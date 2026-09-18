@@ -188,7 +188,8 @@ struct SlideInfo {
   unsigned int normal_time;
 };
 
-using SlideInfoArray = std::array<SlideInfo, 3>;
+constexpr int kNumSlides = 3;
+using SlideInfoArray = std::array<SlideInfo, kNumSlides>;
 
 using MaskTiles = std::array<unsigned char, 6>;
 
@@ -208,7 +209,7 @@ class LevelClass {
   unsigned char GetTileColor(unsigned char c) const;
   WizardInfo GetWizardInfo(void) const;
   alatar::MonsterClassArray GetMonsterInfo(void) const;
-  MaskTiles GetMaskTiles(int row, int col) const;
+  //MaskTiles GetMaskTiles(int row, int col) const;
   SlideInfoArray GetSlideInfo(void) const;
 
  private:
@@ -228,6 +229,8 @@ std::string GetC64Color(unsigned char c);
 std::string GetSpellName(unsigned char c);
 std::string GetMonsterName(unsigned char c);
 TileGroup GetTileGroup(unsigned char c);
+
+MaskTiles GetMaskTiles(const WizardLevelBuffer& buffer, int row, int col);
 
 }  // namespace alatar
 

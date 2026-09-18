@@ -11,7 +11,7 @@
 // PARTICULAR PURPOSE. See the GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License along with Alatar.
-// If not, see <https://www.gnu.org/licenses/>. 
+// If not, see <https://www.gnu.org/licenses/>.
 
 #ifndef H_ALATAR_UPDATED
 #define H_ALATAR_UPDATED
@@ -26,6 +26,7 @@
 
 #include "graphics_common.h"
 #include "opengl_helper.h"
+#include "slides.h"
 #include "tiles_updated.h"
 
 namespace alatar_updated {
@@ -58,7 +59,6 @@ constexpr unsigned int kTileMiscOffset = 1 * alatar::kLevelTileCount;
 struct UpdatedData {
   std::array<unsigned char, 2 * alatar::kLevelTileCount> draw_tile_buffer;
 
-
   alatar::WizardLevelBuffer color_buffer{};
   alatar::WizardLevelBuffer tile_buffer{};
 
@@ -75,6 +75,8 @@ struct UpdatedData {
 
   SDL_Surface* wall_texture_surface = nullptr;
   SDL_Surface* tiles_and_masks_surface = nullptr;
+
+  alatar::SlideStateCache slide_states;
 };
 
 // Don't want to be able to construct, move, copy, or assgn this class

@@ -11,7 +11,7 @@
 % PARTICULAR PURPOSE. See the GNU General Public License for more details.
 %
 % You should have received a copy of the GNU General Public License along with Alatar.
-% If not, see <https://www.gnu.org/licenses/>. 
+% If not, see <https://www.gnu.org/licenses/>.
 
 close all; clear variables; clc
 
@@ -54,6 +54,26 @@ index = index + N;
 %---------------------------------------------------------------------------
 [masksTilesCell0, namesCell0, constEndCell, seqVec0] = ladders(xSize);
 constBase = 'kLadderTile';
+
+N = length(constEndCell);
+
+masksTilesCellRaw((1:N) + index) = masksTilesCell0;
+namesCellRaw((1:N) + index) = namesCell0;
+
+for iN = 1:N
+  tmp = sprintf('%s%s', constBase, constEndCell{iN});
+  constCellRaw{index + iN} = tmp;
+endfor
+
+seqVec((1:N) + index) = seqVec0;
+
+index = index + N;
+
+%---------------------------------------------------------------------------
+% Keyhold and Arrows
+%---------------------------------------------------------------------------
+[masksTilesCell0, namesCell0, constEndCell, seqVec0] = keyhole_and_arrows(xSize);
+constBase = 'kMiscTile';
 
 N = length(constEndCell);
 

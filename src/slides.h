@@ -16,13 +16,37 @@
 #ifndef H_ALATAR_SLIDES
 #define H_ALATAR_SLIDES
 
+#include <array>
+#include <unordered_map>
+
 #include "wiz_level.h"
 
 namespace alatar {
 
-void UpdateSlides(const LevelClass &level, WizardLevelBuffer &tiles);
+constexpr double kSlideSpeedModifier = 3.0; // TODO: Config file?
+
+struct SlideState {
+  bool valid = false;
+  bool normal = true;
+  unsigned char normal_tile;
+  unsigned char slide_tile;
+  int tile_count = 0;
+  Uint64 old_counter = 0;
+};
+
+using SlideStateCache = std::array<SlideState, kNumSlides>;
+
+// Mappings of tile pairs for slides
+// 1) Floor (92) -> Space (blank) (32)
+// 2) Steep Staris Left (93) -> Slide Left (122)
+// 3) Steep Stairs Right (94) -> Slight Right (123)
+const std::unordered_map<unsigned char, unsigned char> kSlideMapping{{92, 32}, {93, 122}, {94, 123}};
+
+void InitSlides(const LevelClass& level, const WizardLevelBuffer& tiles, SlideStateCache& slide_states);
+
+void UpdateSlides(const LevelClass& level, WizardLevelBuffer& tiles, SlideStateCache& slide_states,
+                  Uint64 counter);
 
 }  // namespace alatar
 
 #endif
-

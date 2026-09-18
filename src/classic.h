@@ -24,6 +24,7 @@
 
 #include "graphics_common.h"
 #include "opengl_helper.h"
+#include "slides.h"
 #include "sprites_classic.h"
 #include "tiles_classic.h"
 #include "value_cycle.h"
@@ -77,6 +78,8 @@ struct ClassicData {
   Uint64 treasure_color_cycle_counter;
   Uint64 fire_color_cycle_counter;
   Uint64 fire_animation_counter;
+
+  alatar::SlideStateCache slide_states;
 };
 
 // Don't want to be able to construct, move, copy, or assgn this class
