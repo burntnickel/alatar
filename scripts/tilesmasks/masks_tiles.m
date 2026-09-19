@@ -90,6 +90,26 @@ seqVec((1:N) + index) = seqVec0;
 index = index + N;
 
 %---------------------------------------------------------------------------
+% Letters and Numbers
+% No named constants for these
+%---------------------------------------------------------------------------
+[masksTilesCell0, ~, ~, seqVec0] = letters_and_numbers(xSize);
+
+N = length(seqVec0);
+
+masksTilesCellRaw((1:N) + index) = masksTilesCell0;
+
+for iN = 1:N
+  namesCellRaw{index + iN} = [];
+  constCellRaw{index + iN} = [];
+endfor
+
+seqVec((1:N) + index) = seqVec0;
+
+index = index + N;
+
+
+%---------------------------------------------------------------------------
 % Repack tiles here
 %---------------------------------------------------------------------------
 nRawTiles = length(masksTilesCellRaw);
@@ -179,7 +199,7 @@ fprintf(fid, 'namespace alatar_updated {\n\n');
 fprintf(fid, 'enum MaskTileIDs {\n');
 
 for iMaskTile = 1:nMasksTiles
-  if ~isempty(namesCell{iMaskTile})
+  if ~isempty(constCell{iMaskTile})
     fprintf(fid, '%s = %d', constCell{iMaskTile}, iMaskTile - 1);
 
     if (iMaskTile == nMasksTiles)

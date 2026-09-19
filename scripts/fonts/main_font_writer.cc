@@ -175,7 +175,7 @@ int main(void) {
 
     // Resize the pixmap vector and the copy the glyphs into it in the proper spots
     pixmap.resize(width * bounding_height);
-    std::fill(pixmap.begin(), pixmap.end(), 192);
+    std::fill(pixmap.begin(), pixmap.end(), 0);
 
     int src = 0;
     int dst = 0;
@@ -185,7 +185,7 @@ int main(void) {
         src = rr * the_glyph->bitmap.pitch + cc;
         dst = (height_above - the_glyph->bitmap_top + rr) * stride + cc;
         // std::cout << width * bounding_height << "   " << dst << "\n";
-        pixmap[dst] = std::max(static_cast<int>(the_glyph->bitmap.buffer[src]), 127);
+        pixmap[dst] = std::max(static_cast<int>(the_glyph->bitmap.buffer[src]), 0);
       }
     }
 
