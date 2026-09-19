@@ -51,10 +51,10 @@ for n = 1:N
 
   tmp(rPad - 1 + (1:rr), cPad - 1 + (1:cc)) = A;
 
-  tmp(1:4, :) = 255;
-  tmp((end-3):end, :) = 255;
-  tmp(:, 1:4) = 255;
-  tmp(:, (end-3):end) = 255;
+%  tmp(1:4, :) = 255;
+%  tmp((end-3):end, :) = 255;
+%  tmp(:, 1:4) = 255;
+%  tmp(:, (end-3):end) = 255;
 
   a = uint8(downsample(double(tmp), oversample));
 

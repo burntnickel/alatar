@@ -88,7 +88,7 @@ int main(void) {
 
   error = FT_Set_Char_Size(face,    /* handle to face object         */
                            0,       /* char_width in 1/64 of points  */
-                           16 * 64, /* char_height in 1/64 of points */
+                           1711,//16 * 64, /* char_height in 1/64 of points */
                            300,     /* horizontal device resolution  */
                            300);    /* vertical device resolution    */
 
