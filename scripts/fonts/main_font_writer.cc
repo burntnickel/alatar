@@ -14,8 +14,11 @@
 
 #include "stb_image_write.h"
 
-const std::string kFontFileName = "C64_Pro_Mono-STYLE.ttf";
-const int kBaseline = 50;
+// const std::string kFontFileName = "C64_Pro_Mono-STYLE.ttf";
+// constexpr kCharHeight = 1711; // char_height in 1/64 of points
+
+const std::string kFontFileName = "Alatar.ttf";
+constexpr int kCharHeight = 1904;  // char_height in 1/64 of points
 
 using CharMap = std::map<unsigned char, FT_ULong>;
 
@@ -86,11 +89,11 @@ int main(void) {
     return EXIT_FAILURE;
   }
 
-  error = FT_Set_Char_Size(face,    /* handle to face object         */
-                           0,       /* char_width in 1/64 of points  */
-                           1711,//16 * 64, /* char_height in 1/64 of points */
-                           300,     /* horizontal device resolution  */
-                           300);    /* vertical device resolution    */
+  error = FT_Set_Char_Size(face,        /* handle to face object         */
+                           0,           /* char_width in 1/64 of points  */
+                           kCharHeight, /* char_height in 1/64 of points */
+                           300,         /* horizontal device resolution  */
+                           300);        /* vertical device resolution    */
 
   if (error) {
     std::cerr << "Error calling FT_Set_Char_Size\n";

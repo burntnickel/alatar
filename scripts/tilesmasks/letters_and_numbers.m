@@ -49,7 +49,7 @@ for n = 1:N
   rPad = round((xSize - rr) / 2);
   cPad = round((xSize - cc) / 2);
 
-  tmp(rPad - 1 + (1:rr), cPad - 1 + (1:cc)) = A;
+  tmp(rPad + (1:rr), cPad + (1:cc)) = A;
 
 %  tmp(1:4, :) = 255;
 %  tmp((end-3):end, :) = 255;
