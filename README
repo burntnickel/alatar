@@ -1,0 +1,120 @@
+Copyright 2026 Jude Giampaolo
+
+This file is part of Alatar.
+
+Alatar is free software: you can redistribute it and/or modify it under the
+terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version.
+
+Alatar is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with
+Alatar. If not, see <https://www.gnu.org/licenses/>. 
+
+-------------------------------------------------------------------------------
+
+I. Introduction
+
+This is the main README file for Alatar.
+
+Alatar is disigned to be a game engine play the games Wizard and Ultimate
+Wizard from the Commodore 64 on a modern computer.  This distribution does NOT
+include any files from the original games.  You will need to have a copy of one
+of these two games, or additonal level files to be able to play the game with
+this software.
+
+Alatar has two modes of operation, one uses the original graphics and the other
+uses updated graphics.  The original graphics data files will need to be
+extracted from the original game to use this mode of game play.  The updated
+graphics are included in this distribution and can be used with just the level
+files from the game.
+
+Currently Alatar only builds under Linux.  It should not be that difficult to
+port it to another platform such as Windows or MacOS but that has not yet been
+incorporated.
+
+II. Building Alatar
+
+II.A. Dependancies
+
+Alatar requires the following supporting software to be avalaible to build:
+
+  o SDL2 <https://www.libsdl.org/>
+  o SDL2 Image <https://www.libsdl.org/projects/old/SDL_image/>
+  o GLEW <https://glew.sourceforge.net/>
+  o FreeType <https://freetype.org/>
+  o CMake <https://cmake.org/>
+  o stb_image <https://github.com/nothings/stb>
+  
+If you're running Ubuntu or a related distribuiotns the commands in the
+following sections will install the required files:
+
+II.A.1. SDL2
+
+sudo apt-get update
+sudo apt-get install libsdl2-2.0
+sudo apt-get install libsdl2-dev
+
+II.A.2. SDL2 Image
+
+sudo apt-get install libsdl2-image-2.0
+sudo apt-get install libsdl2-image-dev
+
+II.A.3. GLEW
+
+sudo apt-get install libglew2.2
+sudo apt-get install libglew-dev
+
+II.A.4. FreeType
+
+sudo apt-get install libfreetype6
+sudo apt-get install libfreetype-dev
+
+II.A.5. CMake
+
+sudo apt-get install cmake
+
+II.A.6. stb_image
+
+The files required from stb_image are included in this distribution and are
+lisenced in the public domain.  For more information visit
+https://github.com/nothings/stb
+
+II.B. Compiling
+
+Alatar is built using CMake.  Change the current directory to the root of the
+Alatar directory and use the following commands to build the executables.
+
+cd build
+cd cmake ..
+make
+
+II.C. Installing
+
+At the current time it is assumed there is a directory at the same level as the
+executables callsed resources.  Within the resources directory there are three
+sub directories classic, shaders, and updated.  The classic directory continans
+files from the original game that are needed to run with the original graphics
+(see below).  The shaders directory contains the glsl shaders used for display.
+Updated contains the grpahics used for the updated graphics display mode.
+
+II.C.1. Extracting Wizard / Ultimate Wizard Graphics Files
+
+** Need to write this
+
+II.C.2. Extracting Wizard Level Files
+
+** Need to write this
+
+III. Running Alatar
+
+** Need to write this
+
+IV. Additional Information
+
+** Need to write this
+
+
