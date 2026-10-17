@@ -245,7 +245,8 @@ std::optional<alatar::GraphicsCommonPtr> ClassicClass::ClassicClassFactory(
                                    GL_R8UI);
 
   // CLUT
-  BurningLogic::TextureSetupHelper(kClassicClutTextureUnit, &data.tile_glbuffers.clut_buffer, kDefaultC64Clut,
+  auto clut = alatar::GetClutTable();
+  BurningLogic::TextureSetupHelper(kClassicClutTextureUnit, &data.tile_glbuffers.clut_buffer, clut,
                                    GL_STATIC_DRAW, &data.tile_glbuffers.clut_texture, GL_RGBA8UI);
 
   // Sprite set

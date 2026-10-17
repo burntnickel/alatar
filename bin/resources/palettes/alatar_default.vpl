@@ -1,0 +1,72 @@
+# Copyright 2026 Jude Giampaolo
+#
+# This file is part of Alatar.
+#
+# Alatar is free software: you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software
+# Foundation, either version 3 of the License, or (at your option) any later
+# version.
+#
+# Alatar is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+# A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# Alatar. If not, see <https://www.gnu.org/licenses/>.
+
+#
+# This is a palette file based on the VICE palette data file format
+# This palette is the same as that hard coded into the executable
+#
+# Red Green Blue
+#
+
+# Black
+00 00 00
+
+# White
+FF FF FF
+
+# Red
+68 37 2B
+
+# Cyan
+70 A4 B2
+
+# Purple
+6F 3D 86
+
+# Green
+58 8D 43
+
+# Blue
+35 28 79
+
+# Yellow
+B8 C7 6F
+
+# Orange
+6F 4F 25
+
+# Brown
+43 39 00
+
+# Light Red
+9A 67 59
+
+# Dark Gray
+44 44 44
+
+# Medium Gray
+6C 6C 6C
+
+# Light Green
+9A D2 84
+
+# Light Blue
+6C 5E B5
+
+# Light Gray
+95 95 95
+
+

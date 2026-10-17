@@ -11,13 +11,25 @@
 // PARTICULAR PURPOSE. See the GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License along with Alatar.
-// If not, see <https://www.gnu.org/licenses/>. 
+// If not, see <https://www.gnu.org/licenses/>.
 
 #ifndef H_ALATAR_C64_CLUT
 #define H_ALATAR_C64_CLUT
 
 #include <array>
+#include <filesystem>
+#include <optional>
 
-extern std::array<const unsigned char, 4 * 16> kDefaultC64Clut;
+namespace alatar {
+
+using C64ClutTable = std::array<unsigned char, 4 * 16>;
+
+// Ideally this would be expected rather than optional but we'd need to complie with a newer C++ standard
+std::optional<C64ClutTable> LoadClutTable(std::filesystem::path clut_path);
+
+// If the path is empty the function returns the default CLUT
+C64ClutTable GetClutTable(std::filesystem::path clut_path = "");
+
+}  // namespace alatar
 
 #endif

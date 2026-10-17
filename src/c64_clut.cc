@@ -11,14 +11,20 @@
 // PARTICULAR PURPOSE. See the GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License along with Alatar.
-// If not, see <https://www.gnu.org/licenses/>. 
+// If not, see <https://www.gnu.org/licenses/>.
 
 #include "c64_clut.h"
 
-// This is the default CLUT (I think I got it from Wikipedia)
-// Should make this configurable, I recommend using the VICE .vpl format
+#include <array>
+#include <fstream>
+#include <iostream>
+#include <string>
+#include <vector>
 
-std::array<const unsigned char, 4 * 16> kDefaultC64Clut{{
+namespace alatar {
+
+// This is the default CLUT (I think I got it from Wikipedia)
+C64ClutTable kDefaultC64Clut{{
     0x00, 0x00, 0x00, 0xff,  // black
     0xFF, 0xFF, 0xFF, 0xff,  // white
     0x68, 0x37, 0x2B, 0xff,  // red
@@ -37,3 +43,114 @@ std::array<const unsigned char, 4 * 16> kDefaultC64Clut{{
     0x95, 0x95, 0x95, 0xff   // light grey
 }};
 
+std::optional<C64ClutTable> LoadClutTable(std::filesystem::path clut_path) {
+  std::ifstream in(clut_path);
+  std::error_code ec;
+  bool done_reading = false;
+  C64ClutTable tmp_clut;
+  unsigned int clut_index = 0;
+
+  if (ec.value() != 0) {
+    std::cerr << "Error: " << ec.message() << "(" << clut_path << ")" << std::endl;
+    return std::nullopt;
+  }
+
+  while (!done_reading) {
+    std::string next_line;
+
+    if (!in) {
+      done_reading = true;
+    } else {
+      std::istringstream iss(next_line);
+      std::string sub_string;
+      std::vector<std::string> tokens;
+      tokens.clear();
+
+      while (iss >> sub_string) {
+        tokens.push_back(sub_string);
+      }
+
+      auto num_tokens = tokens.size();
+
+      if (num_tokens > 0) {
+        if (num_tokens != 3) {
+          // All processed lines should have exactly three tokens, the RGB values
+          std::cerr << "Error: unexpected number of tokens found reading file" << std::endl;
+          return std::nullopt;
+        }
+
+        if (tokens[0][0] == '#') {
+          // Skip comment lines
+        } else {
+          std::array<unsigned char, 3> rgb_data;
+
+          for (unsigned int ii = 0; ii < 3; ++ii) {
+            try {
+              unsigned long tmp_val = std::stoul(tokens[ii], 0, 16);
+
+              if (tmp_val > 255) {
+                std::cerr << "Error: RGB component > 255 (0xff)" << std::endl;
+                return std::nullopt;
+              }
+
+              rgb_data[ii] = static_cast<unsigned char>(tmp_val);
+            }
+
+            catch (const std::invalid_argument& e) {
+              std::cerr << "Error: could not convert string" << std::endl;
+              return std::nullopt;
+            }
+
+            catch (const std::out_of_range& e) {
+              std::cerr << "Error: out of range" << std::endl;
+              return std::nullopt;
+            }
+          }
+
+          if (clut_index > 15) {
+            // There should only be entries, if we're here there are too many
+            std::cerr << "Error: too many entries in palette file" << std::endl;
+            return std::nullopt;
+          }
+
+          for (unsigned int ii = 0; ii < 3; ++ii) {
+            unsigned int idx = 4 * clut_index + ii;
+            tmp_clut[idx] = rgb_data[ii];
+          }
+
+          tmp_clut[4 * clut_index + 3] = 0xff;
+
+          ++clut_index;
+        }
+      }
+    }
+  }
+
+  in.close();
+
+  // Need to check to see if we had too few entries as well
+  if (clut_index < 16) {
+    std::cerr << "Error: too few entries in palette file" << std::endl;
+    return std::nullopt;
+  }
+
+  return tmp_clut;
+}
+
+C64ClutTable GetClutTable(std::filesystem::path clut_path) {
+  if (clut_path.empty()) {
+    return kDefaultC64Clut;
+  }
+
+  auto the_clut = LoadClutTable(clut_path);
+
+  if (the_clut) {
+    return the_clut.value();
+  }
+
+  std::cerr << "Unable to load CLUT, using default\n";
+
+  return kDefaultC64Clut;
+}
+
+}  // namespace alatar
