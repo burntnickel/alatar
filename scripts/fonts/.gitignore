@@ -1,3 +1,5 @@
 main_font_writer
 *.o
+*.ttf
+!Alatar.ttf
 

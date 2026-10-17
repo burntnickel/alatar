@@ -10,6 +10,7 @@ License files can be found at the top level director of the Alatar project
 Currently the following licenses are used by the various files in this
 project:
     - LICENSE-GPL
+    - LICENSE-OFL
     
 Source files will indicate the relevant license (usually the GPL) at the top
 of the file.
