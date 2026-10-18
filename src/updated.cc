@@ -254,14 +254,14 @@ void UpdatedClass::Draw([[maybe_unused]] const alatar::MonsterClassArray& monste
 }
 
 std::optional<alatar::GraphicsCommonPtr> UpdatedClass::UpdatedClassFactory(
-    std::filesystem::path resource_path, std::filesystem::path shader_path,
-    [[maybe_unused]] Uint64 sdl_counter) {
+    std::filesystem::path resource_path, [[maybe_unused]] Uint64 sdl_counter) {
   UpdatedData data;
 
   const std::string kWallTextureName{"wall_texture.png"};
   const std::string kTilesAndMasksName{"tiles_and_masks.png"};
 
-  auto wall_texture_path_and_name = resource_path / alatar::kUpdatedDirName / kWallTextureName;
+  const auto shader_path = resource_path / alatar::kShadersDirName;
+  const auto wall_texture_path_and_name = resource_path / alatar::kUpdatedDirName / kWallTextureName;
   bool success = LoadToSurfaceRGBA(wall_texture_path_and_name, data.wall_texture_surface);
 
   if (!success) {

@@ -11,7 +11,7 @@
 // PARTICULAR PURPOSE. See the GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License along with Alatar.
-// If not, see <https://www.gnu.org/licenses/>. 
+// If not, see <https://www.gnu.org/licenses/>.
 
 #ifndef H_ALATAR_GRAPHICS_COMMON
 #define H_ALATAR_GRAPHICS_COMMON
@@ -55,7 +55,6 @@ class GraphicsCommonClass {
   // Factory function to make sure return objects are always properly constructed and to return the specified
   // sub-class. Ideally should use std:expected but that would require c++23.
   static std::optional<GraphicsCommonPtr> GraphicsCommonClassFactory(std::filesystem::path resource_path,
-                                                                     std::filesystem::path shader_path,
                                                                      GraphicsMode graphics_mode,
                                                                      Uint64 sdl_counter);
 };

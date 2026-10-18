@@ -11,7 +11,7 @@
 // PARTICULAR PURPOSE. See the GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License along with Alatar.
-// If not, see <https://www.gnu.org/licenses/>. 
+// If not, see <https://www.gnu.org/licenses/>.
 
 #include <GL/glew.h>
 #include <SDL.h>
@@ -147,7 +147,6 @@ int main(int argc, char* argv[]) {
   alatar::LevelClass level;
 
   const std::filesystem::path kResourcePath = BurningLogic::GetResPath();
-  const std::filesystem::path kShaderPath = kResourcePath / alatar::kShadersDirName;
 
   std::filesystem::path filename;
   alatar::GraphicsMode graphics_mode;
@@ -175,7 +174,7 @@ int main(int argc, char* argv[]) {
   alatar::gCounterToMsScale = 1000.0 / static_cast<double>(SDL_GetPerformanceFrequency());
 
   auto graphics_routine_opt = alatar::GraphicsCommonClass::GraphicsCommonClassFactory(
-      kResourcePath, kShaderPath, graphics_mode, sdl_counter);
+      kResourcePath, graphics_mode, sdl_counter);
 
   if (!graphics_routine_opt) {
     std::cerr << "Failed to initalize graphics, exiting\n";

@@ -11,7 +11,7 @@
 // PARTICULAR PURPOSE. See the GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License along with Alatar.
-// If not, see <https://www.gnu.org/licenses/>. 
+// If not, see <https://www.gnu.org/licenses/>.
 
 #include "graphics_common.h"
 
@@ -23,14 +23,13 @@
 namespace alatar {
 
 std::optional<GraphicsCommonPtr> GraphicsCommonClass::GraphicsCommonClassFactory(
-    std::filesystem::path resource_path, std::filesystem::path shader_path, GraphicsMode graphics_mode,
-    Uint64 sdl_counter) {
+    std::filesystem::path resource_path, GraphicsMode graphics_mode, Uint64 sdl_counter) {
   switch (graphics_mode) {
     case Classic:
-      return alatar_classic::ClassicClass::ClassicClassFactory(resource_path, shader_path, sdl_counter);
+      return alatar_classic::ClassicClass::ClassicClassFactory(resource_path, sdl_counter);
       break;
     case Updated:
-      return alatar_updated::UpdatedClass::UpdatedClassFactory(resource_path, shader_path, sdl_counter);
+      return alatar_updated::UpdatedClass::UpdatedClassFactory(resource_path, sdl_counter);
       break;
     default:
       std::cerr << "Unimplemented graphics mode" << std::endl;
@@ -39,4 +38,3 @@ std::optional<GraphicsCommonPtr> GraphicsCommonClass::GraphicsCommonClassFactory
 }
 
 }  // namespace alatar
-

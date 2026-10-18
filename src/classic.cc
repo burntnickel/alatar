@@ -206,12 +206,13 @@ void ClassicClass::Draw(const alatar::MonsterClassArray& monster_info, const ala
 }
 
 std::optional<alatar::GraphicsCommonPtr> ClassicClass::ClassicClassFactory(
-    std::filesystem::path resource_path, std::filesystem::path shader_path, Uint64 sdl_counter) {
+    std::filesystem::path resource_path, Uint64 sdl_counter) {
   ClassicData data;
 
   const std::string kCharSetName{"chrw"};
   const std::string kSpriteSetName{"sprw"};
 
+  const auto shader_path = resource_path / alatar::kShadersDirName;
   const auto tile_set_path_and_name = resource_path / alatar::kClassicDirName / kCharSetName;
   const auto sprite_set_path_and_name = resource_path / alatar::kClassicDirName / kSpriteSetName;
 

@@ -126,7 +126,6 @@ class UpdatedClass : public alatar::GraphicsCommonClass {
   // Factory function to make sure return objects are always properly constructed
   // Ideally should use std:expected but that would require c++23
   static std::optional<alatar::GraphicsCommonPtr> UpdatedClassFactory(std::filesystem::path resource_path,
-                                                                      std::filesystem::path shader_path,
                                                                       Uint64 sdl_counter);
 };
 
