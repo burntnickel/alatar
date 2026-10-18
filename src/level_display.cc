@@ -31,6 +31,7 @@
 #include "load_data.h"
 #include "monsters.h"
 #include "opengl_helper.h"
+#include "pathdef.h"
 #include "sdl_helper.h"
 #include "updated.h"
 #include "value_cycle.h"
@@ -146,8 +147,7 @@ int main(int argc, char* argv[]) {
   alatar::LevelClass level;
 
   const std::filesystem::path kResourcePath = BurningLogic::GetResPath();
-  const std::string kShadersDirName{"shaders"};
-  const std::filesystem::path kShaderPath = kResourcePath / kShadersDirName;
+  const std::filesystem::path kShaderPath = kResourcePath / alatar::kShadersDirName;
 
   std::filesystem::path filename;
   alatar::GraphicsMode graphics_mode;

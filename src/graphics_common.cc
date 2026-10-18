@@ -39,3 +39,4 @@ std::optional<GraphicsCommonPtr> GraphicsCommonClass::GraphicsCommonClassFactory
 }
 
 }  // namespace alatar
+

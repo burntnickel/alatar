@@ -21,6 +21,7 @@
 
 #include "c64_clut.h"
 #include "globals.h"
+#include "pathdef.h"
 #include "slides.h"
 
 namespace alatar_classic {
@@ -208,12 +209,11 @@ std::optional<alatar::GraphicsCommonPtr> ClassicClass::ClassicClassFactory(
     std::filesystem::path resource_path, std::filesystem::path shader_path, Uint64 sdl_counter) {
   ClassicData data;
 
-  const std::string kClassicDirName{"classic"};
   const std::string kCharSetName{"chrw"};
   const std::string kSpriteSetName{"sprw"};
 
-  const auto tile_set_path_and_name = resource_path / kClassicDirName / kCharSetName;
-  const auto sprite_set_path_and_name = resource_path / kClassicDirName / kSpriteSetName;
+  const auto tile_set_path_and_name = resource_path / alatar::kClassicDirName / kCharSetName;
+  const auto sprite_set_path_and_name = resource_path / alatar::kClassicDirName / kSpriteSetName;
 
   bool success = LoadCharSet(tile_set_path_and_name, data.tile_set);
 

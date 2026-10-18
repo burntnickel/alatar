@@ -22,6 +22,7 @@
 
 #include "c64_clut.h"
 #include "sdl_helper.h"
+#include "pathdef.h"
 #include "slides.h"
 
 namespace alatar_updated {
@@ -257,11 +258,10 @@ std::optional<alatar::GraphicsCommonPtr> UpdatedClass::UpdatedClassFactory(
     [[maybe_unused]] Uint64 sdl_counter) {
   UpdatedData data;
 
-  const std::string kUpdatedDirName{"updated"};
   const std::string kWallTextureName{"wall_texture.png"};
   const std::string kTilesAndMasksName{"tiles_and_masks.png"};
 
-  auto wall_texture_path_and_name = resource_path / kUpdatedDirName / kWallTextureName;
+  auto wall_texture_path_and_name = resource_path / alatar::kUpdatedDirName / kWallTextureName;
   bool success = LoadToSurfaceRGBA(wall_texture_path_and_name, data.wall_texture_surface);
 
   if (!success) {
@@ -269,7 +269,7 @@ std::optional<alatar::GraphicsCommonPtr> UpdatedClass::UpdatedClassFactory(
     return {};
   }
 
-  auto tiles_and_masks_path_and_name = resource_path / kUpdatedDirName / kTilesAndMasksName;
+  auto tiles_and_masks_path_and_name = resource_path / alatar::kUpdatedDirName / kTilesAndMasksName;
   // success = LoadToSurface1Chan(tiles_and_masks_path_and_name, data.tiles_and_masks_surface);
   success = LoadToSurfaceRGBA(tiles_and_masks_path_and_name, data.tiles_and_masks_surface);
 

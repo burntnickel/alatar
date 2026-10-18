@@ -27,7 +27,7 @@ namespace BurningLogic {
 
 std::filesystem::path GetResPath(void) {
 #if (defined(__linux__)) || (defined(_WIN32))
-  const std::string kResourceDirName = "resources";
+  const std::string kResourceDirName{"resources"};
 
   return GetExePath() / kResourceDirName;
 #elif defined(__APPLE__)
