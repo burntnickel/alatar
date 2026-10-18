@@ -58,6 +58,8 @@ std::optional<C64ClutTable> LoadClutTable(std::filesystem::path clut_path) {
   while (!done_reading) {
     std::string next_line;
 
+    std::getline(in, next_line);
+
     if (!in) {
       done_reading = true;
     } else {
@@ -73,15 +75,16 @@ std::optional<C64ClutTable> LoadClutTable(std::filesystem::path clut_path) {
       auto num_tokens = tokens.size();
 
       if (num_tokens > 0) {
-        if (num_tokens != 3) {
-          // All processed lines should have exactly three tokens, the RGB values
-          std::cerr << "Error: unexpected number of tokens found reading file" << std::endl;
-          return std::nullopt;
-        }
-
         if (tokens[0][0] == '#') {
           // Skip comment lines
         } else {
+          if (num_tokens != 3) {
+            // All processed lines should have exactly three tokens, the RGB values
+            std::cerr << "Error: unexpected number of tokens found reading file : '" << next_line << "'"
+                      << std::endl;
+            return std::nullopt;
+          }
+
           std::array<unsigned char, 3> rgb_data;
 
           for (unsigned int ii = 0; ii < 3; ++ii) {
