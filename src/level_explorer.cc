@@ -137,8 +137,8 @@ static void DisplayLevelInfo(std::span<const char, kFileLength> data) {
 
     if ((ii >= kElevator0DxDy) && (ii <= kElevator5DxDy)) {
       int n = static_cast<int>(ii - kElevator0DxDy);
-      int dx = SignExtendNibble(c >> 4);
-      int dy = SignExtendNibble(c & 0x0f);
+      int dx = BurningLogic::SignExtendNibble(c >> 4);
+      int dy = BurningLogic::SignExtendNibble(c & 0x0f);
       std::cout << "Elevator " << n << " dx/dy (" << dx << "/" << dy << ")\n";
       continue;
     }

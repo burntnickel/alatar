@@ -284,8 +284,8 @@ MonsterClassArray LevelClass::GetMonsterInfo(void) const {
 
     // Elevator specific fields
     auto c = raw_data_[kElevator0DxDy + ii];
-    monster_data.elevator_dx = SignExtendNibble(c >> 4);
-    monster_data.elevator_dy = SignExtendNibble(c & 0x0f);
+    monster_data.elevator_dx = BurningLogic::SignExtendNibble(c >> 4);
+    monster_data.elevator_dy = BurningLogic::SignExtendNibble(c & 0x0f);
     monster_data.elevator_duration = raw_data_[kElevatorDuration];
 
     tmp_monster_array[ii] = MonsterClass::MonsterClassFactory(monster_data);
