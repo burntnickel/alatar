@@ -102,7 +102,7 @@ static bool Initialize(const std::filesystem::path res_path) {
   // Load config.ini
   if (success) {
     std::filesystem::path path{res_path / alatar::kConfigDirName / kConfigIniFilename};
-    BurningLogic::IniFile gIniFile = BurningLogic::LoadIniFile(path);
+    alatar::gIniFile = BurningLogic::LoadIniFile(path);
   }
 
   return success;

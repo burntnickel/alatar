@@ -243,9 +243,23 @@ std::optional<alatar::GraphicsCommonPtr> ClassicClass::ClassicClassFactory(
                                    GL_R8UI);
 
   // CLUT
-  //auto clut_path_file = resource_path / alatar::kClutDirName / "alatar_default.vpl";
-  auto clut_path_file = resource_path / alatar::kClutDirName / "rgb.vpl";
+  // TODO: Wrap this is a function so it can be reused in updated.cc?
+  BurningLogic::IniFile::ErrorCondition ec;
+  auto clut_filename_opt = alatar::gIniFile.GetAsString("Classic", "palette_file", ec);
+
+  std::filesystem::path clut_path_file;
+
+  if (clut_filename_opt) {
+    std::string clut_filename = clut_filename_opt.value();
+    clut_path_file = resource_path / alatar::kClutDirName / clut_filename;
+  } else {
+    // Using an empty string results in being provided the default CLUT
+    std::cout << "Unable to get 'palette_file' from config.ini, using default\n";
+    clut_path_file = "";
+  }
+
   auto clut = alatar::GetClutTable(clut_path_file);
+
   BurningLogic::TextureSetupHelper(kClassicClutTextureUnit, &data.tile_glbuffers.clut_buffer, clut,
                                    GL_STATIC_DRAW, &data.tile_glbuffers.clut_texture, GL_RGBA8UI);
 
