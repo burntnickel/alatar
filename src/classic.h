@@ -32,6 +32,10 @@
 
 namespace alatar_classic {
 
+// Filename for character graphics and sprites as extracted from the Commdore 64 disk image
+const std::string kCharSetName{"chrw"};
+const std::string kSpriteSetName{"sprw"};
+
 // Color sequences for animating fire and treasures
 const std::array<const unsigned char, 3> kFireCycleColors{{8, 7, 10}};     // orange, yellow, pink
 const std::array<const unsigned char, 3> kTreasureCycleColors{{7, 1, 3}};  // yellow, white, cyan

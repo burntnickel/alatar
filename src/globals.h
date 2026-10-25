@@ -11,19 +11,24 @@
 // PARTICULAR PURPOSE. See the GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License along with Alatar.
-// If not, see <https://www.gnu.org/licenses/>. 
-
+// If not, see <https://www.gnu.org/licenses/>.
 
 #ifndef H_ALATAR_GLOBALS
 #define H_ALATAR_GLOBALS
+
+#include "ini_file.h"
 
 namespace alatar {
 
 // SDL convertion between clock counts and time
 extern double gCounterToMsScale;
 
-// Global control of game speed, should eventuall become a configurable global
+// Global control of game speed, should eventually become a configurable global
 constexpr float kSpeedFactor = 1.0f;
+
+// Holds INI file based configuration data (each user shoudld also provide reasonable hard coded defaults
+// where sensible)
+extern BurningLogic::IniFile gIniFile;
 
 }  // namespace alatar
 

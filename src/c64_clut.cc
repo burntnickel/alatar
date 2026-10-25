@@ -16,6 +16,7 @@
 #include "c64_clut.h"
 
 #include <array>
+#include <cstring>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -50,8 +51,8 @@ std::optional<C64ClutTable> LoadClutTable(std::filesystem::path clut_path) {
   C64ClutTable tmp_clut;
   unsigned int clut_index = 0;
 
-  if (ec.value() != 0) {
-    std::cerr << "Error: " << ec.message() << "(" << clut_path << ")" << std::endl;
+  if (!in.is_open()) {
+    std::cerr << "Error: " << std::strerror(errno) << "(" << clut_path << ")" << std::endl;
     return std::nullopt;
   }
 

@@ -257,9 +257,6 @@ std::optional<alatar::GraphicsCommonPtr> UpdatedClass::UpdatedClassFactory(
     std::filesystem::path resource_path, [[maybe_unused]] Uint64 sdl_counter) {
   UpdatedData data;
 
-  const std::string kWallTextureName{"wall_texture.png"};
-  const std::string kTilesAndMasksName{"tiles_and_masks.png"};
-
   const auto shader_path = resource_path / alatar::kShadersDirName;
   const auto wall_texture_path_and_name = resource_path / alatar::kUpdatedDirName / kWallTextureName;
   bool success = LoadToSurfaceRGBA(wall_texture_path_and_name, data.wall_texture_surface);
@@ -370,7 +367,9 @@ std::optional<alatar::GraphicsCommonPtr> UpdatedClass::UpdatedClassFactory(
                                    GL_R8UI);
 
   // CLUT
-  auto clut = alatar::GetClutTable();
+  //auto clut = alatar::GetClutTable();
+  auto clut_path_file = resource_path / alatar::kClutDirName / "rgb.vpl";
+  auto clut = alatar::GetClutTable(clut_path_file);
   BurningLogic::TextureSetupHelper(kUpdatedClutTextureUnit, &data.tile_glbuffers.clut_buffer, clut,
                                    GL_STATIC_DRAW, &data.tile_glbuffers.clut_texture, GL_RGBA8UI);
 

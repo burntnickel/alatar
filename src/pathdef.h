@@ -32,6 +32,9 @@ const std::string kClassicDirName{"classic"};
 // Directory name for updated mode resources
 const std::string kUpdatedDirName{"updated"};
 
+// Directory name for configuration files
+const std::string kConfigDirName{"config"};
+
 }  // namespace alatar
 
 #endif

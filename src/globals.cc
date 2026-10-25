@@ -21,4 +21,8 @@ namespace alatar {
 // SDL convertion between clock counts and time
 double gCounterToMsScale;
 
+// Holds INI file based configuration data (each user shoudld also provide reasonable hard coded defaults
+// where sensible)
+BurningLogic::IniFile gIniFile;
+
 }  // namespace alatar

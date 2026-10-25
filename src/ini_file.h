@@ -16,6 +16,7 @@
 #ifndef H_BURNINGLOGIC_INI_FILE
 #define H_BURNINGLOGIC_INI_FILE
 
+#include <filesystem>
 #include <iostream>
 #include <optional>
 #include <string>
@@ -62,6 +63,8 @@ class IniFile {
  private:
   std::unordered_map<std::string, IniFileSection> sections_ = {};
 };
+
+IniFile LoadIniFile(std::filesystem::path path);
 
 }  // namespace BurningLogic
 

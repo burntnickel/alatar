@@ -41,6 +41,8 @@
 constexpr double kDefaultFrameRateHz = 60;
 constexpr double kMsPerFrame = 1000.0 / kDefaultFrameRateHz;
 
+const std::string kConfigIniFilename{"config.ini"};
+
 SDL_Window* g_window = NULL;
 SDL_GLContext g_sdl_glcontext;
 
@@ -50,7 +52,7 @@ constexpr uint_least32_t kScreenWidth = 8 * alatar::kColTiles * 2.5 * kPixelAspe
 constexpr uint_least32_t kScreenHeight = 8 * alatar::kRowTiles * 2.5;
 constexpr float kDesiredScreenAspect = static_cast<float>(kScreenWidth) / static_cast<float>(kScreenHeight);
 
-static bool Initialize(void) {
+static bool Initialize(const std::filesystem::path res_path) {
   // Initalize SDL
   bool success = ErrorEvalPrintSDL(SDL_Init(SDL_INIT_VIDEO) < 0, "SDL could not be initialized:");
 
@@ -96,6 +98,12 @@ static bool Initialize(void) {
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glDisable(GL_DEPTH_TEST);
+
+  // Load config.ini
+  if (success) {
+    std::filesystem::path path{res_path / alatar::kConfigDirName / kConfigIniFilename};
+    BurningLogic::IniFile gIniFile = BurningLogic::LoadIniFile(path);
+  }
 
   return success;
 }
@@ -153,7 +161,7 @@ int main(int argc, char* argv[]) {
 
   ParseCommandLine(argc, argv, filename, graphics_mode);
 
-  success = Initialize();
+  success = Initialize(kResourcePath);
 
   if (!success) {
     std::cerr << "Failed to initalize, exiting\n";

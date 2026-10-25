@@ -11,13 +11,15 @@
 // PARTICULAR PURPOSE. See the GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License along with Alien
-// Geometries. If not, see <https://www.gnu.org/licenses/>. 
+// Geometries. If not, see <https://www.gnu.org/licenses/>.
 
 #include "ini_file.h"
 
 #include <algorithm>
 #include <array>
 #include <cctype>
+#include <cstring>
+#include <fstream>
 #include <sstream>
 #include <stdexcept>
 #include <unordered_map>
@@ -64,8 +66,7 @@ static KeyValuePair GetIniKeyValuePair(std::string& s) {
   }
 
   // Make sure key is converted to upper case so it is case insensitive
-  const std::string key =
-      StringToUpperCopy(StringTrimCopy(s.substr(0, split_location - 1)));
+  const std::string key = StringToUpperCopy(StringTrimCopy(s.substr(0, split_location - 1)));
   const std::string value = StringTrimCopy(s.substr(split_location + 1));
 
   if (key.length() == 0) {
@@ -279,6 +280,21 @@ std::optional<double> IniFile::GetAsDouble(std::string_view section, std::string
 
 bool IniFile::IsErrorCondition(ErrorCondition ec) {
   return (ec != NO_ERROR) && (ec != NO_SECTION) && (ec != NO_KEY);
+}
+
+IniFile LoadIniFile(std::filesystem::path path) {
+  std::ifstream in(path);
+
+  if (!in.is_open()) {
+    // std::cerr << "Error: " << std::strerror(errno) << "(" << path << ")" << std::endl;
+    throw std::runtime_error("Failed to open: " + path.string() + " : " + std::strerror(errno));
+  }
+
+  IniFile tmp(in);
+
+  in.close();
+
+  return tmp;
 }
 
 }  // namespace BurningLogic

@@ -31,6 +31,10 @@
 
 namespace alatar_updated {
 
+// Data filenames for the graphics
+const std::string kWallTextureName{"wall_texture.png"};
+const std::string kTilesAndMasksName{"tiles_and_masks.png"};
+
 // Shader filenames
 const std::string kUpdatedTileVertexShaderName{"updated_tile_vertex.glsl"};
 const std::string kUpdatedTileWallFragmentShaderName{"updated_tile_wall_fragment.glsl"};

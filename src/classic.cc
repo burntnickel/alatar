@@ -209,9 +209,6 @@ std::optional<alatar::GraphicsCommonPtr> ClassicClass::ClassicClassFactory(
     std::filesystem::path resource_path, Uint64 sdl_counter) {
   ClassicData data;
 
-  const std::string kCharSetName{"chrw"};
-  const std::string kSpriteSetName{"sprw"};
-
   const auto shader_path = resource_path / alatar::kShadersDirName;
   const auto tile_set_path_and_name = resource_path / alatar::kClassicDirName / kCharSetName;
   const auto sprite_set_path_and_name = resource_path / alatar::kClassicDirName / kSpriteSetName;
@@ -246,7 +243,8 @@ std::optional<alatar::GraphicsCommonPtr> ClassicClass::ClassicClassFactory(
                                    GL_R8UI);
 
   // CLUT
-  auto clut_path_file = resource_path / alatar::kClutDirName / "alatar_default.vpl";
+  //auto clut_path_file = resource_path / alatar::kClutDirName / "alatar_default.vpl";
+  auto clut_path_file = resource_path / alatar::kClutDirName / "rgb.vpl";
   auto clut = alatar::GetClutTable(clut_path_file);
   BurningLogic::TextureSetupHelper(kClassicClutTextureUnit, &data.tile_glbuffers.clut_buffer, clut,
                                    GL_STATIC_DRAW, &data.tile_glbuffers.clut_texture, GL_RGBA8UI);
