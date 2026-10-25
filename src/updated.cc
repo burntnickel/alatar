@@ -21,6 +21,7 @@
 #include <set>
 
 #include "c64_clut.h"
+#include "config.h"
 #include "sdl_helper.h"
 #include "pathdef.h"
 #include "slides.h"
@@ -367,9 +368,9 @@ std::optional<alatar::GraphicsCommonPtr> UpdatedClass::UpdatedClassFactory(
                                    GL_R8UI);
 
   // CLUT
-  //auto clut = alatar::GetClutTable();
-  auto clut_path_file = resource_path / alatar::kClutDirName / "rgb.vpl";
+  auto clut_path_file = alatar::GetClutFilePath("Updated", "palette_file", resource_path);
   auto clut = alatar::GetClutTable(clut_path_file);
+ 
   BurningLogic::TextureSetupHelper(kUpdatedClutTextureUnit, &data.tile_glbuffers.clut_buffer, clut,
                                    GL_STATIC_DRAW, &data.tile_glbuffers.clut_texture, GL_RGBA8UI);
 
