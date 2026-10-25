@@ -64,7 +64,9 @@ target_compile_features( cbmspr2pixmap PRIVATE cxx_std_20 )
 
 # Build level explorer
 set( LEVELEXPLORER_SRCS ${CMAKE_SOURCE_DIR}/src/level_explorer.cc )
+set( LEVELEXPLORER_SRCS ${LEVELEXPLORER_SRCS} ${CMAKE_SOURCE_DIR}/src/config.cc )
 set( LEVELEXPLORER_SRCS ${LEVELEXPLORER_SRCS} ${CMAKE_SOURCE_DIR}/src/globals.cc )
+set( LEVELEXPLORER_SRCS ${LEVELEXPLORER_SRCS} ${CMAKE_SOURCE_DIR}/src/ini_file.cc )
 set( LEVELEXPLORER_SRCS ${LEVELEXPLORER_SRCS} ${CMAKE_SOURCE_DIR}/src/monsters.cc )
 set( LEVELEXPLORER_SRCS ${LEVELEXPLORER_SRCS} ${CMAKE_SOURCE_DIR}/src/util.cc )
 set( LEVELEXPLORER_SRCS ${LEVELEXPLORER_SRCS} ${CMAKE_SOURCE_DIR}/src/wiz_level.cc )
@@ -107,8 +109,6 @@ target_compile_features( level_display PRIVATE cxx_std_20 )
 
 message( SDL2_LIBRARIES= "${SDL2_LIBRARIES}" )
 message( SDL_IMAGE_LIBRARIES= "${SDL_IMAGE_LIBRARIES}" )
-
-
 
 
 # Build Level Editor Utility

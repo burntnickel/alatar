@@ -19,12 +19,16 @@
 #include <filesystem>
 #include <string_view>
 
+#include "ini_file.h"
+
 namespace alatar {
 
-std::filesystem::path GetClutFilePath(std::string_view section, std::string_view key,
-                                      std::filesystem::path resource_path);
+std::filesystem::path GetClutFilePath(BurningLogic::IniFile ini_file, std::string_view section,
+                                      std::string_view key, std::filesystem::path resource_path);
+
+float GetFloatFromIni(BurningLogic::IniFile ini_file, std::string_view section, std::string_view key,
+                      float default_value);
 
 }  // namespace alatar
 
 #endif
-

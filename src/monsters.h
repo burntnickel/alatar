@@ -11,7 +11,7 @@
 // PARTICULAR PURPOSE. See the GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License along with Alatar.
-// If not, see <https://www.gnu.org/licenses/>. 
+// If not, see <https://www.gnu.org/licenses/>.
 
 #ifndef H_ALATAR_MONSTERS
 #define H_ALATAR_MONSTERS
@@ -21,6 +21,8 @@
 #include <array>
 #include <memory>
 
+#include "config.h"
+#include "globals.h"
 #include "sprites_classic.h"
 
 namespace alatar {
@@ -138,10 +140,10 @@ class ElevatorClass : public MonsterClass {
   float x_delta_;
   float y_delta_;
 
-  // Should some of these be moved to an INI file?
  private:
-  static constexpr float kTicksPerMs = 0.021f;
-  static constexpr float kFramePerMs = 20.0f / 1000.0f;
+  const float kTicksPerMs = GetFloatFromIni(alatar::gIniFile, "Monster_Elevator", "ticks_per_ms", 0.021f);
+  const float kFramePerMs =
+      GetFloatFromIni(alatar::gIniFile, "Monster_Elevator", "frames_per_ms", 20.0f / 1000.0f);
 };
 
 //----------------------------------------------

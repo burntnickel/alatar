@@ -244,7 +244,7 @@ std::optional<alatar::GraphicsCommonPtr> ClassicClass::ClassicClassFactory(
                                    GL_R8UI);
 
   // CLUT
-  auto clut_path_file = alatar::GetClutFilePath("Classic", "palette_file", resource_path);
+  auto clut_path_file = alatar::GetClutFilePath(alatar::gIniFile, "Classic", "palette_file", resource_path);
   auto clut = alatar::GetClutTable(clut_path_file);
 
   BurningLogic::TextureSetupHelper(kClassicClutTextureUnit, &data.tile_glbuffers.clut_buffer, clut,
