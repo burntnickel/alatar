@@ -176,13 +176,12 @@ class SlidingGateClass : public MonsterClass {
  public:
   float y_delta_;
 
-  // Should some of these be moved to an INI file?
  private:
-  const int kMaxYExcursion = GetIntFromIni(alatar::gIniFile, "Sliding_Gate", "max_excursion", 20);
+  const int kMaxYExcursion = GetIntFromIni(alatar::gIniFile, "Monster_Sliding_Gate", "max_excursion", 20);
   const float kPixelsPerMs =
-      GetFloatFromIni(alatar::gIniFile, "Sliding_Gate", "pixels_per_ms", 0.36f / (1000.0f / 60.0f));
+      GetFloatFromIni(alatar::gIniFile, "Monster_Sliding_Gate", "pixels_per_ms", 0.36f / (1000.0f / 60.0f));
   const float kFramePerMs =
-      GetFloatFromIni(alatar::gIniFile, "Sliding_Gate", "frames_per_ms", 4.0f / 1000.0f);
+      GetFloatFromIni(alatar::gIniFile, "Monster_Sliding_Gate", "frames_per_ms", 4.0f / 1000.0f);
 };
 
 //----------------------------------------------
@@ -199,11 +198,12 @@ class LavaTrollClass : public MonsterClass {
  public:
   float y_delta_;
 
-  // Should some of these be moved to an INI file?
  private:
-  static constexpr int kMaxYExcursion = 10;
-  static constexpr float kFramePerMs = 1.0f / 1000.0f;
-  static constexpr float kPixelsPerMs = 0.075f / (1000.0f / 60.0f);
+  const int kMaxYExcursion = GetIntFromIni(alatar::gIniFile, "Monster_Lava_Troll", "max_excursion", 10);
+  const float kFramePerMs =
+      GetFloatFromIni(alatar::gIniFile, "Monster_Lava_Troll", "frames_per_ms", 1.0f / 1000.0f);
+  const float kPixelsPerMs =
+      GetFloatFromIni(alatar::gIniFile, "Monster_Lava_Troll", "pixels_per_ms", 0.075f / (1000.0f / 60.0f));
 };
 
 // Misc. stuff

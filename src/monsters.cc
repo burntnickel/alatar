@@ -11,7 +11,7 @@
 // PARTICULAR PURPOSE. See the GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License along with Alatar.
-// If not, see <https://www.gnu.org/licenses/>. 
+// If not, see <https://www.gnu.org/licenses/>.
 
 #include "monsters.h"
 
@@ -202,13 +202,17 @@ void SlidingGateClass::Update(Uint64 counter) {
   // Adjust y location
   y_float_ = y_float_ + y_delta_ * elapsed_ms_ * kPixelsPerMs * kSpeedFactor;
 
-  if (y_float_ >= static_cast<float>(y_initial_)) {
-    y_float_ = static_cast<float>(y_initial_);
+  float y_initial_float = static_cast<float>(y_initial_);
+
+  if (y_float_ >= y_initial_float) {
+    y_float_ = y_initial_float;
     y_delta_ = -1.0f;
   }
 
-  if (y_float_ <= static_cast<float>(y_initial_ - kMaxYExcursion)) {
-    y_float_ = static_cast<float>(y_initial_ - kMaxYExcursion);
+  float y_initial_max_float = static_cast<float>(static_cast<int>(y_initial_) - kMaxYExcursion);
+
+  if (y_float_ <= y_initial_max_float) {
+    y_float_ = y_initial_max_float;
     y_delta_ = 1.0f;
   }
 
@@ -231,13 +235,17 @@ void LavaTrollClass::Update(Uint64 counter) {
   // Adjust y location
   y_float_ = y_float_ + y_delta_ * elapsed_ms_ * kPixelsPerMs * kSpeedFactor;
 
-  if (y_float_ >= static_cast<float>(y_initial_)) {
-    y_float_ = static_cast<float>(y_initial_);
+  float y_initial_float = static_cast<float>(y_initial_);
+
+  if (y_float_ >= y_initial_float) {
+    y_float_ = y_initial_float;
     y_delta_ = -1.0f;
   }
 
-  if (y_float_ <= static_cast<float>(y_initial_ - kMaxYExcursion)) {
-    y_float_ = static_cast<float>(y_initial_ - kMaxYExcursion);
+  float y_initial_max_float = static_cast<float>(static_cast<int>(y_initial_) - kMaxYExcursion);
+
+  if (y_float_ <= y_initial_max_float) {
+    y_float_ = y_initial_max_float;
     y_delta_ = 1.0f;
   }
 
