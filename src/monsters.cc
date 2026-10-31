@@ -151,14 +151,14 @@ void ElevatorClass::Update(Uint64 counter) {
   MonsterClass::Update(counter);
 
   if (tick_up_) {
-    ticks_ = ticks_ + elapsed_ms_ * kTicksPerMs * kSpeedFactor;
+    ticks_ = ticks_ + elapsed_ms_ * kTicksPerMs_ * kSpeedFactor;
 
     if (ticks_ > duration_) {
       ticks_ = duration_;
       tick_up_ = false;
     }
   } else {
-    ticks_ = ticks_ - elapsed_ms_ * kTicksPerMs * kSpeedFactor;
+    ticks_ = ticks_ - elapsed_ms_ * kTicksPerMs_ * kSpeedFactor;
 
     if (ticks_ < 0.0f) {
       ticks_ = 0.0f;
@@ -179,7 +179,7 @@ void ElevatorClass::Update(Uint64 counter) {
 LavaClass::LavaClass(MonsterData monster_data) : MonsterClass(monster_data) {
   priority_ = false;
   sprite_mods_ = alatar_classic::kSpriteMultiColor | alatar_classic::kSpriteExpandX;
-  frames_per_ms_ = kFramePerMs;
+  frames_per_ms_ = kFramePerMs_;
 }
 
 void LavaClass::Update(Uint64 counter) {
@@ -193,14 +193,14 @@ SlidingGateClass::SlidingGateClass(MonsterData monster_data) : MonsterClass(mons
   priority_ = false;
   y_delta_ = -1.0f;
   sprite_mods_ = alatar_classic::kSpriteMultiColor;
-  frames_per_ms_ = kFramePerMs;
+  frames_per_ms_ = kFramePerMs_;
 }
 
 void SlidingGateClass::Update(Uint64 counter) {
   MonsterClass::Update(counter);
 
   // Adjust y location
-  y_float_ = y_float_ + y_delta_ * elapsed_ms_ * kPixelsPerMs * kSpeedFactor;
+  y_float_ = y_float_ + y_delta_ * elapsed_ms_ * kPixelsPerMs_ * kSpeedFactor;
 
   float y_initial_float = static_cast<float>(y_initial_);
 
@@ -209,7 +209,7 @@ void SlidingGateClass::Update(Uint64 counter) {
     y_delta_ = -1.0f;
   }
 
-  float y_initial_max_float = static_cast<float>(static_cast<int>(y_initial_) - kMaxYExcursion);
+  float y_initial_max_float = static_cast<float>(static_cast<int>(y_initial_) - kMaxYExcursion_);
 
   if (y_float_ <= y_initial_max_float) {
     y_float_ = y_initial_max_float;
@@ -226,14 +226,14 @@ LavaTrollClass::LavaTrollClass(MonsterData monster_data) : MonsterClass(monster_
   priority_ = false;
   y_delta_ = -1.0f;
   sprite_mods_ = alatar_classic::kSpriteMultiColor;
-  frames_per_ms_ = kFramePerMs;
+  frames_per_ms_ = kFramePerMs_;
 }
 
 void LavaTrollClass::Update(Uint64 counter) {
   MonsterClass::Update(counter);
 
   // Adjust y location
-  y_float_ = y_float_ + y_delta_ * elapsed_ms_ * kPixelsPerMs * kSpeedFactor;
+  y_float_ = y_float_ + y_delta_ * elapsed_ms_ * kPixelsPerMs_ * kSpeedFactor;
 
   float y_initial_float = static_cast<float>(y_initial_);
 
@@ -242,7 +242,7 @@ void LavaTrollClass::Update(Uint64 counter) {
     y_delta_ = -1.0f;
   }
 
-  float y_initial_max_float = static_cast<float>(static_cast<int>(y_initial_) - kMaxYExcursion);
+  float y_initial_max_float = static_cast<float>(static_cast<int>(y_initial_) - kMaxYExcursion_);
 
   if (y_float_ <= y_initial_max_float) {
     y_float_ = y_initial_max_float;

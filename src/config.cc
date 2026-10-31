@@ -52,6 +52,20 @@ float GetFloatFromIni(BurningLogic::IniFile ini_file, std::string_view section, 
   return default_value;
 }
 
+double GetDoubleFromIni(BurningLogic::IniFile ini_file, std::string_view section, std::string_view key,
+                      double default_value) {
+  BurningLogic::IniFile::ErrorCondition ec;
+  auto double_opt = ini_file.GetAsDouble(section, key, ec);
+
+  if (ec == BurningLogic::IniFile::NO_ERROR) {
+    double tmp = double_opt.value();
+    std::cout << "Overriding " << section << ":" << key << " " << default_value << " => " << tmp << "\n";
+    return tmp;
+  }
+
+  return default_value;
+}
+
 int GetIntFromIni(BurningLogic::IniFile ini_file, std::string_view section, std::string_view key,
                   int default_value) {
   BurningLogic::IniFile::ErrorCondition ec;

@@ -29,6 +29,9 @@ std::filesystem::path GetClutFilePath(BurningLogic::IniFile ini_file, std::strin
 float GetFloatFromIni(BurningLogic::IniFile ini_file, std::string_view section, std::string_view key,
                       float default_value);
 
+double GetDoubleFromIni(BurningLogic::IniFile ini_file, std::string_view section, std::string_view key,
+                        double default_value);
+
 int GetIntFromIni(BurningLogic::IniFile ini_file, std::string_view section, std::string_view key,
                   int default_value);
 

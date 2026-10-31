@@ -141,7 +141,7 @@ class ElevatorClass : public MonsterClass {
   float y_delta_;
 
  private:
-  const float kTicksPerMs = GetFloatFromIni(alatar::gIniFile, "Monster_Elevator", "ticks_per_ms", 0.021f);
+  const float kTicksPerMs_ = GetFloatFromIni(alatar::gIniFile, "Monster_Elevator", "ticks_per_ms", 0.021f);
   const float kFramePerMs =
       GetFloatFromIni(alatar::gIniFile, "Monster_Elevator", "frames_per_ms", 20.0f / 1000.0f);
 };
@@ -158,7 +158,7 @@ class LavaClass : public MonsterClass {
   void Update(Uint64 counter) override;
 
  private:
-  const float kFramePerMs =
+  const float kFramePerMs_ =
       GetFloatFromIni(alatar::gIniFile, "Monster_Lava", "frames_per_ms", 5.0f / 1000.0f);
 };
 
@@ -177,10 +177,10 @@ class SlidingGateClass : public MonsterClass {
   float y_delta_;
 
  private:
-  const int kMaxYExcursion = GetIntFromIni(alatar::gIniFile, "Monster_Sliding_Gate", "max_excursion", 20);
-  const float kPixelsPerMs =
+  const int kMaxYExcursion_ = GetIntFromIni(alatar::gIniFile, "Monster_Sliding_Gate", "max_excursion", 20);
+  const float kPixelsPerMs_ =
       GetFloatFromIni(alatar::gIniFile, "Monster_Sliding_Gate", "pixels_per_ms", 0.36f / (1000.0f / 60.0f));
-  const float kFramePerMs =
+  const float kFramePerMs_ =
       GetFloatFromIni(alatar::gIniFile, "Monster_Sliding_Gate", "frames_per_ms", 4.0f / 1000.0f);
 };
 
@@ -199,10 +199,10 @@ class LavaTrollClass : public MonsterClass {
   float y_delta_;
 
  private:
-  const int kMaxYExcursion = GetIntFromIni(alatar::gIniFile, "Monster_Lava_Troll", "max_excursion", 10);
-  const float kFramePerMs =
+  const int kMaxYExcursion_ = GetIntFromIni(alatar::gIniFile, "Monster_Lava_Troll", "max_excursion", 10);
+  const float kFramePerMs_ =
       GetFloatFromIni(alatar::gIniFile, "Monster_Lava_Troll", "frames_per_ms", 1.0f / 1000.0f);
-  const float kPixelsPerMs =
+  const float kPixelsPerMs_ =
       GetFloatFromIni(alatar::gIniFile, "Monster_Lava_Troll", "pixels_per_ms", 0.075f / (1000.0f / 60.0f));
 };
 

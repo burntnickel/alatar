@@ -44,12 +44,6 @@ const std::array<const unsigned char, 3> kTreasureCycleColors{{7, 1, 3}};  // ye
 constexpr unsigned char kFireTileFirst = 114;
 constexpr unsigned char kFireTileLast = 117;
 
-// Rather then specify the number of frame between animation updates here we specify the time between frames
-// and do the computation dynamically in the game loop
-constexpr double kTreasureColorCycleFrameTimeMs = 1000.0 / 15.0;
-constexpr double kFireColorCycleFrameTimeMs = 1000.0 / 20.0;
-constexpr double kFireAnimationFrameTimeMs = 1000.0 / 10.0;
-
 // Shader filenames
 const std::string kClassicTileVertexShaderName{"classic_vertex.glsl"};
 const std::string kClassicTileFragmentShaderName{"classic_tile_fragment.glsl"};
@@ -117,6 +111,12 @@ class ClassicClass : public alatar::GraphicsCommonClass {
 
  private:
   ClassicData data_;
+  const double kTreasureColorCycleFrameTimeMs_ = alatar::GetDoubleFromIni(
+      alatar::gIniFile, "Classic", "treasure_color_cycle_frame_time_ms", 1000.0 / 15.0);
+  const double kFireColorCycleFrameTimeMs_ =
+      alatar::GetDoubleFromIni(alatar::gIniFile, "Classic", "fire_color_cycle_frame_time_ms", 1000.0 / 20.0);
+  const double kFireAnimationFrameTimeMs_ =
+      alatar::GetDoubleFromIni(alatar::gIniFile, "Classic", "fire_animation_frame_time_ms", 1000.0 / 10.0);
 
  public:
   void LevelInit(const alatar::LevelClass& level) override;
