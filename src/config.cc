@@ -45,7 +45,21 @@ float GetFloatFromIni(BurningLogic::IniFile ini_file, std::string_view section, 
 
   if (ec == BurningLogic::IniFile::NO_ERROR) {
     float tmp = static_cast<float>(double_opt.value());
-    std::cout << "Over riding " << section << ":" << key << " " << default_value << " => " << tmp << "\n";
+    std::cout << "Overriding " << section << ":" << key << " " << default_value << " => " << tmp << "\n";
+    return tmp;
+  }
+
+  return default_value;
+}
+
+int GetIntFromIni(BurningLogic::IniFile ini_file, std::string_view section, std::string_view key,
+                  int default_value) {
+  BurningLogic::IniFile::ErrorCondition ec;
+  auto int_opt = ini_file.GetAsInt(section, key, ec);
+
+  if (ec == BurningLogic::IniFile::NO_ERROR) {
+    int tmp = static_cast<int>(int_opt.value());
+    std::cout << "Overriding " << section << ":" << key << " " << default_value << " => " << tmp << "\n";
     return tmp;
   }
 
