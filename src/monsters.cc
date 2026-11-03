@@ -202,17 +202,13 @@ void SlidingGateClass::Update(Uint64 counter) {
   // Adjust y location
   y_float_ = y_float_ + y_delta_ * elapsed_ms_ * kPixelsPerMs_ * kSpeedFactor;
 
-  float y_initial_float = static_cast<float>(y_initial_);
-
-  if (y_float_ >= y_initial_float) {
-    y_float_ = y_initial_float;
+  if (y_float_ >= y_initial_float_) {
+    y_float_ = y_initial_float_;
     y_delta_ = -1.0f;
   }
 
-  float y_initial_max_float = static_cast<float>(static_cast<int>(y_initial_) - kMaxYExcursion_);
-
-  if (y_float_ <= y_initial_max_float) {
-    y_float_ = y_initial_max_float;
+  if (y_float_ <= y_initial_max_float_) {
+    y_float_ = y_initial_max_float_;
     y_delta_ = 1.0f;
   }
 
@@ -235,17 +231,13 @@ void LavaTrollClass::Update(Uint64 counter) {
   // Adjust y location
   y_float_ = y_float_ + y_delta_ * elapsed_ms_ * kPixelsPerMs_ * kSpeedFactor;
 
-  float y_initial_float = static_cast<float>(y_initial_);
-
-  if (y_float_ >= y_initial_float) {
-    y_float_ = y_initial_float;
+  if (y_float_ >= y_initial_float_) {
+    y_float_ = y_initial_float_;
     y_delta_ = -1.0f;
   }
 
-  float y_initial_max_float = static_cast<float>(static_cast<int>(y_initial_) - kMaxYExcursion_);
-
-  if (y_float_ <= y_initial_max_float) {
-    y_float_ = y_initial_max_float;
+  if (y_float_ <= y_initial_max_float_) {
+    y_float_ = y_initial_max_float_;
     y_delta_ = 1.0f;
   }
 

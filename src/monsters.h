@@ -182,6 +182,10 @@ class SlidingGateClass : public MonsterClass {
       GetFloatFromIni(alatar::gIniFile, "Monster_Sliding_Gate", "pixels_per_ms", 0.36f / (1000.0f / 60.0f));
   const float kFramePerMs_ =
       GetFloatFromIni(alatar::gIniFile, "Monster_Sliding_Gate", "frames_per_ms", 4.0f / 1000.0f);
+
+ private:
+  const float y_initial_float_ = static_cast<float>(y_initial_);
+  const float y_initial_max_float_ = static_cast<float>(static_cast<int>(y_initial_) - kMaxYExcursion_);
 };
 
 //----------------------------------------------
@@ -204,6 +208,10 @@ class LavaTrollClass : public MonsterClass {
       GetFloatFromIni(alatar::gIniFile, "Monster_Lava_Troll", "frames_per_ms", 1.0f / 1000.0f);
   const float kPixelsPerMs_ =
       GetFloatFromIni(alatar::gIniFile, "Monster_Lava_Troll", "pixels_per_ms", 0.075f / (1000.0f / 60.0f));
+
+ private:
+  const float y_initial_float_ = static_cast<float>(y_initial_);
+  const float y_initial_max_float_ = static_cast<float>(static_cast<int>(y_initial_) - kMaxYExcursion_);
 };
 
 // Misc. stuff
