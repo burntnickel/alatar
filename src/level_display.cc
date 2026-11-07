@@ -14,9 +14,11 @@
 // If not, see <https://www.gnu.org/licenses/>.
 
 #include <GL/glew.h>
-#include <SDL.h>
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h>
 
 #include <array>
+#include <cmath>
 #include <cstdint>
 #include <cstdlib>
 #include <iostream>
@@ -28,6 +30,7 @@
 #include "getrespath.h"
 #include "globals.h"
 #include "graphics_common.h"
+#include "iswayland.h"
 #include "load_data.h"
 #include "monsters.h"
 #include "opengl_helper.h"
@@ -54,7 +57,7 @@ constexpr float kDesiredScreenAspect = static_cast<float>(kScreenWidth) / static
 
 static bool Initialize(const std::filesystem::path res_path) {
   // Initalize SDL
-  bool success = ErrorEvalPrintSDL(SDL_Init(SDL_INIT_VIDEO) < 0, "SDL could not be initialized:");
+  bool success = ErrorEvalPrintSDL(SDL_Init(SDL_INIT_VIDEO), "SDL could not be initialized:");
 
   if (success) {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
@@ -62,18 +65,18 @@ static bool Initialize(const std::filesystem::path res_path) {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
     // Create window
-    g_window = SDL_CreateWindow(
-        "SDL Window", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, kScreenWidth, kScreenHeight,
-        SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
+    // TODO: Remove SDL_WINDOW_HIGH_PIXEL_DENSITY?
+    g_window = SDL_CreateWindow("SDL Window", kScreenWidth, kScreenHeight,
+                                SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY);
 
-    success = ErrorEvalPrintSDL(g_window == NULL, "Window could not be created:");
+    success = ErrorEvalPrintSDL(g_window != NULL, "Window could not be created:");
   }
 
   if (success) {
     // Create context
     g_sdl_glcontext = SDL_GL_CreateContext(g_window);
 
-    success = ErrorEvalPrintSDL(g_sdl_glcontext == NULL, "OpenGL context could not be created:");
+    success = ErrorEvalPrintSDL(g_sdl_glcontext != NULL, "OpenGL context could not be created:");
   }
 
   if (success) {
@@ -82,14 +85,21 @@ static bool Initialize(const std::filesystem::path res_path) {
     GLenum glew_error = glewInit();
 
     if (glew_error != GLEW_OK) {
-      std::cerr << "Error initializing GLEW: " << glewGetErrorString(glew_error) << "\n";
-      success = false;
+      // Need this to work around an issue with GLEW and Wayland
+      if ((glew_error == GLEW_ERROR_NO_GLX_DISPLAY) && BurningLogic::IsWayland()) {
+        std::cout << "Ignoring GLEW_ERROR_NO_GLX_DISPLAY as using Wayland\n";
+      } else {
+        std::cerr << glew_error << "\n";
+        std::cerr << "Error initializing GLEW: " << glewGetErrorString(glew_error) << "(" << glew_error
+                  << ")\n";
+        success = false;
+      }
     }
   }
 
   if (success) {
     // Use Vsync
-    if (SDL_GL_SetSwapInterval(1) < 0) {
+    if (!SDL_GL_SetSwapInterval(1)) {
       std::cerr << "Warning: Unable to set VSync: " << SDL_GetError() << "\n";
     }
   }
@@ -181,8 +191,8 @@ int main(int argc, char* argv[]) {
   // This should probably be part of initalization
   alatar::gCounterToMsScale = 1000.0 / static_cast<double>(SDL_GetPerformanceFrequency());
 
-  auto graphics_routine_opt = alatar::GraphicsCommonClass::GraphicsCommonClassFactory(
-      kResourcePath, graphics_mode, sdl_counter);
+  auto graphics_routine_opt =
+      alatar::GraphicsCommonClass::GraphicsCommonClassFactory(kResourcePath, graphics_mode, sdl_counter);
 
   if (!graphics_routine_opt) {
     std::cerr << "Failed to initalize graphics, exiting\n";
@@ -207,30 +217,29 @@ int main(int argc, char* argv[]) {
 
     while (SDL_PollEvent(&sdl_event) != 0) {
       switch (sdl_event.type) {
-        case SDL_QUIT:
+        case SDL_EVENT_QUIT:
           gDone = true;
           break;
-        case SDL_WINDOWEVENT:
-          if (sdl_event.window.event == SDL_WINDOWEVENT_RESIZED) {
-            auto window_width = sdl_event.window.data1;
-            auto window_height = sdl_event.window.data2;
-            float window_aspect = static_cast<float>(window_width) / static_cast<float>(window_height);
+        case SDL_EVENT_WINDOW_RESIZED: {
+          auto window_width = sdl_event.window.data1;
+          auto window_height = sdl_event.window.data2;
+          float window_aspect = static_cast<float>(window_width) / static_cast<float>(window_height);
 
-            float x_scale;
-            float y_scale;
+          float x_scale;
+          float y_scale;
 
-            if (window_aspect > kDesiredScreenAspect) {
-              x_scale = kDesiredScreenAspect / window_aspect;
-              y_scale = 1.0;
-            } else {
-              x_scale = 1.0;
-              y_scale = window_aspect / kDesiredScreenAspect;
-            }
-
-            BurningLogic::ScaleMatHelper2D(view_matrix, x_scale, y_scale);
-            glViewport(0, 0, window_width, window_height);
+          if (window_aspect > kDesiredScreenAspect) {
+            x_scale = kDesiredScreenAspect / window_aspect;
+            y_scale = 1.0;
+          } else {
+            x_scale = 1.0;
+            y_scale = window_aspect / kDesiredScreenAspect;
           }
+
+          BurningLogic::ScaleMatHelper2D(view_matrix, x_scale, y_scale);
+          glViewport(0, 0, window_width, window_height);
           break;
+        }
         default:
           break;
       }

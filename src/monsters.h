@@ -16,7 +16,7 @@
 #ifndef H_ALATAR_MONSTERS
 #define H_ALATAR_MONSTERS
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include <array>
 #include <memory>

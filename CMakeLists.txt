@@ -26,9 +26,9 @@ project( MyProject VERSION 0.0
 # Why do I need this?????
 set ( CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} /usr/lib/x86_64-linux-gnu/cmake )
 
-find_package( SDL2 REQUIRED )
+find_package( SDL3 REQUIRED )
 
-find_package( SDL2_image REQUIRED )
+find_package( SDL3_image REQUIRED )
 
 set( CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/bin )
 
@@ -86,6 +86,7 @@ set( LEVELVIEWER_SRCS ${LEVELVIEWER_SRCS} ${CMAKE_SOURCE_DIR}/src/getrespath.cc 
 set( LEVELVIEWER_SRCS ${LEVELVIEWER_SRCS} ${CMAKE_SOURCE_DIR}/src/globals.cc )
 set( LEVELVIEWER_SRCS ${LEVELVIEWER_SRCS} ${CMAKE_SOURCE_DIR}/src/graphics_common.cc )
 set( LEVELVIEWER_SRCS ${LEVELVIEWER_SRCS} ${CMAKE_SOURCE_DIR}/src/ini_file.cc )
+set( LEVELVIEWER_SRCS ${LEVELVIEWER_SRCS} ${CMAKE_SOURCE_DIR}/src/iswayland.cc )
 set( LEVELVIEWER_SRCS ${LEVELVIEWER_SRCS} ${CMAKE_SOURCE_DIR}/src/load_data.cc )
 set( LEVELVIEWER_SRCS ${LEVELVIEWER_SRCS} ${CMAKE_SOURCE_DIR}/src/monsters.cc )
 set( LEVELVIEWER_SRCS ${LEVELVIEWER_SRCS} ${CMAKE_SOURCE_DIR}/src/opengl_helper.cc )
@@ -103,11 +104,11 @@ add_executable( level_display ${LEVELVIEWER_SRCS} ${MY_HEADERS} )
 # OpenGL stuff
 target_link_libraries( level_display "-lGLEW -lGL" )
 
-target_include_directories( level_display PUBLIC ${SDL2_INCLUDE_DIRS} ${SDL_IMAGE_INCLUDE_DIRS} )
-target_link_libraries( level_display ${SDL2_LIBRARIES} SDL2_image )
+target_include_directories( level_display PUBLIC ${SDL3_INCLUDE_DIRS} ${SDL_IMAGE_INCLUDE_DIRS} )
+target_link_libraries( level_display ${SDL3_LIBRARIES} SDL3_image )
 target_compile_features( level_display PRIVATE cxx_std_20 )
 
-message( SDL2_LIBRARIES= "${SDL2_LIBRARIES}" )
+message( SDL2_LIBRARIES= "${SDL3_LIBRARIES}" )
 message( SDL_IMAGE_LIBRARIES= "${SDL_IMAGE_LIBRARIES}" )
 
 

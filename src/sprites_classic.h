@@ -19,7 +19,7 @@
 #include <filesystem>
 #include <span>
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include "opengl_helper.h"
 

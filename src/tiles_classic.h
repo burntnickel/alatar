@@ -16,7 +16,7 @@
 #ifndef H_ALATAR_TILES_CLASSIC
 #define H_ALATAR_TILES_CLASSIC
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include <filesystem>
 #include <span>

@@ -19,7 +19,7 @@
 #include <filesystem>
 #include <string_view>
 
-#include <SDL_image.h>
+#include <SDL3_image/SDL_image.h>
 
 bool ErrorEvalPrintSDL(bool condition, std::string_view message);
 

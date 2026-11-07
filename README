@@ -42,8 +42,8 @@ II.A. Dependancies
 
 Alatar requires the following supporting software to be avalaible to build:
 
-  o SDL2 <https://www.libsdl.org/>
-  o SDL2 Image <https://www.libsdl.org/projects/old/SDL_image/>
+  o SDL3 <https://www.libsdl.org/>
+  o SDL2 Image <https://wiki.libsdl.org/SDL3_image/FrontPage>
   o GLEW <https://glew.sourceforge.net/>
   o FreeType <https://freetype.org/>
   o CMake <https://cmake.org/>
@@ -52,16 +52,16 @@ Alatar requires the following supporting software to be avalaible to build:
 If you're running Ubuntu or a related distribuiotns the commands in the
 following sections will install the required files:
 
-II.A.1. SDL2
+II.A.1. SDL3
 
 sudo apt-get update
-sudo apt-get install libsdl2-2.0
-sudo apt-get install libsdl2-dev
+sudo apt-get install libsdl3-0
+sudo apt-get install libsdl3-dev
 
-II.A.2. SDL2 Image
+II.A.2. SDL3 Image
 
-sudo apt-get install libsdl2-image-2.0
-sudo apt-get install libsdl2-image-dev
+sudo apt-get install libsdl3-image0
+sudo apt-get install libsdl3-image-dev
 
 II.A.3. GLEW
 

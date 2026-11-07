@@ -18,7 +18,7 @@
 
 // Miscelanaeous data / functions that only apply to the updated mode display
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include <array>
 #include <filesystem>

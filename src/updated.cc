@@ -68,8 +68,8 @@ UpdatedClass::~UpdatedClass(void) {
   glDeleteProgram(data_.sprite_shader.program);*/
 
   // Clean up SDL stuff used for textures
-  SDL_FreeSurface(data_.wall_texture_surface);
-  SDL_FreeSurface(data_.tiles_and_masks_surface);
+  SDL_DestroySurface(data_.wall_texture_surface);
+  SDL_DestroySurface(data_.tiles_and_masks_surface);
 };
 
 // Private constructor for factory

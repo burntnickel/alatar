@@ -16,7 +16,7 @@
 #ifndef H_ALATAR_GRAPHICS_COMMON
 #define H_ALATAR_GRAPHICS_COMMON
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include <filesystem>
 #include <memory>

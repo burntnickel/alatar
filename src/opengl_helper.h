@@ -26,7 +26,7 @@
 
 #ifdef __linux__
 #include <GL/glu.h>
-#include <SDL_opengl.h>
+#include <SDL3/SDL_opengl.h>
 
 #elif defined _WIN32
 #include <GL/glu.h>
