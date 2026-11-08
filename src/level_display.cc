@@ -27,6 +27,7 @@
 #include <string_view>
 #include <utility>
 
+#include "controller.h"
 #include "getrespath.h"
 #include "globals.h"
 #include "graphics_common.h"
@@ -48,6 +49,8 @@ const std::string kConfigIniFilename{"config.ini"};
 
 SDL_Window* g_window = NULL;
 SDL_GLContext g_sdl_glcontext;
+constexpr SDL_InitFlags kSDLInitFlags =
+    SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMEPAD | SDL_INIT_EVENTS;
 
 // The factor of 0.75 is to match the Commodore 64 pixel aspect ratio (NTSC at least)
 constexpr float kPixelAspectRatio = 0.75;
@@ -57,7 +60,7 @@ constexpr float kDesiredScreenAspect = static_cast<float>(kScreenWidth) / static
 
 static bool Initialize(const std::filesystem::path res_path) {
   // Initalize SDL
-  bool success = ErrorEvalPrintSDL(SDL_Init(SDL_INIT_VIDEO), "SDL could not be initialized:");
+  bool success = ErrorEvalPrintSDL(SDL_Init(kSDLInitFlags), "SDL could not be initialized:");
 
   if (success) {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
@@ -115,7 +118,23 @@ static bool Initialize(const std::filesystem::path res_path) {
     alatar::gIniFile = BurningLogic::LoadIniFile(path);
   }
 
+  // Initalize controllers / gamepads / etc.
+  success = BurningLogic::InitControllers();
+
   return success;
+}
+
+static void Cleanup(void) {
+  BurningLogic::CleanupControllers();
+
+  bool success =
+      ErrorEvalPrintSDL(SDL_GL_DestroyContext(g_sdl_glcontext), "OpenGL context could not be created:");
+
+  if (success) {
+    SDL_DestroyWindow(g_window);
+    SDL_QuitSubSystem(kSDLInitFlags);
+    SDL_Quit();
+  }
 }
 
 static bool SetupCommon(std::span<unsigned char, alatar::kFileLength> level_data, alatar::LevelClass& level,
@@ -268,6 +287,8 @@ int main(int argc, char* argv[]) {
       SDL_Delay(static_cast<Uint32>(delay_time_ms));
     }
   }
+
+  Cleanup();
 
   return EXIT_SUCCESS;
 }
