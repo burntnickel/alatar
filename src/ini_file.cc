@@ -286,7 +286,6 @@ IniFile LoadIniFile(std::filesystem::path path) {
   std::ifstream in(path);
 
   if (!in.is_open()) {
-    // std::cerr << "Error: " << std::strerror(errno) << "(" << path << ")" << std::endl;
     throw std::runtime_error("Failed to open: " + path.string() + " : " + std::strerror(errno));
   }
 

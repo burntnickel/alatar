@@ -11,17 +11,19 @@
 // PARTICULAR PURPOSE. See the GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License along with Alatar.
-// If not, see <https://www.gnu.org/licenses/>. 
+// If not, see <https://www.gnu.org/licenses/>.
 
 #include "controller.h"
-
-#include <SDL3/SDL.h>
 
 #include <iostream>
 
 namespace BurningLogic {
 
-bool InitControllers(void) {
+bool InitControllers(GamepadVector& game_pads) {
+  // Clear the vector in case init is called multiple times in smae program.  It should, of course, always be
+  // paired with the cleanup routine
+  game_pads.clear();
+
   if (!SDL_HasGamepad()) {
     std::clog << "Warning: No game controllers detected\n";
     return false;
@@ -42,11 +44,51 @@ bool InitControllers(void) {
 
   std::cout << "controller.cc: " << gamepad_count << " controller(s) detected\n";
 
+  for (int ii = 0; ii < gamepad_count; ++ii) {
+    SDL_Gamepad* game_pad = SDL_OpenGamepad(joystick_ids[ii]);
+
+    if (game_pad == nullptr) {
+      std::cerr << "Error calling SDL_OpenGamepad: " << SDL_GetError() << "\n";
+    } else {
+      game_pads.push_back(game_pad);
+      std::cout << "Gamepad(" << game_pads.size() << "): " << SDL_GetGamepadName(game_pad) << "\n";
+    }
+  }
+
   return true;
 }
 
-void CleanupControllers(void) {}
+void CleanupControllers(GamepadVector& game_pads) {
+  for (const auto& game_pad : game_pads) {
+    SDL_CloseGamepad(game_pad);
+  }
 
-} // namespace BurningLogic
+  game_pads.clear();
+}
 
+GamepadVector SelectActiveGamePads(const GamepadVector& game_pads, unsigned int num_game_pads) {
+  GamepadVector tmp_game_pad_list{};
 
+  if (num_game_pads > 1) {
+    throw std::out_of_range("Currently only selection of a single controller is supported");
+  }
+
+  if (num_game_pads == 0) {
+    tmp_game_pad_list.clear();
+    return tmp_game_pad_list;
+  }
+
+  if (num_game_pads >= game_pads.size()) {
+    std::cout << "Auto assigning " << game_pads.size() << " game pad(s), " << num_game_pads << " requested\n";
+
+    for (unsigned int ii = 0; ii < game_pads.size(); ++ii) {
+      tmp_game_pad_list.push_back(game_pads[ii]);
+    }
+
+    return tmp_game_pad_list;
+  }
+
+  return tmp_game_pad_list;
+}
+
+}  // namespace BurningLogic

@@ -11,17 +11,25 @@
 // PARTICULAR PURPOSE. See the GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License along with Alatar.
-// If not, see <https://www.gnu.org/licenses/>. 
+// If not, see <https://www.gnu.org/licenses/>.
 
 #ifndef H_BURNINGLOGIC_CONTROLLER
 #define H_BURNINGLOGIC_CONTROLLER
 
+#include <SDL3/SDL.h>
+
+#include <stdexcept>
+#include <vector>
+
 namespace BurningLogic {
 
-[[nodiscard]] bool InitControllers(void);
-void CleanupControllers(void);
+using GamepadVector = std::vector<SDL_Gamepad*>;
 
-} // namespace BurningLogic
+[[nodiscard]] bool InitControllers(GamepadVector& game_pads);
+void CleanupControllers(GamepadVector& game_pads);
+
+GamepadVector SelectActiveGamePads(const GamepadVector& game_pads, unsigned int num_game_pads);
+
+}  // namespace BurningLogic
 
 #endif
-

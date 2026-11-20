@@ -43,7 +43,7 @@ II.A. Dependancies
 Alatar requires the following supporting software to be avalaible to build:
 
   o SDL3 <https://www.libsdl.org/>
-  o SDL2 Image <https://wiki.libsdl.org/SDL3_image/FrontPage>
+  o SDL3 Image <https://wiki.libsdl.org/SDL3_image/FrontPage>
   o GLEW <https://glew.sourceforge.net/>
   o FreeType <https://freetype.org/>
   o CMake <https://cmake.org/>

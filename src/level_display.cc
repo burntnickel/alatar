@@ -27,6 +27,7 @@
 #include <string_view>
 #include <utility>
 
+#include "constants.h"
 #include "controller.h"
 #include "getrespath.h"
 #include "globals.h"
@@ -38,12 +39,7 @@
 #include "pathdef.h"
 #include "sdl_helper.h"
 #include "updated.h"
-#include "value_cycle.h"
 #include "wiz_level.h"
-
-// Default to 60 frames per second
-constexpr double kDefaultFrameRateHz = 60;
-constexpr double kMsPerFrame = 1000.0 / kDefaultFrameRateHz;
 
 const std::string kConfigIniFilename{"config.ini"};
 
@@ -52,11 +48,8 @@ SDL_GLContext g_sdl_glcontext;
 constexpr SDL_InitFlags kSDLInitFlags =
     SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMEPAD | SDL_INIT_EVENTS;
 
-// The factor of 0.75 is to match the Commodore 64 pixel aspect ratio (NTSC at least)
-constexpr float kPixelAspectRatio = 0.75;
-constexpr uint_least32_t kScreenWidth = 8 * alatar::kColTiles * 2.5 * kPixelAspectRatio;
-constexpr uint_least32_t kScreenHeight = 8 * alatar::kRowTiles * 2.5;
-constexpr float kDesiredScreenAspect = static_cast<float>(kScreenWidth) / static_cast<float>(kScreenHeight);
+BurningLogic::GamepadVector gGamepadVector;
+BurningLogic::GamepadVector gActiveGamePad;
 
 static bool Initialize(const std::filesystem::path res_path) {
   // Initalize SDL
@@ -69,7 +62,7 @@ static bool Initialize(const std::filesystem::path res_path) {
 
     // Create window
     // TODO: Remove SDL_WINDOW_HIGH_PIXEL_DENSITY?
-    g_window = SDL_CreateWindow("SDL Window", kScreenWidth, kScreenHeight,
+    g_window = SDL_CreateWindow("SDL Window", alatar::kScreenWidth, alatar::kScreenHeight,
                                 SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY);
 
     success = ErrorEvalPrintSDL(g_window != NULL, "Window could not be created:");
@@ -119,13 +112,26 @@ static bool Initialize(const std::filesystem::path res_path) {
   }
 
   // Initalize controllers / gamepads / etc.
-  success = BurningLogic::InitControllers();
+  if (success) {
+    bool game_pad_inited = BurningLogic::InitControllers(gGamepadVector);
+
+    if (game_pad_inited) {
+      gActiveGamePad = BurningLogic::SelectActiveGamePads(gGamepadVector, 1);
+    }
+
+    if (gActiveGamePad.size() == 0) {
+      std::clog << "Warning: continuing without an active gamepad\n";
+    }
+  }
+
+  // Initialize counter scaling
+  alatar::gCounterToMsScale = 1000.0 / static_cast<double>(SDL_GetPerformanceFrequency());
 
   return success;
 }
 
 static void Cleanup(void) {
-  BurningLogic::CleanupControllers();
+  BurningLogic::CleanupControllers(gGamepadVector);
 
   bool success =
       ErrorEvalPrintSDL(SDL_GL_DestroyContext(g_sdl_glcontext), "OpenGL context could not be created:");
@@ -207,9 +213,6 @@ int main(int argc, char* argv[]) {
   alatar::GraphicsCommonPtr graphics_routine_ptr;
   Uint64 sdl_counter = SDL_GetPerformanceCounter();
 
-  // This should probably be part of initalization
-  alatar::gCounterToMsScale = 1000.0 / static_cast<double>(SDL_GetPerformanceFrequency());
-
   auto graphics_routine_opt =
       alatar::GraphicsCommonClass::GraphicsCommonClassFactory(kResourcePath, graphics_mode, sdl_counter);
 
@@ -247,12 +250,12 @@ int main(int argc, char* argv[]) {
           float x_scale;
           float y_scale;
 
-          if (window_aspect > kDesiredScreenAspect) {
-            x_scale = kDesiredScreenAspect / window_aspect;
+          if (window_aspect > alatar::kDesiredScreenAspect) {
+            x_scale = alatar::kDesiredScreenAspect / window_aspect;
             y_scale = 1.0;
           } else {
             x_scale = 1.0;
-            y_scale = window_aspect / kDesiredScreenAspect;
+            y_scale = window_aspect / alatar::kDesiredScreenAspect;
           }
 
           BurningLogic::ScaleMatHelper2D(view_matrix, x_scale, y_scale);
@@ -281,7 +284,7 @@ int main(int argc, char* argv[]) {
 
     Uint64 end_counter = SDL_GetPerformanceCounter();
     double elapsed_ms = static_cast<double>(end_counter - start_counter) * alatar::gCounterToMsScale;
-    auto delay_time_ms = std::floor(kMsPerFrame - elapsed_ms);
+    auto delay_time_ms = std::floor(alatar::kMsPerFrame - elapsed_ms);
 
     if (delay_time_ms > 0.0) {
       SDL_Delay(static_cast<Uint32>(delay_time_ms));
