@@ -48,8 +48,8 @@ SDL_GLContext g_sdl_glcontext;
 constexpr SDL_InitFlags kSDLInitFlags =
     SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMEPAD | SDL_INIT_EVENTS;
 
-BurningLogic::GamepadVector gGamepadVector;
-BurningLogic::GamepadVector gActiveGamePad;
+BurningLogic::GamepadVector gGamepadVector;  // TODO: Make this not global
+SDL_Gamepad* gActiveGamePad;
 
 static bool Initialize(const std::filesystem::path res_path) {
   // Initalize SDL
@@ -115,15 +115,18 @@ static bool Initialize(const std::filesystem::path res_path) {
   if (success) {
     bool game_pad_inited = BurningLogic::InitControllers(gGamepadVector);
 
+    BurningLogic::GamepadVector selected_gamepad;
+
     if (game_pad_inited) {
-      gActiveGamePad = BurningLogic::SelectActiveGamePads(gGamepadVector, 1);
+      selected_gamepad = BurningLogic::SelectActiveGamePads(gGamepadVector, 1);
     }
 
-    if (gActiveGamePad.size() == 0) {
+    if (selected_gamepad.size() == 0) {
       std::clog << "Warning: continuing without an active gamepad\n";
     } else {
+      gActiveGamePad = selected_gamepad[0];
       std::cout << "Controller info:\n";
-      BurningLogic::GamepadInfo gamepad_info = BurningLogic::GetGamepadInfo(gActiveGamePad[0]);
+      BurningLogic::GamepadInfo gamepad_info = BurningLogic::GetGamepadInfo(gActiveGamePad);
       BurningLogic::PrintGamepadInfo(gamepad_info, std::cout);
     }
   }
@@ -266,6 +269,22 @@ int main(int argc, char* argv[]) {
           glViewport(0, 0, window_width, window_height);
           break;
         }
+        case SDL_EVENT_GAMEPAD_ADDED:
+          // TODO: We really don't handle this yet (and don't need to until the real game, maybe not even
+          // then)
+          std::cout << "SDL_EVENT_GAMEPAD_ADDED: New gamepad detected\n";  // TODO: Do something with all of
+                                                                           // the cout etc.
+          break;
+        case SDL_EVENT_GAMEPAD_REMOVED:
+          // TODO: In a real game we'd probably pause, here we just note the event and exit
+          std::cout << "SDL_EVENT_GAMEPAD_REMOVED\n";
+
+          if (sdl_event.gdevice.which == SDL_GetGamepadID(gActiveGamePad)) {
+            std::cerr << "Active gamepad removed, exiting\n";
+            gDone = true;
+          }
+
+          break;
         default:
           break;
       }
