@@ -19,7 +19,7 @@
 
 #include <array>
 #include <cmath>
-#include <cstdint>
+// #include <cstdint>
 #include <cstdlib>
 #include <iostream>
 #include <span>
@@ -32,6 +32,7 @@
 #include "getrespath.h"
 #include "globals.h"
 #include "graphics_common.h"
+#include "input.h"
 #include "iswayland.h"
 #include "load_data.h"
 #include "monsters.h"
@@ -195,6 +196,7 @@ int main(int argc, char* argv[]) {
   bool success;
   std::array<unsigned char, alatar::kFileLength> level_data{};
   alatar::LevelClass level;
+  alatar::ButtonStates button_states;
 
   const std::filesystem::path kResourcePath = BurningLogic::GetResPath();
 
@@ -289,6 +291,10 @@ int main(int argc, char* argv[]) {
           break;
       }
     }
+
+    // Poll for button presses here
+    alatar::GetButtonStates(gActiveGamePad, button_states);
+    alatar::PrintStatusChanges(button_states, std::cout);
 
     // Clear the screen
     glClearColor(0.0, 0.0, 0.0, 0.0);
