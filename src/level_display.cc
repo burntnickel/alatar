@@ -121,6 +121,10 @@ static bool Initialize(const std::filesystem::path res_path) {
 
     if (gActiveGamePad.size() == 0) {
       std::clog << "Warning: continuing without an active gamepad\n";
+    } else {
+      std::cout << "Controller info:\n";
+      BurningLogic::GamepadInfo gamepad_info = BurningLogic::GetGamepadInfo(gActiveGamePad[0]);
+      BurningLogic::PrintGamepadInfo(gamepad_info, std::cout);
     }
   }
 

@@ -18,17 +18,32 @@
 
 #include <SDL3/SDL.h>
 
-#include <stdexcept>
+#include <iostream>
+#include <optional>
 #include <vector>
+#include <string>
 
 namespace BurningLogic {
 
 using GamepadVector = std::vector<SDL_Gamepad*>;
 
+struct GamepadInfo {
+  std::string name{};
+  std::string serial_number{};
+  std::string path{};
+  std::optional<SDL_GUID> guid_opt{};
+  std::string guid_string{};
+};
+
 [[nodiscard]] bool InitControllers(GamepadVector& game_pads);
+
 void CleanupControllers(GamepadVector& game_pads);
 
 GamepadVector SelectActiveGamePads(const GamepadVector& game_pads, unsigned int num_game_pads);
+
+GamepadInfo GetGamepadInfo(SDL_Gamepad* game_pad);
+
+void PrintGamepadInfo(const GamepadInfo& info, std::ostream& os);
 
 }  // namespace BurningLogic
 
