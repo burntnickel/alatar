@@ -124,7 +124,7 @@ class UpdatedClass : public alatar::GraphicsCommonClass {
 
   void Update(Uint64 counter, const alatar::LevelClass& level) override;
 
-  void Draw(const alatar::MonsterClassArray& monster_info, const alatar::WizardInfo& wizard_info,
+  void Draw(const alatar::MonsterClassArray& monster_info, const alatar::WizardClass& wizard_info,
             const BurningLogic::mat4& view_matrix) override;
 
   // Factory function to make sure return objects are always properly constructed

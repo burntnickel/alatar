@@ -249,18 +249,18 @@ unsigned char LevelClass::GetTileColor(unsigned char c) const {
   }
 }
 
-WizardInfo LevelClass::GetWizardInfo(void) const {
-  WizardInfo tmp;
+WizardClass LevelClass::GetWizardInfo(void) const {
+  WizardData wizard_data;
 
-  tmp.x = raw_data_[kWizardXLow];
-  tmp.y = raw_data_[kWizardY];
-  tmp.color = kColorPurple;
+  wizard_data.x = raw_data_[kWizardXLow];
+  wizard_data.y = raw_data_[kWizardY];
+  wizard_data.color = kColorPurple;
 
   if (raw_data_[kSpriteXHighBits] & kXMaskWizard) {
-    tmp.x = tmp.x + 256;
+    wizard_data.x = wizard_data.x + 256;
   }
 
-  return tmp;
+  return WizardClass(wizard_data);
 }
 
 MonsterClassArray LevelClass::GetMonsterInfo(void) const {

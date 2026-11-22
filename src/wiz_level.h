@@ -22,6 +22,7 @@
 #include <string>
 
 #include "monsters.h"
+#include "wizard.h"
 
 namespace alatar {
 
@@ -174,11 +175,11 @@ enum XMask {
   kXMaskWizard = 64 + 128  // Not sure about this one
 };
 
-struct WizardInfo {
+/*struct WizardInfo {
   unsigned int x;
   unsigned int y;
   unsigned int color;
-};
+};*/
 
 struct SlideInfo {
   bool active;
@@ -207,8 +208,8 @@ class LevelClass {
   unsigned char GetRopeColor(void) const;
   unsigned char GetPortalColor(void) const;
   unsigned char GetTileColor(unsigned char c) const;
-  WizardInfo GetWizardInfo(void) const;
-  alatar::MonsterClassArray GetMonsterInfo(void) const;
+  WizardClass GetWizardInfo(void) const;
+  MonsterClassArray GetMonsterInfo(void) const;
   //MaskTiles GetMaskTiles(int row, int col) const;
   SlideInfoArray GetSlideInfo(void) const;
 

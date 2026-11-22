@@ -247,7 +247,7 @@ void UpdatedClass::Update([[maybe_unused]] Uint64 counter, const alatar::LevelCl
 }
 
 void UpdatedClass::Draw([[maybe_unused]] const alatar::MonsterClassArray& monster_info,
-                        [[maybe_unused]] const alatar::WizardInfo& wizard_info,
+                        [[maybe_unused]] const alatar::WizardClass& wizard_info,
                         const BurningLogic::mat4& view_matrix) {
   alatar_updated::PaintUpdatedTilesWalls(data_.tile_wall_shader, view_matrix, data_.vertex_manager,
                                          data_.tile_glbuffers);

@@ -49,7 +49,7 @@ class GraphicsCommonClass {
 
   virtual void Update(Uint64 counter, const LevelClass& level) = 0;
 
-  virtual void Draw(const alatar::MonsterClassArray& monster_info, const WizardInfo& wizard_info,
+  virtual void Draw(const alatar::MonsterClassArray& monster_info, const WizardClass& wizard_info,
                     const BurningLogic::mat4& view_matrix) = 0;
 
   // Factory function to make sure return objects are always properly constructed and to return the specified

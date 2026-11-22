@@ -80,8 +80,8 @@ sudo apt-get install cmake
 II.A.6. stb_image
 
 The files required from stb_image are included in this distribution and are
-lisenced in the public domain.  For more information visit
-https://github.com/nothings/stb
+licensed in the public domain.  For more information visit
+<https://github.com/nothings/stb>
 
 II.B. Compiling
 

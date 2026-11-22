@@ -172,7 +172,7 @@ void ClassicClass::Update(Uint64 counter, const alatar::LevelClass& level) {
   BurningLogic::PrintGLError("main:glBufferSubData");
 }
 
-void ClassicClass::Draw(const alatar::MonsterClassArray& monster_info, const alatar::WizardInfo& wizard_info,
+void ClassicClass::Draw(const alatar::MonsterClassArray& monster_info, const alatar::WizardClass& wizard_info,
                         const BurningLogic::mat4& view_matrix) {
   // Draw monster sprites (ones with lower priority)
   for (unsigned int ii = 0; ii < 6; ++ii) {
@@ -189,9 +189,9 @@ void ClassicClass::Draw(const alatar::MonsterClassArray& monster_info, const ala
   PaintClassicTiles(data_.tile_shader, view_matrix, SDL_FRect({-1.0, -1.0, 2.0, 2.0}), data_.tile_glbuffers);
 
   // Draw wizard sprite
-  DrawClassicSpriteC64(data_.sprite_shader, view_matrix, data_.sprite_glbuffers, 0, wizard_info.x,
-                       wizard_info.y, {{alatar::kColorLightBlue, wizard_info.color, alatar::kColorWhite}},
-                       kSpriteMultiColor);
+  DrawClassicSpriteC64(
+      data_.sprite_shader, view_matrix, data_.sprite_glbuffers, 0, wizard_info.x_, wizard_info.y_,
+      {{alatar::kColorLightBlue, wizard_info.GetColor(), alatar::kColorWhite}}, kSpriteMultiColor);
 
   // Draw monster sprites (ones with higher priority)
   for (unsigned int ii = 0; ii < 6; ++ii) {

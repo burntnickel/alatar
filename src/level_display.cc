@@ -19,7 +19,6 @@
 
 #include <array>
 #include <cmath>
-// #include <cstdint>
 #include <cstdlib>
 #include <iostream>
 #include <span>
@@ -234,7 +233,7 @@ int main(int argc, char* argv[]) {
 
   graphics_routine_ptr->LevelInit(level);
 
-  alatar::WizardInfo wizard_info = level.GetWizardInfo();
+  alatar::WizardClass wizard_info = level.GetWizardInfo();
   alatar::MonsterClassArray monster_info = level.GetMonsterInfo();
 
   bool gDone = false;
