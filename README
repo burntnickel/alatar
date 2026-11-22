@@ -101,9 +101,24 @@ files from the original game that are needed to run with the original graphics
 (see below).  The shaders directory contains the glsl shaders used for display.
 Updated contains the grpahics used for the updated graphics display mode.
 
+These directions assume you have VICE installed:
+
+  o VICE <https://vice-emu.sourceforge.io/>
+
+You will also need the disk image for the original Wizard game or the two disk
+images for Ultimate Wizard in .d64 format.
+
 II.C.1. Extracting Wizard / Ultimate Wizard Graphics Files
 
-** Need to write this
+c1541 -attach DISKIMAGE -read chrw -read sprw
+
+Where DISKIMAGE is the name of the .d64 file containg the Wizard or Ultimate
+Wizard executable and will be names something like "ULTWIZ1A.D64".  This will
+extract the charater data file "chrw" and the sprite data file "sprw" to the
+current directory.  Next, move these two files to the resources directory for
+the classic graphics mode:
+
+mv chrw sprw bin/resources/classic/
 
 II.C.2. Extracting Wizard Level Files
 
